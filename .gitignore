@@ -1,0 +1,30 @@
+# Tệp hệ thống và các cụm tệp
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Thư mục build và node_modules (nếu sau này cần)
+node_modules/
+dist/
+build/
+
+# Log
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Tệp môi trường
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Tệp tạm thời khác
+*.tmp
+*.temp
