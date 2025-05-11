@@ -1041,13 +1041,15 @@ footer {
 }
 
 .summary-value {
-    font-size: 22px;
+    font-size: 24px;
     font-weight: bold;
-    color: var(--primary-color);
+    color: var(--danger-color);
 }
 
 .total-amount {
-    color: var(--primary-color);
+    color: var(--danger-color);
+    font-size: 28px;
+    font-weight: 900;
 }
 
 .payment-total input {
