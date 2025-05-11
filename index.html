@@ -655,21 +655,88 @@
                             <div>Đã nhận: <span id="receipt-amount"></span> VND</div>
                             <div>Bằng chữ: <span id="receipt-amount-text"></span></div>
                         </div>
-                        <div class="receipt-info">
-                            <div>Họ tên học sinh: <span id="receipt-student-name"></span></div>
-                            <div>Mã học sinh: <span id="receipt-student-id"></span></div>
-                            <div>Lớp: <span id="receipt-class"></span></div>
-                            <div>Chu kỳ thanh toán: <span id="receipt-payment-cycle"></span></div>
-                            <div>Chu kỳ thanh toán tiếp theo: <span id="receipt-next-payment"></span></div>
-                            <div>Hình thức thanh toán: <span id="receipt-payment-method"></span></div>
+                        
+                        <div class="receipt-info-container">
+                            <div class="receipt-info-column">
+                                <div class="receipt-info-item">Họ tên học sinh: <span id="receipt-student-name"></span></div>
+                                <div class="receipt-info-item">Mã học sinh: <span id="receipt-student-id"></span></div>
+                                <div class="receipt-info-item">Lớp: <span id="receipt-class"></span></div>
+                            </div>
+                            <div class="receipt-info-column">
+                                <div class="receipt-info-item">Chu kỳ thanh toán: <span id="receipt-payment-cycle"></span></div>
+                                <div class="receipt-info-item">Chu kỳ thanh toán tiếp theo: <span id="receipt-next-payment"></span></div>
+                                <div class="receipt-info-item">Hình thức thanh toán: <span id="receipt-payment-method"></span></div>
+                            </div>
                         </div>
-
-                        <div class="receipt-attendance">
+                        
+                        <!-- Chi phí bổ sung (hiển thị khi có) -->
+                        <div id="receipt-additional-fee-container" class="receipt-section" style="display: none;">
+                            <h3>Chi phí bổ sung</h3>
+                            <div class="receipt-info-container">
+                                <div class="receipt-info-column">
+                                    <div class="receipt-info-item">Chi phí: <span id="receipt-additional-fee"></span> VND</div>
+                                </div>
+                                <div class="receipt-info-column">
+                                    <div class="receipt-info-item">Diễn giải: <span id="receipt-additional-reason"></span></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Khấu trừ (hiển thị khi có) -->
+                        <div id="receipt-discount-container" class="receipt-section" style="display: none;">
+                            <h3>Khấu trừ</h3>
+                            <div class="receipt-info-container">
+                                <div class="receipt-info-column">
+                                    <div class="receipt-info-item">Số tiền: <span id="receipt-discount"></span> VND</div>
+                                </div>
+                                <div class="receipt-info-column">
+                                    <div class="receipt-info-item">Lý do: <span id="receipt-discount-reason"></span></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Học phí linh hoạt (hiển thị khi có) -->
+                        <div id="receipt-flexible-container" class="receipt-section" style="display: none;">
+                            <h3>Học phí linh hoạt</h3>
+                            <div class="receipt-info-container">
+                                <div class="receipt-info-column">
+                                    <div class="receipt-info-item">Số tiền đóng trước: <span id="receipt-flexible-amount"></span> VND</div>
+                                </div>
+                                <div class="receipt-info-column">
+                                    <div class="receipt-info-item">Số buổi tương ứng: <span id="receipt-flexible-sessions"></span></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Thống kê điểm danh -->
+                        <div id="receipt-attendance-summary" class="receipt-section" style="display: none;">
+                            <h3>Thống kê điểm danh</h3>
+                            <div class="receipt-info-container">
+                                <div class="receipt-info-column">
+                                    <div class="receipt-info-item">Tổng số buổi học: <span id="receipt-total-sessions"></span></div>
+                                    <div class="receipt-info-item">Có mặt: <span id="receipt-present-sessions"></span></div>
+                                </div>
+                                <div class="receipt-info-column">
+                                    <div class="receipt-info-item">Vắng mặt: <span id="receipt-absent-sessions"></span></div>
+                                    <div class="receipt-info-item">GV vắng: <span id="receipt-teacher-absent-sessions"></span></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Lịch học bù (hiển thị khi có) -->
+                        <div id="receipt-makeup-classes" class="receipt-section" style="display: none;">
+                            <h3>Lịch học bù</h3>
+                            <div id="receipt-makeup-list"></div>
+                        </div>
+                        
+                        <!-- Lịch sử điểm danh -->
+                        <div class="receipt-attendance receipt-section">
                             <h3>Lịch sử điểm danh</h3>
                             <div id="receipt-attendance-history"></div>
                         </div>
 
-                        <div class="receipt-payment-history">
+                        <!-- Lịch sử thanh toán -->
+                        <div class="receipt-payment-history receipt-section">
                             <h3>Lịch sử thanh toán</h3>
                             <div id="receipt-payment-history"></div>
                         </div>

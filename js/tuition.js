@@ -679,7 +679,7 @@ function openReceiptModal(paymentId) {
     const classData = getClassById(student.classId);
     if (!classData) return;
     
-    // Điền thông tin vào biên nhận
+    // Điền thông tin cơ bản vào biên nhận
     document.getElementById('receipt-no').textContent = payment.receiptNumber;
     document.getElementById('receipt-amount').textContent = formatCurrency(payment.amount);
     document.getElementById('receipt-amount-text').textContent = numberToWords(payment.amount);
@@ -691,6 +691,42 @@ function openReceiptModal(paymentId) {
     document.getElementById('receipt-payment-method').textContent = payment.method;
     document.getElementById('receipt-date').textContent = formatDate(payment.date);
     
+    // Hiển thị chi phí bổ sung nếu có
+    const additionalFeeContainer = document.getElementById('receipt-additional-fee-container');
+    if (payment.details && payment.details.additionalFee && payment.details.additionalFee > 0) {
+        document.getElementById('receipt-additional-fee').textContent = formatCurrency(payment.details.additionalFee);
+        document.getElementById('receipt-additional-reason').textContent = payment.details.additionalReason || 'Không có';
+        additionalFeeContainer.style.display = 'block';
+    } else {
+        additionalFeeContainer.style.display = 'none';
+    }
+    
+    // Hiển thị khấu trừ nếu có
+    const discountContainer = document.getElementById('receipt-discount-container');
+    if (payment.details && payment.details.discount && payment.details.discount > 0) {
+        document.getElementById('receipt-discount').textContent = formatCurrency(payment.details.discount);
+        document.getElementById('receipt-discount-reason').textContent = payment.details.discountReason || 'Không có';
+        discountContainer.style.display = 'block';
+    } else {
+        discountContainer.style.display = 'none';
+    }
+    
+    // Hiển thị học phí linh hoạt nếu có
+    const flexibleContainer = document.getElementById('receipt-flexible-container');
+    if (payment.details && payment.details.flexibleAmount && payment.details.flexibleAmount > 0) {
+        document.getElementById('receipt-flexible-amount').textContent = formatCurrency(payment.details.flexibleAmount);
+        document.getElementById('receipt-flexible-sessions').textContent = payment.details.flexibleSessions || '0';
+        flexibleContainer.style.display = 'block';
+    } else {
+        flexibleContainer.style.display = 'none';
+    }
+    
+    // Hiển thị thống kê điểm danh
+    displayAttendanceSummary(student.id);
+    
+    // Kiểm tra và hiển thị lịch học bù nếu có
+    displayMakeupClasses(student.id);
+    
     // Hiển thị lịch sử điểm danh
     displayAttendanceHistory(student.id);
     
@@ -699,6 +735,53 @@ function openReceiptModal(paymentId) {
     
     // Hiển thị modal
     modal.classList.remove('hidden');
+}
+
+// Hiển thị thống kê điểm danh
+function displayAttendanceSummary(studentId) {
+    const attendanceSummaryContainer = document.getElementById('receipt-attendance-summary');
+    const totalSessionsElement = document.getElementById('receipt-total-sessions');
+    const presentSessionsElement = document.getElementById('receipt-present-sessions');
+    const absentSessionsElement = document.getElementById('receipt-absent-sessions');
+    const teacherAbsentElement = document.getElementById('receipt-teacher-absent-sessions');
+    
+    // Lấy tất cả dữ liệu điểm danh
+    const attendanceData = getAttendance();
+    
+    // Lọc các bản ghi điểm danh của học sinh
+    const studentAttendance = attendanceData.filter(record => 
+        record.studentId === studentId
+    );
+    
+    if (studentAttendance.length === 0) {
+        attendanceSummaryContainer.style.display = 'none';
+        return;
+    }
+    
+    // Đếm số buổi theo trạng thái
+    const totalSessions = studentAttendance.length;
+    const presentSessions = studentAttendance.filter(record => record.status === 'present').length;
+    const absentSessions = studentAttendance.filter(record => record.status === 'absent').length;
+    const teacherAbsentSessions = studentAttendance.filter(record => record.status === 'teacher-absent').length;
+    
+    // Cập nhật giao diện
+    totalSessionsElement.textContent = totalSessions;
+    presentSessionsElement.textContent = presentSessions;
+    absentSessionsElement.textContent = absentSessions;
+    teacherAbsentElement.textContent = teacherAbsentSessions;
+    
+    // Hiển thị phần thống kê
+    attendanceSummaryContainer.style.display = 'block';
+}
+
+// Hiển thị lịch học bù
+function displayMakeupClasses(studentId) {
+    const makeupContainer = document.getElementById('receipt-makeup-classes');
+    const makeupList = document.getElementById('receipt-makeup-list');
+    
+    // TODO: Triển khai khi có dữ liệu về lịch học bù
+    // Tạm thời ẩn đi
+    makeupContainer.style.display = 'none';
 }
 
 // Hiển thị lịch sử điểm danh trong biên nhận

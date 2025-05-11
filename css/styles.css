@@ -612,21 +612,38 @@ table tr:hover {
     margin-bottom: 5px;
 }
 
-.receipt-info {
+.receipt-info-container {
+    display: flex;
     margin-bottom: 20px;
 }
 
-.receipt-info div {
+.receipt-info-column {
+    flex: 1;
+    padding: 0 10px;
+}
+
+.receipt-info-column:first-child {
+    padding-left: 0;
+}
+
+.receipt-info-column:last-child {
+    padding-right: 0;
+}
+
+.receipt-info-item {
     margin-bottom: 5px;
 }
 
-.receipt-attendance, .receipt-payment-history {
+.receipt-section {
     margin-bottom: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
-.receipt-attendance h3, .receipt-payment-history h3 {
+.receipt-section h3 {
     color: var(--primary-color);
-    font-size: 18px;
+    font-size: 16px;
+    margin-top: 0;
     margin-bottom: 10px;
     padding-bottom: 5px;
     border-bottom: 1px solid var(--border-color);
