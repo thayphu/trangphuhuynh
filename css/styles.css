@@ -1019,8 +1019,6 @@ footer {
 }
 
 .payment-total {
-    display: flex;
-    align-items: center;
     margin: 20px 0;
     background-color: #fff8e1;
     padding: 15px;
@@ -1028,12 +1026,28 @@ footer {
     border: 1px dashed var(--warning-color);
 }
 
-.payment-total label {
+.summary-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.summary-label {
     font-size: 18px;
     font-weight: bold;
     color: var(--danger-color);
     margin-right: 10px;
     min-width: 120px;
+}
+
+.summary-value {
+    font-size: 22px;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.total-amount {
+    color: var(--primary-color);
 }
 
 .payment-total input {

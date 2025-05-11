@@ -510,10 +510,35 @@ function openAddPaymentModal(studentId = null) {
     setupAdditionalFields();
     
     // Xử lý thông tin học sinh
-    updateStudentPaymentInfo(studentId);
-    
-    // Tính tổng học phí
-    calculateTotalPayment();
+    setTimeout(() => {
+        updateStudentPaymentInfo(studentId);
+        
+        // Cập nhật hiển thị tổng học phí
+        // Cập nhật tổng học phí trên giao diện
+        const student = getStudentById(studentId);
+        if (student) {
+            const classData = getClassById(student.classId);
+            if (classData) {
+                let baseAmount = 0;
+                
+                if (student.paymentCycle === '8 buổi') {
+                    baseAmount = classData.fee * 8;
+                } else if (student.paymentCycle === '10 buổi') {
+                    baseAmount = classData.fee * 10;
+                } else if (student.paymentCycle === '1 tháng' || student.paymentCycle === 'Theo ngày') {
+                    baseAmount = classData.fee;
+                }
+                
+                const totalElement = document.querySelector('.total-amount');
+                if (totalElement) {
+                    totalElement.textContent = baseAmount.toLocaleString('vi-VN');
+                }
+                
+                // Cập nhật trường dữ liệu ẩn
+                document.getElementById('payment-amount').value = baseAmount;
+            }
+        }
+    }, 200);
     
     // Hiển thị modal
     modal.classList.remove('hidden');
