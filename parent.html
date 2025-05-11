@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HoEdu Solution - Cổng thông tin phụ huynh</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="parent-portal">
+        <div class="parent-portal-header">
+            <h1>HoEdu Solution</h1>
+            <p>Cổng thông tin phụ huynh</p>
+        </div>
+
+        <div class="search-form">
+            <form id="parent-search-form">
+                <div class="form-group">
+                    <label for="student-id-input">Nhập mã học sinh:</label>
+                    <div class="search-input-container">
+                        <input type="text" id="student-id-input" placeholder="Nhập mã học sinh..." required>
+                        <button type="submit">Tra cứu</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div id="student-not-found" class="hidden">
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-circle"></i> Không tìm thấy học sinh có mã này. Vui lòng kiểm tra lại mã học sinh.
+            </div>
+        </div>
+
+        <div id="student-info" class="student-info hidden">
+            <h2>Thông tin học sinh</h2>
+
+            <div class="student-basic-info">
+                <div class="info-item">
+                    <div class="info-label">Họ và tên</div>
+                    <div id="student-name" class="info-value">Nguyễn Văn A</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Mã học sinh</div>
+                    <div id="student-id" class="info-value">2023001</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Lớp</div>
+                    <div id="student-class" class="info-value">Lớp 1</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Ngày đăng ký</div>
+                    <div id="student-register-date" class="info-value">01/09/2023</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Chu kỳ thanh toán</div>
+                    <div id="student-payment-cycle" class="info-value">1 tháng</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Trạng thái thanh toán</div>
+                    <div id="payment-status" class="info-value status-paid">Đã thanh toán</div>
+                </div>
+            </div>
+
+            <div id="attendance-summary" class="attendance-summary">
+                <div class="attendance-stat">
+                    <div id="total-sessions" class="attendance-count">10</div>
+                    <div class="attendance-label">Tổng số buổi</div>
+                </div>
+                <div class="attendance-stat">
+                    <div id="present-count" class="attendance-count">8</div>
+                    <div class="attendance-label">Có mặt</div>
+                </div>
+                <div class="attendance-stat">
+                    <div id="absent-count" class="attendance-count">1</div>
+                    <div class="attendance-label">Vắng mặt</div>
+                </div>
+                <div class="attendance-stat">
+                    <div id="teacher-absent-count" class="attendance-count">1</div>
+                    <div class="attendance-label">GV vắng</div>
+                </div>
+            </div>
+
+            <div class="attendance-history">
+                <h3>Lịch sử điểm danh</h3>
+                <div id="attendance-history-list"></div>
+            </div>
+
+            <div class="payment-history">
+                <h3>Lịch sử thanh toán</h3>
+                <div id="payment-history-list"></div>
+            </div>
+
+            <div id="payment-info" class="payment-info hidden">
+                <h3>Thông tin thanh toán</h3>
+
+                <div class="bank-details">
+                    <div><strong>Số tài khoản:</strong> 9704229262085470</div>
+                    <div><strong>Ngân hàng:</strong> MB Bank</div>
+                    <div><strong>Chủ tài khoản:</strong> Tran Dong Phu</div>
+                    <div><strong>Nội dung chuyển khoản:</strong> <span id="transfer-content">HP2023001</span></div>
+                </div>
+
+                <div class="payment-amount">
+                    Số tiền cần thanh toán: <span id="payment-amount">500,000</span> VND
+                </div>
+
+                <div class="qr-code">
+                    <p>Quét mã QR để thanh toán:</p>
+                    <img id="qr-code-img" src="" alt="QR Code Thanh toán">
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>&copy; 2023 HoEdu Solution. Tất cả quyền được bảo lưu.</p>
+            <p><a href="index.html">Quay lại trang chủ</a></p>
+        </footer>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/parent.js"></script>
+</body>
+</html>

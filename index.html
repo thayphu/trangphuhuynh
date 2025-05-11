@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HoEdu Solution - Hệ thống quản lý giáo dục</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <h1>HoEdu Solution</h1>
+                <p>Hệ thống quản lý giáo dục</p>
+            </div>
+            <div id="user-info" class="hidden">
+                <span id="admin-name">Đông Phú</span>
+                <button id="logout-btn">Đăng xuất</button>
+                <button id="change-password-btn">Đổi mật khẩu</button>
+            </div>
+        </header>
+
+        <div id="login-container">
+            <form id="login-form">
+                <h2>Đăng nhập</h2>
+                <div class="form-group">
+                    <label for="username">Tên đăng nhập:</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Mật khẩu:</label>
+                    <input type="password" id="password" required>
+                </div>
+                <div class="form-group">
+                    <button type="submit">Đăng nhập</button>
+                </div>
+                <div id="login-error" class="error-message hidden"></div>
+            </form>
+        </div>
+
+        <div id="change-password-container" class="modal hidden">
+            <div class="modal-content">
+                <span class="close-btn">&times;</span>
+                <h2>Đổi mật khẩu</h2>
+                <form id="change-password-form">
+                    <div class="form-group">
+                        <label for="current-password">Mật khẩu hiện tại:</label>
+                        <input type="password" id="current-password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-password">Mật khẩu mới:</label>
+                        <input type="password" id="new-password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm-password">Xác nhận mật khẩu mới:</label>
+                        <input type="password" id="confirm-password" required>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit">Xác nhận</button>
+                    </div>
+                    <div id="password-error" class="error-message hidden"></div>
+                </form>
+            </div>
+        </div>
+
+        <main id="main-container" class="hidden">
+            <div class="tabs-container">
+                <div class="tabs">
+                    <div class="tab active" data-tab="classes">Lớp học</div>
+                    <div class="tab" data-tab="students">Học sinh</div>
+                    <div class="tab" data-tab="tuition">Học phí</div>
+                    <div class="tab" data-tab="attendance">Điểm danh</div>
+                    <div class="tab" data-tab="reports">Báo cáo</div>
+                    <div class="tab" data-tab="parent-link">Phụ huynh</div>
+                </div>
+
+                <div class="tab-content">
+                    <!-- Lớp học Tab -->
+                    <div id="classes" class="tab-pane active">
+                        <div class="section-header">
+                            <h2>Quản lý lớp học</h2>
+                            <button id="add-class-btn" class="action-btn"><i class="fas fa-plus"></i> Thêm lớp học</button>
+                        </div>
+                        <div id="classes-list" class="grid-container"></div>
+                    </div>
+
+                    <!-- Học sinh Tab -->
+                    <div id="students" class="tab-pane hidden">
+                        <div class="section-header">
+                            <h2>Quản lý học sinh</h2>
+                            <button id="add-student-btn" class="action-btn"><i class="fas fa-plus"></i> Thêm học sinh</button>
+                        </div>
+                        <div class="search-filter">
+                            <input type="text" id="student-search" placeholder="Tìm kiếm học sinh...">
+                            <select id="class-filter">
+                                <option value="">Tất cả lớp</option>
+                            </select>
+                            <select id="payment-status-filter">
+                                <option value="">Tất cả trạng thái</option>
+                                <option value="paid">Đã thanh toán</option>
+                                <option value="unpaid">Chưa thanh toán</option>
+                                <option value="overdue">Quá hạn</option>
+                            </select>
+                        </div>
+                        <div id="students-list" class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Mã HS</th>
+                                        <th>Họ tên</th>
+                                        <th>Lớp</th>
+                                        <th>Ngày đăng ký</th>
+                                        <th>Chu kỳ thanh toán</th>
+                                        <th>Tình trạng thanh toán</th>
+                                        <th>Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="students-table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Học phí Tab -->
+                    <div id="tuition" class="tab-pane hidden">
+                        <div class="section-header">
+                            <h2>Quản lý học phí</h2>
+                            <button id="add-payment-btn" class="action-btn"><i class="fas fa-plus"></i> Thêm thanh toán</button>
+                        </div>
+                        <div class="search-filter">
+                            <input type="text" id="payment-search" placeholder="Tìm kiếm thanh toán...">
+                            <select id="payment-class-filter">
+                                <option value="">Tất cả lớp</option>
+                            </select>
+                            <input type="date" id="payment-date-filter">
+                            <button id="clear-payment-filter">Xóa lọc</button>
+                        </div>
+                        <div id="payments-list" class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Số hóa đơn</th>
+                                        <th>Mã HS</th>
+                                        <th>Họ tên</th>
+                                        <th>Lớp</th>
+                                        <th>Ngày thanh toán</th>
+                                        <th>Số tiền</th>
+                                        <th>Chu kỳ thanh toán</th>
+                                        <th>Hình thức</th>
+                                        <th>Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="payments-table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Điểm danh Tab -->
+                    <div id="attendance" class="tab-pane hidden">
+                        <div class="section-header">
+                            <h2>Điểm danh</h2>
+                            <div class="date-display">
+                                <span id="current-date"></span>
+                            </div>
+                        </div>
+                        <div id="attendance-classes" class="grid-container"></div>
+                    </div>
+
+                    <!-- Báo cáo Tab -->
+                    <div id="reports" class="tab-pane hidden">
+                        <div class="section-header">
+                            <h2>Báo cáo tổng hợp</h2>
+                        </div>
+                        <div class="report-cards">
+                            <div class="report-card">
+                                <h3>Tổng quan</h3>
+                                <div class="report-stats">
+                                    <div class="stat">
+                                        <span class="stat-label">Tổng số lớp:</span>
+                                        <span class="stat-value" id="total-classes">0</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span class="stat-label">Tổng số học sinh:</span>
+                                        <span class="stat-value" id="total-students">0</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span class="stat-label">Học sinh chưa thanh toán:</span>
+                                        <span class="stat-value" id="unpaid-students">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="report-card">
+                                <h3>Doanh thu</h3>
+                                <div class="report-chart">
+                                    <canvas id="revenue-chart"></canvas>
+                                </div>
+                            </div>
+                            <div class="report-card">
+                                <h3>Điểm danh</h3>
+                                <div class="report-chart">
+                                    <canvas id="attendance-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Phụ huynh Link Tab -->
+                    <div id="parent-link" class="tab-pane hidden">
+                        <div class="section-header">
+                            <h2>Cổng thông tin phụ huynh</h2>
+                        </div>
+                        <div class="parent-link-info">
+                            <p>Phụ huynh có thể kiểm tra thông tin học sinh bằng cách truy cập vào đường dẫn sau:</p>
+                            <div class="parent-link">
+                                <a href="parent.html" target="_blank">Cổng thông tin phụ huynh</a>
+                            </div>
+                            <p>Mã học sinh được sử dụng để tra cứu thông tin.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Modals -->
+        <!-- Add Class Modal -->
+        <div id="add-class-modal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close-btn">&times;</span>
+                <h2>Thêm lớp học mới</h2>
+                <form id="add-class-form">
+                    <div class="form-group">
+                        <label for="class-name">Tên lớp:</label>
+                        <input type="text" id="class-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="class-schedule">Lịch học:</label>
+                        <div class="schedule-checkboxes">
+                            <label><input type="checkbox" name="schedule" value="Thứ 2"> Thứ 2</label>
+                            <label><input type="checkbox" name="schedule" value="Thứ 3"> Thứ 3</label>
+                            <label><input type="checkbox" name="schedule" value="Thứ 4"> Thứ 4</label>
+                            <label><input type="checkbox" name="schedule" value="Thứ 5"> Thứ 5</label>
+                            <label><input type="checkbox" name="schedule" value="Thứ 6"> Thứ 6</label>
+                            <label><input type="checkbox" name="schedule" value="Thứ 7"> Thứ 7</label>
+                            <label><input type="checkbox" name="schedule" value="Chủ nhật"> Chủ nhật</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="class-time">Giờ học:</label>
+                        <input type="time" id="class-time-start" required> - 
+                        <input type="time" id="class-time-end" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="class-location">Địa điểm:</label>
+                        <input type="text" id="class-location" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="class-fee">Học phí (VND):</label>
+                        <input type="number" id="class-fee" min="0" step="1000" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="class-payment-cycle">Chu kỳ học phí:</label>
+                        <select id="class-payment-cycle" required>
+                            <option value="1 tháng">1 tháng</option>
+                            <option value="8 buổi">8 buổi</option>
+                            <option value="10 buổi">10 buổi</option>
+                            <option value="Theo ngày">Theo ngày</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit">Thêm lớp học</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Edit Class Modal -->
+        <div id="edit-class-modal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close-btn">&times;</span>
+                <h2>Chỉnh sửa lớp học</h2>
+                <form id="edit-class-form">
+                    <input type="hidden" id="edit-class-id">
+                    <div class="form-group">
+                        <label for="edit-class-name">Tên lớp:</label>
+                        <input type="text" id="edit-class-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-class-schedule">Lịch học:</label>
+                        <div class="schedule-checkboxes">
+                            <label><input type="checkbox" name="edit-schedule" value="Thứ 2"> Thứ 2</label>
+                            <label><input type="checkbox" name="edit-schedule" value="Thứ 3"> Thứ 3</label>
+                            <label><input type="checkbox" name="edit-schedule" value="Thứ 4"> Thứ 4</label>
+                            <label><input type="checkbox" name="edit-schedule" value="Thứ 5"> Thứ 5</label>
+                            <label><input type="checkbox" name="edit-schedule" value="Thứ 6"> Thứ 6</label>
+                            <label><input type="checkbox" name="edit-schedule" value="Thứ 7"> Thứ 7</label>
+                            <label><input type="checkbox" name="edit-schedule" value="Chủ nhật"> Chủ nhật</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-class-time">Giờ học:</label>
+                        <input type="time" id="edit-class-time-start" required> - 
+                        <input type="time" id="edit-class-time-end" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-class-location">Địa điểm:</label>
+                        <input type="text" id="edit-class-location" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-class-fee">Học phí (VND):</label>
+                        <input type="number" id="edit-class-fee" min="0" step="1000" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-class-payment-cycle">Chu kỳ học phí:</label>
+                        <select id="edit-class-payment-cycle" required>
+                            <option value="1 tháng">1 tháng</option>
+                            <option value="8 buổi">8 buổi</option>
+                            <option value="10 buổi">10 buổi</option>
+                            <option value="Theo ngày">Theo ngày</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit">Cập nhật lớp học</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Add Student Modal -->
+        <div id="add-student-modal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close-btn">&times;</span>
+                <h2>Thêm học sinh mới</h2>
+                <form id="add-student-form">
+                    <div class="form-group">
+                        <label for="student-name">Họ tên:</label>
+                        <input type="text" id="student-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="student-id">Mã HS (tự động):</label>
+                        <input type="text" id="student-id" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="student-class">Lớp:</label>
+                        <select id="student-class" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="student-register-date">Ngày đăng ký:</label>
+                        <input type="date" id="student-register-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="student-payment-cycle">Chu kỳ thanh toán:</label>
+                        <select id="student-payment-cycle" required>
+                            <option value="1 tháng">1 tháng</option>
+                            <option value="8 buổi">8 buổi</option>
+                            <option value="10 buổi">10 buổi</option>
+                            <option value="Theo ngày">Theo ngày</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit">Thêm học sinh</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Edit Student Modal -->
+        <div id="edit-student-modal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close-btn">&times;</span>
+                <h2>Chỉnh sửa thông tin học sinh</h2>
+                <form id="edit-student-form">
+                    <div class="form-group">
+                        <label for="edit-student-name">Họ tên:</label>
+                        <input type="text" id="edit-student-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-student-id">Mã HS:</label>
+                        <input type="text" id="edit-student-id" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-student-class">Lớp:</label>
+                        <select id="edit-student-class" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-student-register-date">Ngày đăng ký:</label>
+                        <input type="date" id="edit-student-register-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-student-payment-cycle">Chu kỳ thanh toán:</label>
+                        <select id="edit-student-payment-cycle" required>
+                            <option value="1 tháng">1 tháng</option>
+                            <option value="8 buổi">8 buổi</option>
+                            <option value="10 buổi">10 buổi</option>
+                            <option value="Theo ngày">Theo ngày</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit">Cập nhật thông tin</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Add Payment Modal -->
+        <div id="add-payment-modal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close-btn">&times;</span>
+                <h2>Thêm thanh toán học phí</h2>
+                <form id="add-payment-form">
+                    <div class="form-group">
+                        <label for="payment-student">Học sinh:</label>
+                        <select id="payment-student" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="payment-amount">Số tiền (VND):</label>
+                        <input type="number" id="payment-amount" min="0" step="1000" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="payment-date">Ngày thanh toán:</label>
+                        <input type="date" id="payment-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="payment-cycle">Chu kỳ thanh toán:</label>
+                        <select id="payment-cycle" required>
+                            <option value="1 tháng">1 tháng</option>
+                            <option value="8 buổi">8 buổi</option>
+                            <option value="10 buổi">10 buổi</option>
+                            <option value="Theo ngày">Theo ngày</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="payment-method">Hình thức thanh toán:</label>
+                        <select id="payment-method" required>
+                            <option value="Tiền mặt">Tiền mặt</option>
+                            <option value="Chuyển khoản">Chuyển khoản</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit">Thêm thanh toán</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Receipt Modal -->
+        <div id="receipt-modal" class="modal hidden">
+            <div class="modal-content receipt-content">
+                <span class="close-btn">&times;</span>
+                <div id="receipt-container">
+                    <div class="receipt-header">
+                        <div class="receipt-title">BIÊN NHẬN</div>
+                        <div class="receipt-no">No. <span id="receipt-no"></span></div>
+                    </div>
+                    <div class="receipt-body">
+                        <div class="receipt-amount">
+                            <div>Đã nhận: <span id="receipt-amount"></span> VND</div>
+                            <div>Bằng chữ: <span id="receipt-amount-text"></span></div>
+                        </div>
+                        <div class="receipt-info">
+                            <div>Họ tên học sinh: <span id="receipt-student-name"></span></div>
+                            <div>Mã học sinh: <span id="receipt-student-id"></span></div>
+                            <div>Lớp: <span id="receipt-class"></span></div>
+                            <div>Chu kỳ thanh toán: <span id="receipt-payment-cycle"></span></div>
+                            <div>Chu kỳ thanh toán tiếp theo: <span id="receipt-next-payment"></span></div>
+                            <div>Hình thức thanh toán: <span id="receipt-payment-method"></span></div>
+                        </div>
+
+                        <div class="receipt-attendance">
+                            <h3>Lịch sử điểm danh</h3>
+                            <div id="receipt-attendance-history"></div>
+                        </div>
+
+                        <div class="receipt-payment-history">
+                            <h3>Lịch sử thanh toán</h3>
+                            <div id="receipt-payment-history"></div>
+                        </div>
+
+                        <div class="receipt-note">
+                            Anh / Chị vui lòng kiểm tra kỹ thông tin hiện trong Biên nhận này, nếu có sai sót hãy liên hệ để giải quyết.
+                        </div>
+
+                        <div class="receipt-signature">
+                            <div class="receipt-date">Ngày <span id="receipt-date"></span></div>
+                            <div class="receipt-admin">
+                                <p>Trân trọng</p>
+                                <p>Trần Đông Phú</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="receipt-actions">
+                    <button id="save-receipt-image">Lưu thành hình ảnh</button>
+                    <button id="save-receipt-pdf">Lưu thành PDF</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance Modal -->
+        <div id="attendance-modal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close-btn">&times;</span>
+                <h2>Điểm danh lớp <span id="attendance-class-name"></span></h2>
+                <div class="attendance-date">Ngày: <span id="attendance-date"></span></div>
+                <form id="attendance-form">
+                    <div id="attendance-list" class="attendance-list"></div>
+                    <div class="form-group">
+                        <button type="submit">Lưu điểm danh</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <footer>
+            <p>&copy; 2023 HoEdu Solution. Tất cả quyền được bảo lưu.</p>
+        </footer>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/classes.js"></script>
+    <script src="js/students.js"></script>
+    <script src="js/tuition.js"></script>
+    <script src="js/attendance.js"></script>
+    <script src="js/reports.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
