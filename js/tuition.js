@@ -102,8 +102,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Thiết lập tabs cho quản lý học phí
 function setupTuitionTabs() {
-    const tabButtons = document.querySelectorAll('.payment-tabs-container .payment-tab-button');
-    const tabContents = document.querySelectorAll('.payment-tabs-container .payment-tab-content');
+    const tabButtons = document.querySelectorAll('.tuition-tab');
     
     tabButtons.forEach(button => {
         button.addEventListener('click', function() {
@@ -111,13 +110,26 @@ function setupTuitionTabs() {
             
             // Xóa active class từ tất cả các tab
             tabButtons.forEach(btn => btn.classList.remove('active'));
-            tabContents.forEach(content => content.classList.remove('active'));
+            document.querySelectorAll('.tuition-tab-content').forEach(content => content.classList.remove('active'));
             
             // Thêm active class cho tab được chọn
             this.classList.add('active');
             document.getElementById(tabId).classList.add('active');
+            
+            // Hiển thị nội dung tương ứng
+            if (tabId === 'unpaid-tab') {
+                displayUnpaidStudents();
+            } else if (tabId === 'history-tab') {
+                displayPayments();
+            }
         });
     });
+    
+    // Mặc định hiển thị tab học sinh chưa thanh toán
+    const defaultTab = document.querySelector('.tuition-tab[data-tab="unpaid-tab"]');
+    if (defaultTab) {
+        defaultTab.click();
+    }
 }
 
 // Hiển thị danh sách thanh toán và học sinh chưa thanh toán
