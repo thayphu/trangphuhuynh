@@ -54,7 +54,14 @@ function displayAttendanceClasses() {
             record.date === today && record.classId === classData.id
         );
         
-        const attendanceStatus = todayAttendance ? 'Đã điểm danh' : 'Chưa điểm danh';
+        // Đếm số học sinh đã điểm danh
+        let attendedCount = 0;
+        if (todayAttendance && todayAttendance.students) {
+            attendedCount = todayAttendance.students.length;
+        }
+        
+        const allAttended = todayAttendance && attendedCount === studentCount;
+        const attendanceStatus = todayAttendance ? `Đã điểm danh (${attendedCount}/${studentCount})` : 'Chưa điểm danh';
         const attendanceStatusClass = todayAttendance ? 'status-paid' : 'status-unpaid';
         
         classCard.innerHTML = `
@@ -67,8 +74,10 @@ function displayAttendanceClasses() {
                 <div><span>Trạng thái:</span> <span class="student-status ${attendanceStatusClass}">${attendanceStatus}</span></div>
             </div>
             <div class="class-actions">
-                <button class="attendance-btn" data-id="${classData.id}" ${!isTodayClass ? 'disabled' : ''}>
-                    ${isTodayClass ? '<span class="blink">Điểm danh</span>' : 'Không có lịch học hôm nay'}
+                <button class="attendance-btn" data-id="${classData.id}" ${!isTodayClass || allAttended ? 'disabled' : ''}>
+                    ${!isTodayClass ? 'Không có lịch học hôm nay' : 
+                      allAttended ? 'Đã điểm danh đủ' : 
+                      '<span class="blink">Điểm danh</span>'}
                 </button>
             </div>
         `;
@@ -131,17 +140,21 @@ function openAttendanceModal(classId) {
     
     students.forEach(student => {
         const attendanceItem = document.createElement('div');
-        attendanceItem.className = 'attendance-item';
         
         // Nếu đã điểm danh, sử dụng dữ liệu đã lưu
         let studentStatus = 'present'; // Mặc định là có mặt
+        let isPresent = true;
         
         if (todayAttendance) {
             const studentRecord = todayAttendance.students.find(s => s.id === student.id);
             if (studentRecord) {
                 studentStatus = studentRecord.status;
+                isPresent = studentStatus === 'present';
             }
         }
+        
+        // Thêm class phù hợp để hiển thị viền
+        attendanceItem.className = `attendance-item ${isPresent ? 'present' : ''}`;
         
         attendanceItem.innerHTML = `
             <div class="attendance-student">${student.name} (${student.id})</div>
@@ -149,17 +162,20 @@ function openAttendanceModal(classId) {
                 <input type="hidden" name="student-id" value="${student.id}">
                 
                 <label>
-                    <input type="radio" name="status-${student.id}" value="present" ${studentStatus === 'present' ? 'checked' : ''}>
+                    <input type="radio" name="status-${student.id}" value="present" ${studentStatus === 'present' ? 'checked' : ''} 
+                           onchange="updateAttendanceItemStatus(this)">
                     Có mặt
                 </label>
                 
                 <label>
-                    <input type="radio" name="status-${student.id}" value="absent" ${studentStatus === 'absent' ? 'checked' : ''}>
+                    <input type="radio" name="status-${student.id}" value="absent" ${studentStatus === 'absent' ? 'checked' : ''}
+                           onchange="updateAttendanceItemStatus(this)">
                     Vắng mặt
                 </label>
                 
                 <label>
-                    <input type="radio" name="status-${student.id}" value="teacher-absent" ${studentStatus === 'teacher-absent' ? 'checked' : ''}>
+                    <input type="radio" name="status-${student.id}" value="teacher-absent" ${studentStatus === 'teacher-absent' ? 'checked' : ''}
+                           onchange="updateAttendanceItemStatus(this)">
                     GV nghỉ
                 </label>
             </div>
