@@ -325,10 +325,15 @@ function displayPaymentHistory(filteredPayments = null) {
     const sortedPayments = [...payments].sort((a, b) => new Date(b.date) - new Date(a.date));
     
     sortedPayments.forEach(payment => {
+        console.log("Xử lý thanh toán:", payment);
+        
         const student = getStudentById(payment.studentId);
         
-        // Nếu học sinh không còn tồn tại, bỏ qua
-        if (!student) return;
+        // Nếu học sinh không còn tồn tại, hiển thị thông tin chi tiết và bỏ qua
+        if (!student) {
+            console.error(`Không tìm thấy học sinh với ID: ${payment.studentId} cho thanh toán ${payment.id}`);
+            return;
+        }
         
         const row = document.createElement('tr');
         row.innerHTML = `

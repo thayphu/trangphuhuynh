@@ -12,6 +12,40 @@ function resetAndFixApp() {
     
     // Khởi tạo lại dữ liệu mẫu
     initializeSampleData();
+    
+    // Tạo thanh toán mẫu mới
+    const newPayments = [
+        {
+            id: 'PAY001',
+            studentId: 'HS001',
+            date: '2023-04-05',
+            amount: 500000,
+            method: 'Tiền mặt',
+            cycle: '1 tháng',
+            receiptNumber: 'BL2023001',
+            additionalAmount: 0,
+            additionalReason: '',
+            discount: 0,
+            discountReason: ''
+        },
+        {
+            id: 'PAY002',
+            studentId: 'HS002',
+            date: '2023-04-10',
+            amount: 450000,
+            method: 'Chuyển khoản',
+            cycle: '1 tháng',
+            receiptNumber: 'BL2023002',
+            additionalAmount: 0,
+            additionalReason: '',
+            discount: 0,
+            discountReason: ''
+        }
+    ];
+    
+    // Lưu trực tiếp vào localStorage
+    localStorage.setItem('payments', JSON.stringify(newPayments));
+    
     console.log("✓ Đã khởi tạo dữ liệu mẫu");
     
     // Tìm container của tab
