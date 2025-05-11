@@ -327,7 +327,7 @@ function displayPaymentInfo(student, classData) {
             // Đặt lại src và thêm timestamp để tránh cache
             qrImage.src = qrUrl + '&t=' + new Date().getTime();
             qrImage.style.width = "100%";
-            qrImage.style.maxWidth = "200px";
+            qrImage.style.maxWidth = "100%"; // Cho phép hình ảnh lấp đầy container
             
             // Xử lý lỗi khi không tải được ảnh
             qrImage.onerror = function() {
