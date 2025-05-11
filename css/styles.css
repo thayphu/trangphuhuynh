@@ -229,6 +229,18 @@ button:hover {
     margin-bottom: 20px;
 }
 
+.section-subheader {
+    margin: 25px 0 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.section-subheader h3 {
+    font-size: 18px;
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
 .section-header h2 {
     color: var(--primary-color);
     font-size: 22px;

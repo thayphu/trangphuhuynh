@@ -88,8 +88,85 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Hiển thị danh sách thanh toán
+// Hiển thị danh sách thanh toán và học sinh chưa thanh toán
 function displayPayments(filteredPayments = null) {
+    // Hiển thị lịch sử thanh toán
+    displayPaymentHistory(filteredPayments);
+    
+    // Hiển thị danh sách học sinh chưa thanh toán
+    displayUnpaidStudents();
+}
+
+// Hiển thị danh sách học sinh chưa thanh toán
+function displayUnpaidStudents() {
+    const unpaidStudentsTableBody = document.getElementById('unpaid-students-table-body');
+    if (!unpaidStudentsTableBody) return;
+    
+    unpaidStudentsTableBody.innerHTML = '';
+    
+    // Lấy tất cả học sinh
+    const students = getStudents();
+    
+    // Lọc học sinh chưa thanh toán
+    const unpaidStudents = students.filter(student => {
+        const paymentStatus = checkPaymentStatus(student);
+        return paymentStatus === 'unpaid' || paymentStatus === 'overdue';
+    });
+    
+    if (unpaidStudents.length === 0) {
+        unpaidStudentsTableBody.innerHTML = `
+            <tr>
+                <td colspan="8" class="no-data">Không có học sinh nào cần thanh toán.</td>
+            </tr>
+        `;
+        return;
+    }
+    
+    unpaidStudents.forEach(student => {
+        const classData = getClassById(student.classId);
+        if (!classData) return;
+        
+        // Tính toán học phí
+        let totalFee = classData.fee;
+        
+        if (student.paymentCycle === '8 buổi') {
+            totalFee = classData.fee * 8;
+        } else if (student.paymentCycle === '10 buổi') {
+            totalFee = classData.fee * 10;
+        }
+        
+        // Tính hạn thanh toán
+        const paymentStatus = checkPaymentStatus(student);
+        const dueDate = calculateNextPaymentDate(student.registerDate, student.paymentCycle);
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${student.id}</td>
+            <td>${student.name}</td>
+            <td>${classData.name}</td>
+            <td>${formatDate(student.registerDate)}</td>
+            <td><span class="fee-highlight">${formatCurrency(totalFee)} VND</span></td>
+            <td>${student.paymentCycle}</td>
+            <td>${formatDate(dueDate)}</td>
+            <td>
+                <button class="collect-payment-btn" data-id="${student.id}">Thu học phí</button>
+            </td>
+        `;
+        
+        unpaidStudentsTableBody.appendChild(row);
+    });
+    
+    // Thêm sự kiện cho các nút thu học phí
+    document.querySelectorAll('.collect-payment-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const studentId = this.dataset.id;
+            openAddPaymentModal(studentId);
+        });
+    });
+}
+
+// Hiển thị lịch sử thanh toán
+function displayPaymentHistory(filteredPayments = null) {
     const paymentsTableBody = document.getElementById('payments-table-body');
     if (!paymentsTableBody) return;
     

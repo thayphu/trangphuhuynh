@@ -141,6 +141,33 @@
                             <input type="date" id="payment-date-filter">
                             <button id="clear-payment-filter">Xóa lọc</button>
                         </div>
+                        
+                        <!-- Học sinh chưa thanh toán -->
+                        <div class="section-subheader">
+                            <h3>Học sinh chưa thanh toán</h3>
+                        </div>
+                        <div id="unpaid-students-list" class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Mã HS</th>
+                                        <th>Họ tên</th>
+                                        <th>Lớp</th>
+                                        <th>Ngày đăng ký</th>
+                                        <th>Tổng học phí</th>
+                                        <th>Chu kỳ thanh toán</th>
+                                        <th>Hạn đóng học phí</th>
+                                        <th>Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="unpaid-students-table-body"></tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Lịch sử thanh toán -->
+                        <div class="section-subheader">
+                            <h3>Lịch sử thanh toán</h3>
+                        </div>
                         <div id="payments-list" class="table-container">
                             <table>
                                 <thead>
