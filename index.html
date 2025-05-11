@@ -134,14 +134,14 @@
                             <h2>Quản lý học phí</h2>
                             <button id="add-payment-btn" class="action-btn"><i class="fas fa-plus"></i> Thêm thanh toán</button>
                         </div>
-                        <div class="payment-tabs-container">
-                            <div class="payment-tab-buttons">
-                                <button type="button" class="payment-tab-button active" data-tab="unpaid-students">Học sinh chưa thanh toán</button>
-                                <button type="button" class="payment-tab-button" data-tab="payment-history">Lịch sử thanh toán</button>
+                        <div class="tab-container">
+                            <div class="tab-header">
+                                <button type="button" class="tuition-tab active" data-tab="unpaid-tab">Học sinh chưa thanh toán</button>
+                                <button type="button" class="tuition-tab" data-tab="history-tab">Lịch sử thanh toán</button>
                             </div>
                             
                             <!-- Tab học sinh chưa thanh toán -->
-                            <div id="unpaid-students" class="payment-tab-content active">
+                            <div id="unpaid-tab" class="tuition-tab-content active">
                                 <div id="unpaid-students-list" class="table-container">
                                     <table>
                                         <thead>
@@ -162,7 +162,7 @@
                             </div>
                             
                             <!-- Tab lịch sử thanh toán -->
-                            <div id="payment-history" class="payment-tab-content">
+                            <div id="history-tab" class="tuition-tab-content">
                                 <div class="search-filter">
                                     <input type="text" id="payment-search" placeholder="Tìm kiếm thanh toán...">
                                     <select id="payment-class-filter">
