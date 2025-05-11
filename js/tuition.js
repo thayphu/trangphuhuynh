@@ -15,6 +15,37 @@ document.addEventListener('DOMContentLoaded', function() {
         addPaymentBtn.addEventListener('click', openAddPaymentModal);
     }
     
+    // Xử lý sự kiện khi chọn học sinh trong form thanh toán
+    const paymentStudent = document.getElementById('payment-student');
+    if (paymentStudent) {
+        paymentStudent.addEventListener('change', function() {
+            const studentId = this.value;
+            const student = getStudentById(studentId);
+            
+            if (student) {
+                // Đặt chu kỳ thanh toán dựa vào học sinh
+                document.getElementById('payment-cycle').value = student.paymentCycle;
+                
+                // Tính toán học phí
+                const classData = getClassById(student.classId);
+                if (classData) {
+                    let amount = classData.fee;
+                    
+                    // Tính toán học phí dựa vào chu kỳ
+                    if (student.paymentCycle === '8 buổi') {
+                        amount = classData.fee * 8;
+                    } else if (student.paymentCycle === '10 buổi') {
+                        amount = classData.fee * 10;
+                    } else if (student.paymentCycle === '1 tháng' || student.paymentCycle === 'Theo ngày') {
+                        amount = classData.fee;
+                    }
+                    
+                    document.getElementById('payment-amount').value = amount;
+                }
+            }
+        });
+    }
+    
     // Xử lý form thêm thanh toán
     const addPaymentForm = document.getElementById('add-payment-form');
     if (addPaymentForm) {
@@ -150,12 +181,45 @@ function openAddPaymentModal() {
         
         // Tự động điền chu kỳ thanh toán theo học sinh
         if (student) {
-            document.getElementById('payment-cycle').value = student.paymentCycle;
+            const cycleSelect = document.getElementById('payment-cycle');
+            cycleSelect.value = student.paymentCycle;
             
-            // Tự động điền số tiền theo lớp học
+            // Thêm event listener cho thay đổi chu kỳ
+            cycleSelect.addEventListener('change', function() {
+                const selectedCycle = this.value;
+                const classData = getClassById(student.classId);
+                
+                if (classData) {
+                    let amount = classData.fee;
+                    
+                    // Tính toán học phí dựa vào chu kỳ đã chọn
+                    if (selectedCycle === '8 buổi') {
+                        amount = classData.fee * 8;
+                    } else if (selectedCycle === '10 buổi') {
+                        amount = classData.fee * 10;
+                    } else if (selectedCycle === '1 tháng' || selectedCycle === 'Theo ngày') {
+                        amount = classData.fee;
+                    }
+                    
+                    document.getElementById('payment-amount').value = amount;
+                }
+            });
+            
+            // Tự động điền số tiền theo lớp học và chu kỳ thanh toán
             const classData = getClassById(student.classId);
             if (classData) {
-                document.getElementById('payment-amount').value = classData.fee;
+                let amount = classData.fee;
+                
+                // Tính toán học phí dựa vào chu kỳ
+                if (student.paymentCycle === '8 buổi') {
+                    amount = classData.fee * 8;
+                } else if (student.paymentCycle === '10 buổi') {
+                    amount = classData.fee * 10;
+                } else if (student.paymentCycle === '1 tháng' || student.paymentCycle === 'Theo ngày') {
+                    amount = classData.fee;
+                }
+                
+                document.getElementById('payment-amount').value = amount;
             }
         }
     }

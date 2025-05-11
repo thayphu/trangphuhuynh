@@ -57,6 +57,14 @@ function displayClasses() {
         const classCard = document.createElement('div');
         classCard.className = `class-card ${isTodayClass ? 'today-class' : ''}`;
         
+        // Tính học phí theo buổi dựa vào chu kỳ
+        let sessionFee = 0;
+        if (classData.paymentCycle === '1 tháng') {
+            sessionFee = Math.round(classData.fee / 8);
+        } else if (classData.paymentCycle === '8 buổi' || classData.paymentCycle === '10 buổi' || classData.paymentCycle === 'Theo ngày') {
+            sessionFee = classData.fee;
+        }
+        
         classCard.innerHTML = `
             <h3>${classData.name}</h3>
             <div class="class-details">
@@ -65,6 +73,7 @@ function displayClasses() {
                 <div><span>Địa điểm:</span> ${classData.location}</div>
                 <div><span>Học phí:</span> ${formatCurrency(classData.fee)} VND</div>
                 <div><span>Chu kỳ:</span> ${classData.paymentCycle}</div>
+                <div><span>Học phí/buổi:</span> ${formatCurrency(sessionFee)} VND</div>
             </div>
             <div class="class-actions">
                 <button class="edit-class-btn" data-id="${classData.id}">Chỉnh sửa</button>

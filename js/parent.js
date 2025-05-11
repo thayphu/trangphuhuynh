@@ -232,8 +232,17 @@ function displayPaymentInfo(student, classData) {
     
     paymentInfo.classList.remove('hidden');
     
-    // Lấy số tiền cần thanh toán
-    const amount = classData ? classData.fee : 0;
+    // Lấy số tiền cần thanh toán dựa vào chu kỳ
+    let amount = 0;
+    if (classData) {
+        if (student.paymentCycle === '8 buổi') {
+            amount = classData.fee * 8;
+        } else if (student.paymentCycle === '10 buổi') {
+            amount = classData.fee * 10;
+        } else if (student.paymentCycle === '1 tháng' || student.paymentCycle === 'Theo ngày') {
+            amount = classData.fee;
+        }
+    }
     
     // Hiển thị số tiền
     document.getElementById('payment-amount').textContent = formatCurrency(amount);
