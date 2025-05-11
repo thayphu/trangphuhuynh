@@ -175,31 +175,50 @@ function displayPayments(filteredPayments = null) {
 // Hiển thị danh sách học sinh chưa thanh toán
 function displayUnpaidStudents() {
     console.log("Đang hiển thị học sinh chưa thanh toán...");
-    const unpaidStudentsTableBody = document.getElementById('unpaid-students-table-body');
     
-    // Nếu không tìm thấy phần tử, thử tạo lại
+    // Tìm thẻ tbody cho danh sách học sinh chưa thanh toán
+    let unpaidStudentsTableBody = document.getElementById('unpaid-students-table-body');
+    
+    // Nếu không tìm thấy, có thể HTML chưa được tạo đúng
     if (!unpaidStudentsTableBody) {
         console.error("Không tìm thấy phần tử unpaid-students-table-body");
         
-        // Kiểm tra nếu phần tử cha tồn tại
-        const unpaidStudents = document.getElementById('unpaid-students');
-        if (unpaidStudents) {
-            // Tìm bảng trong phần tử cha
-            const table = unpaidStudents.querySelector('table');
-            if (table) {
-                // Tìm tbody hoặc tạo mới nếu không có
-                let tbody = table.querySelector('tbody');
-                if (!tbody) {
-                    tbody = document.createElement('tbody');
-                    tbody.id = 'unpaid-students-table-body';
-                    table.appendChild(tbody);
-                } else if (!tbody.id) {
-                    tbody.id = 'unpaid-students-table-body';
-                }
-                return displayUnpaidStudents(); // Gọi lại hàm sau khi đã tạo element
-            }
+        // Tìm container chính
+        const unpaidStudentsTab = document.getElementById('unpaid-students');
+        if (!unpaidStudentsTab) {
+            console.error("Không tìm thấy tab unpaid-students");
+            return;
         }
-        return; // Nếu không tìm được parent thì thoát
+        
+        // Tạo lại cấu trúc HTML
+        unpaidStudentsTab.innerHTML = `
+            <div id="unpaid-students-list" class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mã HS</th>
+                            <th>Họ tên</th>
+                            <th>Lớp</th>
+                            <th>Ngày đăng ký</th>
+                            <th>Tổng học phí</th>
+                            <th>Chu kỳ thanh toán</th>
+                            <th>Hạn đóng học phí</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="unpaid-students-table-body"></tbody>
+                </table>
+            </div>
+        `;
+        
+        // Lấy lại thẻ tbody
+        unpaidStudentsTableBody = document.getElementById('unpaid-students-table-body');
+        if (!unpaidStudentsTableBody) {
+            console.error("Vẫn không tìm thấy unpaid-students-table-body sau khi tạo lại");
+            return;
+        }
+        
+        console.log("Đã tạo lại cấu trúc HTML cho danh sách học sinh chưa thanh toán");
     }
     
     unpaidStudentsTableBody.innerHTML = '';
@@ -272,31 +291,59 @@ function displayUnpaidStudents() {
 // Hiển thị lịch sử thanh toán
 function displayPaymentHistory(filteredPayments = null) {
     console.log("Đang hiển thị lịch sử thanh toán...");
-    const paymentsTableBody = document.getElementById('payments-table-body');
     
-    // Nếu không tìm thấy phần tử, thử tạo lại
+    // Tìm thẻ tbody cho lịch sử thanh toán
+    let paymentsTableBody = document.getElementById('payments-table-body');
+    
+    // Nếu không tìm thấy, có thể HTML chưa được tạo đúng
     if (!paymentsTableBody) {
         console.error("Không tìm thấy phần tử payments-table-body");
         
-        // Kiểm tra nếu phần tử cha tồn tại
-        const paymentHistory = document.getElementById('payment-history');
-        if (paymentHistory) {
-            // Tìm bảng trong phần tử cha
-            const table = paymentHistory.querySelector('table');
-            if (table) {
-                // Tìm tbody hoặc tạo mới nếu không có
-                let tbody = table.querySelector('tbody');
-                if (!tbody) {
-                    tbody = document.createElement('tbody');
-                    tbody.id = 'payments-table-body';
-                    table.appendChild(tbody);
-                } else if (!tbody.id) {
-                    tbody.id = 'payments-table-body';
-                }
-                return displayPaymentHistory(filteredPayments); // Gọi lại hàm sau khi đã tạo element
-            }
+        // Tìm container chính
+        const paymentHistoryTab = document.getElementById('payment-history');
+        if (!paymentHistoryTab) {
+            console.error("Không tìm thấy tab payment-history");
+            return;
         }
-        return; // Nếu không tìm được parent thì thoát
+        
+        // Tạo lại cấu trúc HTML
+        paymentHistoryTab.innerHTML = `
+            <div class="search-filter">
+                <input type="text" id="payment-search" placeholder="Tìm kiếm thanh toán...">
+                <select id="payment-class-filter">
+                    <option value="">Tất cả lớp</option>
+                </select>
+                <input type="date" id="payment-date-filter" placeholder="dd/mm/yyyy">
+                <button id="clear-payment-filter" class="btn-icon"><i class="fas fa-times"></i> Xóa lọc</button>
+            </div>
+            <div id="payments-list" class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Số hóa đơn</th>
+                            <th>Mã HS</th>
+                            <th>Họ tên</th>
+                            <th>Lớp</th>
+                            <th>Ngày thanh toán</th>
+                            <th>Số tiền</th>
+                            <th>Chu kỳ thanh toán</th>
+                            <th>Hình thức</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="payments-table-body"></tbody>
+                </table>
+            </div>
+        `;
+        
+        // Lấy lại thẻ tbody
+        paymentsTableBody = document.getElementById('payments-table-body');
+        if (!paymentsTableBody) {
+            console.error("Vẫn không tìm thấy payments-table-body sau khi tạo lại");
+            return;
+        }
+        
+        console.log("Đã tạo lại cấu trúc HTML cho lịch sử thanh toán");
     }
     
     paymentsTableBody.innerHTML = '';
