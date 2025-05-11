@@ -71,15 +71,42 @@ function displayAttendanceClasses() {
             record.date === today && record.classId === classData.id
         );
         
-        // Đếm số học sinh đã điểm danh
+        // Đếm số học sinh theo trạng thái điểm danh
         let attendedCount = 0;
+        let presentCount = 0;
+        let absentCount = 0;
+        let teacherAbsentCount = 0;
+        
         if (todayAttendance && todayAttendance.students) {
             attendedCount = todayAttendance.students.length;
+            
+            // Đếm số học sinh có mặt/vắng/GV nghỉ
+            todayAttendance.students.forEach(student => {
+                if (student.status === 'present') {
+                    presentCount++;
+                } else if (student.status === 'absent') {
+                    absentCount++;
+                } else if (student.status === 'teacher-absent') {
+                    teacherAbsentCount++;
+                }
+            });
         }
         
         const allAttended = todayAttendance && attendedCount === studentCount;
-        const attendanceStatus = todayAttendance ? `Đã điểm danh (${attendedCount}/${studentCount})` : 'Chưa điểm danh';
-        const attendanceStatusClass = todayAttendance ? 'status-paid' : 'status-unpaid';
+        const incompleteAttendance = todayAttendance && attendedCount > 0 && attendedCount < studentCount;
+        
+        let attendanceStatus, attendanceStatusClass;
+        
+        if (!todayAttendance) {
+            attendanceStatus = 'Chưa điểm danh';
+            attendanceStatusClass = 'status-unpaid';
+        } else if (teacherAbsentCount > 0) {
+            attendanceStatus = 'GV vắng';
+            attendanceStatusClass = 'status-warning';
+        } else {
+            attendanceStatus = `Đã điểm danh (${attendedCount}/${studentCount})`;
+            attendanceStatusClass = allAttended ? 'status-paid' : 'status-warning';
+        }
         
         classCard.innerHTML = `
             <h3>${classData.name}</h3>
@@ -89,15 +116,23 @@ function displayAttendanceClasses() {
                 <div><span>Địa điểm:</span> ${classData.location}</div>
                 <div><span>Số học sinh:</span> ${studentCount}</div>
                 <div><span>Trạng thái:</span> <span class="student-status ${attendanceStatusClass}">${attendanceStatus}</span></div>
+                ${todayAttendance ? `
+                <div class="attendance-stats">
+                    <div class="stat-item"><span>Có mặt:</span> <span class="status-present">${presentCount}</span></div>
+                    <div class="stat-item"><span>Vắng mặt:</span> <span class="status-absent">${absentCount}</span></div>
+                    ${teacherAbsentCount > 0 ? `<div class="stat-item"><span>GV nghỉ:</span> <span class="status-teacher-absent">${teacherAbsentCount}</span></div>` : ''}
+                </div>` : ''}
             </div>
             <div class="class-actions">
-                <button class="attendance-btn" data-id="${classData.id}" ${!isTodayClass || allAttended ? 'disabled' : ''}>
+                <button class="attendance-btn ${incompleteAttendance ? 'attendance-incomplete' : ''}" data-id="${classData.id}" ${!isTodayClass || (allAttended && teacherAbsentCount === 0) || teacherAbsentCount > 0 ? 'disabled' : ''}>
                     ${!isTodayClass ? 'Không có lịch học hôm nay' : 
+                      teacherAbsentCount > 0 ? 'Đã đánh dấu GV vắng' :
                       allAttended ? 'Đã điểm danh đủ' : 
-                      '<span class="blink">Điểm danh</span>'}
+                      incompleteAttendance ? '<span class="blink">Điểm danh (Chưa đủ)</span>' :
+                      '<span>Điểm danh</span>'}
                 </button>
-                <button class="teacher-absent-btn" data-id="${classData.id}" ${!isTodayClass ? 'disabled' : ''}>
-                    GV vắng
+                <button class="teacher-absent-btn" data-id="${classData.id}" ${!isTodayClass || teacherAbsentCount > 0 ? 'disabled' : ''} title="Đánh dấu giáo viên vắng mặt">
+                    ${teacherAbsentCount > 0 ? 'Đã đánh dấu GV vắng' : 'GV vắng'}
                 </button>
             </div>
         `;

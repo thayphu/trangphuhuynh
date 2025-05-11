@@ -77,18 +77,21 @@
     color: var(--success-color);
     border-left: 4px solid var(--success-color);
     padding-left: 10px;
+    font-weight: bold;
 }
 
 .status-absent {
     color: var(--danger-color);
     border-left: 4px solid var(--danger-color);
     padding-left: 10px;
+    font-weight: bold;
 }
 
 .status-teacher-absent {
     color: var(--warning-color);
     border-left: 4px solid var(--warning-color);
     padding-left: 10px;
+    font-weight: bold;
 }
 
 /* Blinking effect for incomplete attendance */
@@ -100,4 +103,48 @@
 
 .attendance-incomplete {
     animation: blink 1.5s infinite;
+}
+
+/* Attendance Stats */
+.attendance-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+    padding: 8px;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.stat-item span:first-child {
+    font-weight: 600;
+}
+
+/* Teacher Absent Button */
+.teacher-absent-btn {
+    background-color: var(--warning-color-light);
+    color: var(--text-color-dark);
+    border: 1px solid var(--warning-color);
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.teacher-absent-btn:hover:not(:disabled) {
+    background-color: var(--warning-color);
+    color: white;
+}
+
+.teacher-absent-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
