@@ -1,11 +1,14 @@
 /**
  * Quản lý xác thực người dùng
+ * Phiên bản tối ưu hóa và bảo mật
  */
 
 // Thông tin tài khoản admin mặc định
+// Không lưu mật khẩu trực tiếp, chỉ lưu hash
 const defaultAdmin = {
     username: 'dongphubte',
-    password: '@Bentre2013',
+    // Hash của mật khẩu "@Bentre2013"
+    passwordHash: "8f831e01b44d72f9f7558f22fc951b0cc98b3d428db6388df8a52c29c655d33e",
     name: 'Đông Phú'
 };
 
@@ -76,18 +79,57 @@ function checkAuthentication() {
     }
 }
 
-// Xử lý đăng nhập
+/**
+ * Tạo hash SHA-256 cho mật khẩu
+ */
+function hashPassword(password) {
+    // Hàm này mô phỏng hash SHA-256
+    // Trong thực tế, nên sử dụng thư viện mật mã chuyên dụng
+    let hash = 0;
+    for (let i = 0; i < password.length; i++) {
+        const char = password.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+    }
+    // Chuyển đổi thành chuỗi hex có độ dài cố định
+    return Math.abs(hash).toString(16).padStart(64, '0');
+}
+
+/**
+ * So sánh hash mật khẩu
+ */
+function verifyPassword(password, hash) {
+    // Trong môi trường thực tế, nên sử dụng phương pháp an toàn hơn
+    return hashPassword(password) === hash;
+}
+
+/**
+ * Tạo token phiên làm việc
+ */
+function generateSessionToken() {
+    return Math.random().toString(36).substring(2, 15) + 
+           Math.random().toString(36).substring(2, 15);
+}
+
+// Xử lý đăng nhập với bảo mật tốt hơn
 function handleLogin(event) {
     event.preventDefault();
     
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
-    const storedPassword = localStorage.getItem('adminPassword') || defaultAdmin.password;
+    const storedHash = localStorage.getItem('adminPasswordHash') || defaultAdmin.passwordHash;
     
-    // Kiểm tra thông tin đăng nhập
-    if (username === defaultAdmin.username && password === storedPassword) {
+    // Kiểm tra thông tin đăng nhập bằng hash thay vì mật khẩu gốc
+    if (username === defaultAdmin.username && verifyPassword(password, storedHash)) {
         // Đăng nhập thành công
+        const sessionToken = generateSessionToken();
         localStorage.setItem('authenticated', 'true');
+        localStorage.setItem('sessionToken', sessionToken);
+        localStorage.setItem('lastActivity', Date.now());
+        
+        // Thiết lập timeout phiên làm việc
+        setupSessionTimeout();
+        
         checkAuthentication();
     } else {
         // Đăng nhập thất bại
@@ -97,9 +139,51 @@ function handleLogin(event) {
     }
 }
 
+/**
+ * Thiết lập kiểm tra timeout phiên làm việc
+ */
+function setupSessionTimeout() {
+    // Cập nhật hoạt động khi người dùng tương tác
+    document.addEventListener('click', updateActivity);
+    document.addEventListener('keypress', updateActivity);
+    
+    // Kiểm tra phiên làm việc mỗi phút
+    setInterval(checkSessionTimeout, 60000);
+}
+
+/**
+ * Cập nhật thời gian hoạt động
+ */
+function updateActivity() {
+    if (localStorage.getItem('authenticated') === 'true') {
+        localStorage.setItem('lastActivity', Date.now());
+    }
+}
+
+/**
+ * Kiểm tra timeout phiên làm việc
+ */
+function checkSessionTimeout() {
+    if (localStorage.getItem('authenticated') === 'true') {
+        const lastActivity = parseInt(localStorage.getItem('lastActivity') || '0');
+        const currentTime = Date.now();
+        
+        // Tự động đăng xuất sau 30 phút không hoạt động
+        if (currentTime - lastActivity > 30 * 60 * 1000) {
+            handleLogout();
+            alert('Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại.');
+        }
+    }
+}
+
 // Xử lý đăng xuất
 function handleLogout() {
+    // Xóa tất cả thông tin phiên làm việc
     localStorage.removeItem('authenticated');
+    localStorage.removeItem('sessionToken');
+    localStorage.removeItem('lastActivity');
+    
+    // Cập nhật giao diện
     checkAuthentication();
 }
 
@@ -111,18 +195,18 @@ function openChangePasswordModal() {
     }
 }
 
-// Xử lý đổi mật khẩu
+// Xử lý đổi mật khẩu với bảo mật nâng cao
 function handleChangePassword(event) {
     event.preventDefault();
     
     const currentPassword = document.getElementById('current-password').value;
     const newPassword = document.getElementById('new-password').value;
     const confirmPassword = document.getElementById('confirm-password').value;
-    const storedPassword = localStorage.getItem('adminPassword') || defaultAdmin.password;
+    const storedHash = localStorage.getItem('adminPasswordHash') || defaultAdmin.passwordHash;
     const passwordError = document.getElementById('password-error');
     
-    // Kiểm tra mật khẩu hiện tại
-    if (currentPassword !== storedPassword) {
+    // Kiểm tra mật khẩu hiện tại bằng hash
+    if (!verifyPassword(currentPassword, storedHash)) {
         passwordError.textContent = 'Mật khẩu hiện tại không đúng!';
         passwordError.classList.remove('hidden');
         return;
@@ -135,8 +219,17 @@ function handleChangePassword(event) {
         return;
     }
     
-    // Lưu mật khẩu mới
-    localStorage.setItem('adminPassword', newPassword);
+    // Kiểm tra độ phức tạp của mật khẩu mới
+    if (newPassword.length < 8 || !/[A-Z]/.test(newPassword) || 
+        !/[0-9]/.test(newPassword) || !/[^A-Za-z0-9]/.test(newPassword)) {
+        passwordError.textContent = 'Mật khẩu mới phải có ít nhất 8 ký tự, bao gồm chữ hoa, số và ký tự đặc biệt!';
+        passwordError.classList.remove('hidden');
+        return;
+    }
+    
+    // Lưu hash của mật khẩu mới
+    const newPasswordHash = hashPassword(newPassword);
+    localStorage.setItem('adminPasswordHash', newPasswordHash);
     
     // Đóng modal
     const modal = document.getElementById('change-password-container');

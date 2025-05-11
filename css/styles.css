@@ -1175,19 +1175,14 @@ footer {
 }
 
 #payment-qr-code {
-    width: 250px;
-    height: 250px;
+    width: 180px;
+    height: 180px;
     margin: 0 auto;
     background-color: #fff;
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 5px;
     box-shadow: 0 3px 8px rgba(0,0,0,0.15);
-    transition: transform 0.3s ease;
-}
-
-#payment-qr-code:hover {
-    transform: scale(1.05);
 }
 
 #payment-qr-code img {
