@@ -362,17 +362,42 @@ function displayStudentsAttendanceModal() {
     const students = getStudents();
     const classes = getClasses();
     const payments = getPayments();
+    const attendance = getAttendance();
     
     const studentsAttendance = [];
     
     students.forEach(student => {
-        const attendanceSummary = calculateAttendanceSummary(student.id);
         const classData = classes.find(c => c.id === student.classId);
         
         // Tính tổng số tiền đã thanh toán
         let totalPaid = 0;
-        payments.filter(p => p.studentId === student.id).forEach(payment => {
-            totalPaid += payment.amount;
+        const studentPayments = payments.filter(p => p.studentId === student.id);
+        if (studentPayments && studentPayments.length > 0) {
+            studentPayments.forEach(payment => {
+                if (payment && typeof payment.amount === 'number') {
+                    totalPaid += payment.amount;
+                }
+            });
+        }
+        
+        // Tính thống kê điểm danh cho học sinh này
+        let totalSessions = 0;
+        let presentCount = 0;
+        let absentCount = 0;
+        
+        attendance.forEach(record => {
+            if (record.students && Array.isArray(record.students)) {
+                const studentRecord = record.students.find(s => s.studentId === student.id);
+                if (studentRecord) {
+                    totalSessions++;
+                    
+                    if (studentRecord.status === 'present') {
+                        presentCount++;
+                    } else if (studentRecord.status === 'absent') {
+                        absentCount++;
+                    }
+                }
+            }
         });
         
         studentsAttendance.push({
@@ -380,34 +405,50 @@ function displayStudentsAttendanceModal() {
             name: student.name,
             className: classData ? classData.name : 'Không xác định',
             paymentCycle: student.paymentCycle,
-            totalSessions: attendanceSummary.total,
-            present: attendanceSummary.present,
-            absent: attendanceSummary.absent,
+            totalSessions: totalSessions,
+            present: presentCount,
+            absent: absentCount,
             totalPaid: totalPaid
         });
     });
     
     // Hiển thị modal
     const tableBody = document.getElementById('students-attendance-table-body');
+    if (!tableBody) {
+        console.error("Không tìm thấy phần tử #students-attendance-table-body");
+        return;
+    }
+    
     tableBody.innerHTML = '';
     
-    studentsAttendance.forEach(student => {
+    if (studentsAttendance.length === 0) {
         const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${student.id}</td>
-            <td>${student.name}</td>
-            <td>${student.className}</td>
-            <td>${student.paymentCycle}</td>
-            <td>${student.totalSessions}</td>
-            <td>${student.present}</td>
-            <td>${student.absent}</td>
-            <td>${formatCurrency(student.totalPaid)} VND</td>
-        `;
+        row.innerHTML = `<td colspan="8" class="text-center">Không có dữ liệu điểm danh.</td>`;
         tableBody.appendChild(row);
-    });
+    } else {
+        studentsAttendance.forEach(student => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${student.id}</td>
+                <td>${student.name}</td>
+                <td>${student.className}</td>
+                <td>${student.paymentCycle}</td>
+                <td>${student.totalSessions}</td>
+                <td>${student.present}</td>
+                <td>${student.absent}</td>
+                <td>${formatCurrency(student.totalPaid)} VND</td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
     
     // Hiển thị modal
-    document.getElementById('students-attendance-modal').classList.remove('hidden');
+    const modal = document.getElementById('students-attendance-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+    } else {
+        console.error("Không tìm thấy phần tử #students-attendance-modal");
+    }
 }
 
 // Hiển thị modal học sinh có mặt
@@ -420,6 +461,11 @@ function displayPresentStudentsModal() {
     
     attendance.forEach(record => {
         const classData = classes.find(c => c.id === record.classId);
+        
+        // Kiểm tra cấu trúc dữ liệu attendance
+        if (!record.students || !Array.isArray(record.students)) {
+            return;
+        }
         
         record.students.forEach(studentAttendance => {
             if (studentAttendance.status === 'present') {
@@ -440,22 +486,57 @@ function displayPresentStudentsModal() {
     
     // Hiển thị modal
     const tableBody = document.getElementById('present-students-table-body');
+    if (!tableBody) {
+        console.error("Không tìm thấy phần tử #present-students-table-body");
+        return;
+    }
+    
     tableBody.innerHTML = '';
     
-    presentStudents.forEach(record => {
+    if (presentStudents.length === 0) {
         const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${record.id}</td>
-            <td>${record.name}</td>
-            <td>${record.className}</td>
-            <td>${formatDate(record.date)}</td>
-            <td>${record.note}</td>
-        `;
+        row.innerHTML = `<td colspan="5" class="text-center">Không có dữ liệu học sinh có mặt.</td>`;
         tableBody.appendChild(row);
-    });
+    } else {
+        // Sắp xếp theo ngày gần nhất
+        presentStudents.sort((a, b) => {
+            try {
+                const dateA = new Date(a.date);
+                const dateB = new Date(b.date);
+                
+                if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
+                    return 0; // Giữ nguyên thứ tự nếu ngày không hợp lệ
+                }
+                
+                return dateB - dateA;
+            } catch (e) {
+                console.error("Lỗi khi so sánh ngày:", e);
+                return 0;
+            }
+        });
+        
+        presentStudents.forEach(record => {
+            const row = document.createElement('tr');
+            const formattedDate = formatDate(record.date);
+            
+            row.innerHTML = `
+                <td>${record.id}</td>
+                <td>${record.name}</td>
+                <td>${record.className}</td>
+                <td>${formattedDate}</td>
+                <td>${record.note}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
     
     // Hiển thị modal
-    document.getElementById('present-students-modal').classList.remove('hidden');
+    const modal = document.getElementById('present-students-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+    } else {
+        console.error("Không tìm thấy phần tử #present-students-modal");
+    }
 }
 
 // Hiển thị modal học sinh vắng mặt
@@ -468,6 +549,11 @@ function displayAbsentStudentsModal() {
     
     attendance.forEach(record => {
         const classData = classes.find(c => c.id === record.classId);
+        
+        // Kiểm tra cấu trúc dữ liệu attendance
+        if (!record.students || !Array.isArray(record.students)) {
+            return;
+        }
         
         record.students.forEach(studentAttendance => {
             if (studentAttendance.status === 'absent') {
@@ -488,22 +574,57 @@ function displayAbsentStudentsModal() {
     
     // Hiển thị modal
     const tableBody = document.getElementById('absent-students-table-body');
+    if (!tableBody) {
+        console.error("Không tìm thấy phần tử #absent-students-table-body");
+        return;
+    }
+    
     tableBody.innerHTML = '';
     
-    absentStudents.forEach(record => {
+    if (absentStudents.length === 0) {
         const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${record.id}</td>
-            <td>${record.name}</td>
-            <td>${record.className}</td>
-            <td>${formatDate(record.date)}</td>
-            <td>${record.note}</td>
-        `;
+        row.innerHTML = `<td colspan="5" class="text-center">Không có dữ liệu học sinh vắng mặt.</td>`;
         tableBody.appendChild(row);
-    });
+    } else {
+        // Sắp xếp theo ngày gần nhất
+        absentStudents.sort((a, b) => {
+            try {
+                const dateA = new Date(a.date);
+                const dateB = new Date(b.date);
+                
+                if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
+                    return 0; // Giữ nguyên thứ tự nếu ngày không hợp lệ
+                }
+                
+                return dateB - dateA;
+            } catch (e) {
+                console.error("Lỗi khi so sánh ngày:", e);
+                return 0;
+            }
+        });
+        
+        absentStudents.forEach(record => {
+            const row = document.createElement('tr');
+            const formattedDate = formatDate(record.date);
+            
+            row.innerHTML = `
+                <td>${record.id}</td>
+                <td>${record.name}</td>
+                <td>${record.className}</td>
+                <td>${formattedDate}</td>
+                <td>${record.note}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
     
     // Hiển thị modal
-    document.getElementById('absent-students-modal').classList.remove('hidden');
+    const modal = document.getElementById('absent-students-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+    } else {
+        console.error("Không tìm thấy phần tử #absent-students-modal");
+    }
 }
 
 // Hiển thị modal lớp giáo viên vắng
@@ -514,6 +635,11 @@ function displayTeacherAbsentClassesModal() {
     const teacherAbsentClasses = [];
     
     attendance.forEach(record => {
+        // Kiểm tra cấu trúc dữ liệu attendance
+        if (!record.students || !Array.isArray(record.students)) {
+            return;
+        }
+        
         // Kiểm tra xem lớp này có giáo viên vắng không
         const hasTeacherAbsent = record.students.some(student => student.status === 'teacher-absent');
         
@@ -535,21 +661,57 @@ function displayTeacherAbsentClassesModal() {
     
     // Hiển thị modal
     const tableBody = document.getElementById('teacher-absent-classes-table-body');
+    if (!tableBody) {
+        console.error("Không tìm thấy phần tử #teacher-absent-classes-table-body");
+        return;
+    }
+    
     tableBody.innerHTML = '';
     
-    teacherAbsentClasses.forEach(record => {
+    if (teacherAbsentClasses.length === 0) {
         const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${record.className}</td>
-            <td>${formatDate(record.date)}</td>
-            <td>${record.makeupDate ? formatDate(record.makeupDate) : 'Chưa lên lịch'}</td>
-            <td>${record.status}</td>
-        `;
+        row.innerHTML = `<td colspan="4" class="text-center">Không có dữ liệu lớp giáo viên vắng.</td>`;
         tableBody.appendChild(row);
-    });
+    } else {
+        // Sắp xếp theo ngày gần nhất
+        teacherAbsentClasses.sort((a, b) => {
+            try {
+                const dateA = new Date(a.date);
+                const dateB = new Date(b.date);
+                
+                if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
+                    return 0; // Giữ nguyên thứ tự nếu ngày không hợp lệ
+                }
+                
+                return dateB - dateA;
+            } catch (e) {
+                console.error("Lỗi khi so sánh ngày:", e);
+                return 0;
+            }
+        });
+        
+        teacherAbsentClasses.forEach(record => {
+            const row = document.createElement('tr');
+            const formattedDate = formatDate(record.date);
+            const formattedMakeupDate = record.makeupDate ? formatDate(record.makeupDate) : 'Chưa lên lịch';
+            
+            row.innerHTML = `
+                <td>${record.className}</td>
+                <td>${formattedDate}</td>
+                <td>${formattedMakeupDate}</td>
+                <td>${record.status}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
     
     // Hiển thị modal
-    document.getElementById('teacher-absent-classes-modal').classList.remove('hidden');
+    const modal = document.getElementById('teacher-absent-classes-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+    } else {
+        console.error("Không tìm thấy phần tử #teacher-absent-classes-modal");
+    }
 }
 
 // Hiển thị lịch sử điểm danh
