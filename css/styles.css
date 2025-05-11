@@ -1046,3 +1046,38 @@ footer {
     padding: 5px;
     text-align: right;
 }
+
+/* Button Icon Style */
+.btn-icon {
+    background-color: transparent;
+    border: none;
+    color: var(--primary-color);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.btn-icon:hover {
+    background-color: rgba(0, 123, 255, 0.1);
+}
+
+.view-receipt-btn {
+    color: var(--primary-color);
+}
+
+.edit-receipt-btn {
+    color: var(--warning-color);
+}
+
+.delete-payment-btn {
+    color: var(--danger-color);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 5px;
+    justify-content: flex-start;
+}
+

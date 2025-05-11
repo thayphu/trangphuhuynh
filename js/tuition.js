@@ -6,8 +6,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Thiết lập tabs cho màn hình thanh toán
     setupTuitionTabs();
     
-    // Hiển thị danh sách thanh toán
-    displayPayments();
+    // Hiển thị danh sách học sinh chưa thanh toán (mặc định)
+    displayUnpaidStudents();
+    
+    // Hiển thị danh sách thanh toán ở tab lịch sử
+    displayPaymentHistory();
     
     // Cập nhật danh sách học sinh trong select box
     updateStudentSelectOptions();
