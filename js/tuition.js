@@ -650,6 +650,22 @@ function updateStudentDetails(studentId) {
     const cycleSelect = document.getElementById('payment-cycle');
     cycleSelect.value = student.paymentCycle;
     
+    // Cập nhật số tiền cần thanh toán dựa trên chu kỳ và lớp học
+    let baseAmount = 0;
+    if (classData) {
+        if (student.paymentCycle === '8 buổi') {
+            baseAmount = classData.fee * 8;
+        } else if (student.paymentCycle === '10 buổi') {
+            baseAmount = classData.fee * 10;
+        } else if (student.paymentCycle === '1 tháng' || student.paymentCycle === 'Theo ngày') {
+            baseAmount = classData.fee;
+        }
+        document.getElementById('payment-base-amount').value = baseAmount;
+    }
+    
+    // Cập nhật tổng số tiền thanh toán
+    document.getElementById('payment-amount').value = baseAmount;
+    
     // Tính học phí cơ bản
     calculateBaseAmount();
     
@@ -682,6 +698,9 @@ function calculateBaseAmount() {
     
     // Cập nhật học phí cơ bản
     document.getElementById('payment-base-amount').value = amount;
+    
+    // Cập nhật tổng số tiền thanh toán
+    document.getElementById('payment-amount').value = amount;
     
     return amount;
 }
