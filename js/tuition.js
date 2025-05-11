@@ -747,7 +747,13 @@ function handleAddPayment(event) {
     const amount = parseInt(document.getElementById('payment-amount').value);
     const date = document.getElementById('payment-date').value;
     const cycle = document.getElementById('payment-cycle').value;
-    const method = document.getElementById('payment-method').value;
+    let method = document.getElementById('payment-method').value;
+    
+    // Áp dụng định dạng viết hoa cho phương thức thanh toán
+    if (window.TextFormatter && method) {
+        method = window.TextFormatter.toTitleCase(method);
+        document.getElementById('payment-method').value = method;
+    }
     const receiptNumber = document.getElementById('payment-receipt-number').value || generateReceiptNumber();
     
     // Lấy thông tin về chi phí bổ sung
