@@ -339,6 +339,50 @@ function getAttendance() {
     return JSON.parse(localStorage.getItem('attendance')) || [];
 }
 
+// Lấy danh sách điểm danh của một học sinh
+function getStudentAttendance(studentId) {
+    const attendance = getAttendance();
+    let studentAttendance = [];
+    
+    attendance.forEach(record => {
+        // Tìm học sinh trong danh sách điểm danh của mỗi buổi học
+        if (record.students && record.students.some(s => s.id === studentId)) {
+            const studentRecord = record.students.find(s => s.id === studentId);
+            studentAttendance.push({
+                date: record.date,
+                classId: record.classId,
+                status: studentRecord.status
+            });
+        }
+    });
+    
+    return studentAttendance;
+}
+
+// Tính toán thống kê điểm danh của học sinh
+function calculateAttendanceSummary(studentId) {
+    const studentAttendance = getStudentAttendance(studentId);
+    
+    let summary = {
+        total: studentAttendance.length,
+        present: 0,
+        absent: 0,
+        teacherAbsent: 0
+    };
+    
+    studentAttendance.forEach(record => {
+        if (record.status === 'present') {
+            summary.present++;
+        } else if (record.status === 'absent') {
+            summary.absent++;
+        } else if (record.status === 'teacher-absent') {
+            summary.teacherAbsent++;
+        }
+    });
+    
+    return summary;
+}
+
 function formatDate(dateString) {
     const date = new Date(dateString);
     const day = String(date.getDate()).padStart(2, '0');
