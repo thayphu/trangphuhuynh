@@ -243,18 +243,41 @@ function getAttendance() {
 
 // Hàm kiểm tra xem lớp có lịch học vào hôm nay không
 function isClassToday(classData) {
+    if (!classData || !classData.schedule || !Array.isArray(classData.schedule)) {
+        return false;
+    }
+    
     const today = new Date();
     const dayOfWeek = today.getDay(); // 0: CN, 1: T2, ..., 6: T7
     
-    // Chuyển đổi thứ trong tuần sang định dạng "Thứ X" hoặc "Chủ nhật"
-    let dayInVietnamese;
+    // Tạo tất cả các biến thể có thể có cho thứ trong tuần
+    let dayVariants = [];
+    
     if (dayOfWeek === 0) {
-        dayInVietnamese = "Chủ nhật";
+        // Chủ nhật
+        dayVariants = ["Chủ nhật", "CN", "CN.", "Chu nhat"];
     } else {
-        dayInVietnamese = `Thứ ${dayOfWeek + 1}`;
+        // Các ngày trong tuần
+        const dayNumber = dayOfWeek + 1;
+        dayVariants = [
+            `Thứ ${dayNumber}`,
+            `Thứ ${dayNumber}`,
+            `T${dayNumber}`,
+            `T.${dayNumber}`,
+            `Thu ${dayNumber}`
+        ];
     }
     
-    return classData.schedule.includes(dayInVietnamese);
+    // Kiểm tra xem lịch học có chứa bất kỳ biến thể nào của thứ trong tuần
+    for (const variant of dayVariants) {
+        for (const scheduleDay of classData.schedule) {
+            if (scheduleDay.includes(variant)) {
+                return true;
+            }
+        }
+    }
+    
+    return false;
 }
 
 // Hàm lấy tên lớp từ ID lớp
