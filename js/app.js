@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const resetButton = document.createElement('button');
     resetButton.textContent = 'Reset Dữ Liệu';
     resetButton.className = 'action-btn danger-btn';
-    resetButton.addEventListener('click', resetAppData);
+    resetButton.addEventListener('click', resetAndFixApp);
     
     devModeContainer.appendChild(resetButton);
     document.body.appendChild(devModeContainer);

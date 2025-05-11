@@ -176,9 +176,30 @@ function displayPayments(filteredPayments = null) {
 function displayUnpaidStudents() {
     console.log("Đang hiển thị học sinh chưa thanh toán...");
     const unpaidStudentsTableBody = document.getElementById('unpaid-students-table-body');
+    
+    // Nếu không tìm thấy phần tử, thử tạo lại
     if (!unpaidStudentsTableBody) {
         console.error("Không tìm thấy phần tử unpaid-students-table-body");
-        return;
+        
+        // Kiểm tra nếu phần tử cha tồn tại
+        const unpaidStudents = document.getElementById('unpaid-students');
+        if (unpaidStudents) {
+            // Tìm bảng trong phần tử cha
+            const table = unpaidStudents.querySelector('table');
+            if (table) {
+                // Tìm tbody hoặc tạo mới nếu không có
+                let tbody = table.querySelector('tbody');
+                if (!tbody) {
+                    tbody = document.createElement('tbody');
+                    tbody.id = 'unpaid-students-table-body';
+                    table.appendChild(tbody);
+                } else if (!tbody.id) {
+                    tbody.id = 'unpaid-students-table-body';
+                }
+                return displayUnpaidStudents(); // Gọi lại hàm sau khi đã tạo element
+            }
+        }
+        return; // Nếu không tìm được parent thì thoát
     }
     
     unpaidStudentsTableBody.innerHTML = '';
