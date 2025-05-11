@@ -306,18 +306,22 @@ function displayPaymentInfo(student, classData) {
         console.error("Không tìm thấy phần tử payment-amount-due");
     }
     
-    // Tạo mã QR
+    // Tạo mã QR theo API mới của VietQR
     try {
-        // Tạo URI cho API VietQR với định dạng đúng
+        // Thông tin ngân hàng và tài khoản
         const accountNumber = '9704229262085470'; 
-        const bankCode = 'MB';  // Mã ngân hàng MB Bank
+        const bankBin = '970422';  // Mã BIN của MB Bank
+        const accountName = 'TRAN DONG PHU';
         
-        // Không encode fullname nữa, dùng cách gọi trực tiếp
-        const qrUrl = `https://api.vietqr.io/image/${bankCode}/${accountNumber}?amount=${amount}&addInfo=HP${student.id}`;
+        // Nội dung và số tiền
+        const description = `HP${student.id}`;
+        
+        // Xây dựng URL API mới của VietQR
+        const qrUrl = `https://img.vietqr.io/image/${bankBin}-${accountNumber}-compact2.jpg?amount=${amount}&addInfo=${description}&accountName=${encodeURIComponent(accountName)}`;
         
         console.log("URL VietQR mới:", qrUrl);
         
-        // Thiết lập mã QR
+        // Hiển thị mã QR
         const qrImage = document.getElementById('qr-code-image');
         if (qrImage) {
             // Đặt lại src và thêm timestamp để tránh cache
@@ -325,6 +329,7 @@ function displayPaymentInfo(student, classData) {
             qrImage.style.width = "100%";
             qrImage.style.maxWidth = "200px";
             
+            // Xử lý lỗi khi không tải được ảnh
             qrImage.onerror = function() {
                 console.error("Không thể tải mã QR từ URL:", qrUrl);
                 this.onerror = null; 
