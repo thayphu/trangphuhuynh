@@ -880,3 +880,41 @@ footer {
     color: var(--light-text-color);
     font-style: italic;
 }
+
+/* Định dạng tổng học phí */
+.fee-highlight {
+    display: inline-block;
+    font-weight: bold;
+    color: #ff0000;
+    background-color: #ffff99;
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+
+/* Nút thu học phí */
+.collect-payment-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.collect-payment-btn:hover {
+    background-color: var(--primary-dark-color);
+}
+
+/* Tiêu đề phần con */
+.section-subheader {
+    margin: 25px 0 15px 0;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 8px;
+}
+
+.section-subheader h3 {
+    color: var(--secondary-color);
+    font-size: 1.2rem;
+    font-weight: 600;
+}
