@@ -252,21 +252,31 @@ function displayPaymentInfo(student, classData) {
     
     // Lấy số tiền cần thanh toán dựa vào chu kỳ
     let amount = 0;
+    console.log("Thông tin lớp:", classData);
+    
     if (classData) {
+        // Sử dụng fee thay vì tuition nếu chưa có thuộc tính tuition
+        const tuition = classData.tuition || classData.fee || 500000; // Mặc định là 500,000 VND nếu không có dữ liệu
+        
+        console.log(`Lớp ${classData.id} (${classData.name}), học phí: ${tuition}, chu kỳ: ${student.paymentCycle}`);
+        
         if (student.paymentCycle === '8 buổi') {
             // Nếu chu kỳ là 8 buổi
-            const sessionFee = Math.round(classData.tuition / 8); // Giả sử 8 buổi = 1 tháng
+            const sessionFee = Math.round(tuition / 8); // Giả sử 8 buổi = 1 tháng
             amount = sessionFee * 8;
         } else if (student.paymentCycle === '10 buổi') {
             // Nếu chu kỳ là 10 buổi
-            const sessionFee = Math.round(classData.tuition / 8); // Giả sử 8 buổi = 1 tháng
+            const sessionFee = Math.round(tuition / 8); // Giả sử 8 buổi = 1 tháng
             amount = sessionFee * 10;
         } else if (student.paymentCycle === '1 tháng') {
             // Nếu chu kỳ là 1 tháng
-            amount = classData.tuition;
+            amount = tuition;
         } else if (student.paymentCycle === 'Theo ngày') {
             // Nếu chu kỳ là theo ngày, lấy học phí theo buổi
-            amount = Math.round(classData.tuition / 8);
+            amount = Math.round(tuition / 8);
+        } else {
+            // Trường hợp mặc định, sử dụng học phí 1 tháng
+            amount = tuition;
         }
     }
     
