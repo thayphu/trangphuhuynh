@@ -713,7 +713,7 @@ function clearPaymentFilters() {
     document.getElementById('payment-date-filter').value = '';
     
     // Hiển thị lại tất cả thanh toán
-    displayPayments();
+    displayPaymentHistory();
 }
 
 // Mở modal biên nhận
