@@ -307,23 +307,40 @@ function displayPaymentInfo(student, classData) {
     }
     
     // Tạo mã QR
-    const qrCodeImage = document.getElementById('qr-code-image');
-    if (qrCodeImage) {
-        try {
-            const qrCodeUrl = generatePaymentQRCode(student.id, amount);
-            console.log("Đã tạo mã QR với URL:", qrCodeUrl);
-            qrCodeImage.src = qrCodeUrl;
-            qrCodeImage.style.width = "100%";
-            qrCodeImage.style.maxWidth = "200px";
-        } catch (error) {
-            console.error("Lỗi khi tạo mã QR:", error);
-            const qrCodeContainer = document.getElementById('payment-qr-code');
-            if (qrCodeContainer) {
-                qrCodeContainer.innerHTML = `<p class="error">Không thể tạo mã QR</p>`;
-            }
+    try {
+        // Fix: Tạo URI cho API VietQR
+        const accountNumber = '9704229262085470'; 
+        const bankCode = 'MB';
+        const accountName = encodeURIComponent('Tran Dong Phu'); // Mã hóa tên
+        const content = encodeURIComponent(`HP${student.id}`); // Mã hóa nội dung
+        
+        // Tạo URL VietQR
+        const qrUrl = `https://img.vietqr.io/image/${bankCode}-${accountNumber}-compact.png?amount=${amount}&addInfo=${content}&accountName=${accountName}`;
+        console.log("URL VietQR đã tạo:", qrUrl);
+        
+        // Hiển thị mã QR
+        const qrImage = document.getElementById('qr-code-image');
+        if (qrImage) {
+            qrImage.src = qrUrl;
+            qrImage.style.width = "100%";
+            qrImage.style.maxWidth = "200px";
+            qrImage.onerror = function() {
+                console.error("Không thể tải mã QR từ URL:", qrUrl);
+                this.onerror = null; 
+                const qrCodeContainer = document.getElementById('payment-qr-code');
+                if (qrCodeContainer) {
+                    qrCodeContainer.innerHTML = `<p class="error">Không thể tạo mã QR</p>`;
+                }
+            };
+        } else {
+            console.error("Không tìm thấy phần tử qr-code-image");
         }
-    } else {
-        console.error("Không tìm thấy phần tử qr-code-image");
+    } catch (error) {
+        console.error("Lỗi khi tạo mã QR:", error);
+        const qrCodeContainer = document.getElementById('payment-qr-code');
+        if (qrCodeContainer) {
+            qrCodeContainer.innerHTML = `<p class="error">Không thể tạo mã QR: ${error.message}</p>`;
+        }
     }
 }
 
