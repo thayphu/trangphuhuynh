@@ -174,13 +174,28 @@ function updateFinancialReport() {
         }
     });
     
-    // Cập nhật thẻ đã thanh toán
-    document.getElementById('paid-students-count').textContent = paidStudentsCount;
-    document.getElementById('paid-students-amount').textContent = formatCurrency(paidStudentsAmount) + ' VND';
+    const paidStudentsCountElement = document.getElementById('paid-students-count');
+    const paidStudentsAmountElement = document.getElementById('paid-students-amount');
+    const unpaidStudentsCountElement = document.getElementById('unpaid-students-count');
+    const unpaidStudentsAmountElement = document.getElementById('unpaid-students-amount');
     
-    // Cập nhật thẻ chưa thanh toán
-    document.getElementById('unpaid-students-count').textContent = unpaidStudentsCount;
-    document.getElementById('unpaid-students-amount').textContent = formatCurrency(unpaidStudentsAmount) + ' VND';
+    // Cập nhật thẻ đã thanh toán (nếu phần tử tồn tại)
+    if (paidStudentsCountElement) {
+        paidStudentsCountElement.textContent = paidStudentsCount;
+    }
+    
+    if (paidStudentsAmountElement) {
+        paidStudentsAmountElement.textContent = formatCurrency(paidStudentsAmount) + ' VND';
+    }
+    
+    // Cập nhật thẻ chưa thanh toán (nếu phần tử tồn tại)
+    if (unpaidStudentsCountElement) {
+        unpaidStudentsCountElement.textContent = unpaidStudentsCount;
+    }
+    
+    if (unpaidStudentsAmountElement) {
+        unpaidStudentsAmountElement.textContent = formatCurrency(unpaidStudentsAmount) + ' VND';
+    }
 }
 
 // Cập nhật dữ liệu thống kê điểm danh
@@ -217,17 +232,30 @@ function updateAttendanceStats() {
         }
     });
     
-    // Cập nhật thẻ tổng số học sinh
-    document.getElementById('total-students').textContent = students.length;
+    const totalStudentsElement = document.getElementById('total-students');
+    const presentStudentsElement = document.getElementById('present-students');
+    const absentStudentsElement = document.getElementById('absent-students');
+    const teacherAbsentClassesElement = document.getElementById('teacher-absent-classes');
     
-    // Cập nhật thẻ có mặt
-    document.getElementById('present-students').textContent = presentCount;
+    // Cập nhật thẻ tổng số học sinh (nếu phần tử tồn tại)
+    if (totalStudentsElement) {
+        totalStudentsElement.textContent = students.length;
+    }
     
-    // Cập nhật thẻ vắng mặt
-    document.getElementById('absent-students').textContent = absentCount;
+    // Cập nhật thẻ có mặt (nếu phần tử tồn tại)
+    if (presentStudentsElement) {
+        presentStudentsElement.textContent = presentCount;
+    }
     
-    // Cập nhật thẻ GV vắng
-    document.getElementById('teacher-absent-classes').textContent = teacherAbsentClasses.size;
+    // Cập nhật thẻ vắng mặt (nếu phần tử tồn tại)
+    if (absentStudentsElement) {
+        absentStudentsElement.textContent = absentCount;
+    }
+    
+    // Cập nhật thẻ GV vắng (nếu phần tử tồn tại)
+    if (teacherAbsentClassesElement) {
+        teacherAbsentClassesElement.textContent = teacherAbsentClasses.size;
+    }
 }
 
 // Hiển thị modal học sinh đã thanh toán
@@ -546,19 +574,32 @@ function displayAttendanceHistory(useFilters = false) {
     const attendanceHistory = [];
     
     attendance.forEach(record => {
-        // Áp dụng bộ lọc lớp
-        if (classFilterValue && record.classId !== classFilterValue) {
+        const classData = classes.find(c => c.id === record.classId);
+        // Bỏ qua nếu không tìm thấy lớp hoặc lớp bị lọc
+        if (!classData || (classFilterValue && record.classId !== classFilterValue)) {
             return;
         }
         
-        const classData = classes.find(c => c.id === record.classId);
+        // Kiểm tra xem có học sinh nào trong bản ghi không
+        if (!record.students || !Array.isArray(record.students)) {
+            return;
+        }
+        
+        // Biến để kiểm tra xem có học sinh nào có trạng thái 'teacher-absent'
+        let hasTeacherAbsent = false;
         
         record.students.forEach(studentAttendance => {
+            // Kiểm tra có phải GV vắng không
+            if (studentAttendance.status === 'teacher-absent') {
+                hasTeacherAbsent = true;
+            }
+            
             // Áp dụng bộ lọc trạng thái
             if (statusFilterValue && studentAttendance.status !== statusFilterValue) {
                 return;
             }
             
+            // Tìm thông tin học sinh
             const student = students.find(s => s.id === studentAttendance.studentId);
             
             if (student) {
@@ -579,20 +620,69 @@ function displayAttendanceHistory(useFilters = false) {
                 
                 attendanceHistory.push({
                     date: record.date,
-                    className: classData ? classData.name : 'Không xác định',
+                    className: classData.name,
                     studentName: student.name,
+                    studentId: student.id,
                     status: statusText,
+                    statusCode: studentAttendance.status,
                     note: studentAttendance.note || ''
                 });
             }
         });
+        
+        // Nếu không có trạng thái teacher-absent trong record, nhưng có một phần tử 'teacher-absent'
+        // thì bổ sung bản ghi GV vắng cho tất cả học sinh trong lớp (nếu không có bộ lọc trạng thái hoặc bộ lọc là 'teacher-absent')
+        if (hasTeacherAbsent && (!statusFilterValue || statusFilterValue === 'teacher-absent')) {
+            students.forEach(student => {
+                if (student.classId === record.classId) {
+                    // Kiểm tra xem đã có bản ghi nào cho học sinh này trong ngày này chưa
+                    const existingRecord = attendanceHistory.find(
+                        r => r.studentId === student.id && r.date === record.date
+                    );
+                    
+                    // Nếu chưa có, thêm bản ghi mới
+                    if (!existingRecord) {
+                        attendanceHistory.push({
+                            date: record.date,
+                            className: classData.name,
+                            studentName: student.name,
+                            studentId: student.id,
+                            status: 'GV vắng',
+                            statusCode: 'teacher-absent',
+                            note: 'Giáo viên vắng mặt'
+                        });
+                    }
+                }
+            });
+        }
     });
     
     // Sắp xếp theo ngày gần nhất
-    attendanceHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
+    attendanceHistory.sort((a, b) => {
+        // Thử so sánh ngày
+        try {
+            const dateA = new Date(a.date);
+            const dateB = new Date(b.date);
+            
+            // Kiểm tra xem ngày có hợp lệ không
+            if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
+                return 0; // Giữ nguyên thứ tự nếu ngày không hợp lệ
+            }
+            
+            return dateB - dateA;
+        } catch (e) {
+            console.error("Lỗi khi so sánh ngày:", e);
+            return 0; // Giữ nguyên thứ tự nếu có lỗi
+        }
+    });
     
-    // Hiển thị danh sách
+    // Hiển thị danh sách nếu có phần tử tbody
     const tableBody = document.getElementById('attendance-history-table-body');
+    if (!tableBody) {
+        console.error("Không tìm thấy phần tử #attendance-history-table-body");
+        return;
+    }
+    
     tableBody.innerHTML = '';
     
     if (attendanceHistory.length === 0) {
@@ -602,8 +692,13 @@ function displayAttendanceHistory(useFilters = false) {
     } else {
         attendanceHistory.forEach(record => {
             const row = document.createElement('tr');
+            const formattedDate = formatDate(record.date);
+            
+            // Thêm class màu sắc dựa trên trạng thái
+            row.className = record.statusCode || '';
+            
             row.innerHTML = `
-                <td>${formatDate(record.date)}</td>
+                <td>${formattedDate}</td>
                 <td>${record.className}</td>
                 <td>${record.studentName}</td>
                 <td>${record.status}</td>

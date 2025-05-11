@@ -38,7 +38,6 @@ document.addEventListener('DOMContentLoaded', function() {
     displayStudents();
     displayPayments();
     displayAttendanceClasses();
-    updateReportsData();
     
     // Lắng nghe sự kiện thay đổi dữ liệu để cập nhật giao diện
     document.addEventListener('dataChanged', function(e) {

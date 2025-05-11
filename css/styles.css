@@ -617,6 +617,19 @@ table tr:hover {
     overflow-x: auto;
 }
 
+/* Màu sắc cho các trạng thái điểm danh trong bảng lịch sử */
+#attendance-history-table-body tr.present {
+    background-color: rgba(76, 175, 80, 0.1);
+}
+
+#attendance-history-table-body tr.absent {
+    background-color: rgba(244, 67, 54, 0.1);
+}
+
+#attendance-history-table-body tr.teacher-absent {
+    background-color: rgba(255, 152, 0, 0.1);
+}
+
 .modal-lg {
     min-width: 80%;
     max-width: 1200px;
