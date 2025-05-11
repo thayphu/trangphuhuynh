@@ -119,11 +119,20 @@ function setupTuitionTabs() {
             // Thêm active class cho tab được chọn
             this.classList.add('active');
             document.getElementById(tabId).classList.add('active');
+            
+            // Nếu tab là học sinh chưa thanh toán, hiển thị danh sách học sinh chưa thanh toán
+            if (tabId === 'unpaid-students') {
+                displayUnpaidStudents();
+            } 
+            // Nếu tab là lịch sử thanh toán, hiển thị danh sách thanh toán
+            else if (tabId === 'payment-history') {
+                displayPaymentHistory();
+            }
         });
     });
 }
 
-// Hiển thị danh sách thanh toán và học sinh chưa thanh toán
+// Hiển thị danh sách thanh toán (hàm tương thích ngược)
 function displayPayments(filteredPayments = null) {
     // Hiển thị lịch sử thanh toán
     displayPaymentHistory(filteredPayments);
@@ -194,7 +203,7 @@ function displayUnpaidStudents() {
             <td>${student.paymentCycle}</td>
             <td>${formatDate(dueDate)}</td>
             <td>
-                <button class="collect-payment-btn" data-id="${student.id}">Thu học phí</button>
+                <button class="btn primary-btn collect-payment-btn" data-id="${student.id}">Thu học phí</button>
             </td>
         `;
         
@@ -290,6 +299,14 @@ function attachPaymentButtonEvents() {
             if (confirm('Bạn có chắc chắn muốn xóa thanh toán này không?')) {
                 deletePayment(paymentId);
             }
+        });
+    });
+    
+    // Gắn sự kiện cho nút thu học phí trong tab học sinh chưa thanh toán
+    document.querySelectorAll('.collect-payment-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const studentId = this.dataset.id;
+            openAddPaymentModal(studentId);
         });
     });
 }
