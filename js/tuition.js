@@ -3,14 +3,25 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
+    console.log("Trang đã tải xong, khởi tạo chức năng học phí...");
+    
     // Thiết lập tabs cho màn hình thanh toán
     setupTuitionTabs();
     
-    // Hiển thị danh sách học sinh chưa thanh toán (mặc định)
-    displayUnpaidStudents();
-    
-    // Hiển thị danh sách thanh toán ở tab lịch sử
-    displayPaymentHistory();
+    // Kiểm tra phần tử
+    setTimeout(() => {
+        console.log("Kiểm tra các phần tử bảng:");
+        checkElementStatus('#unpaid-students');
+        checkElementStatus('#unpaid-students-table-body');
+        checkElementStatus('#payment-history');
+        checkElementStatus('#payments-table-body');
+        
+        // Hiển thị danh sách học sinh chưa thanh toán (mặc định)
+        displayUnpaidStudents();
+        
+        // Hiển thị danh sách thanh toán ở tab lịch sử
+        displayPaymentHistory();
+    }, 500);
     
     // Cập nhật danh sách học sinh trong select box
     updateStudentSelectOptions();
@@ -105,12 +116,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Thiết lập tabs cho quản lý học phí
 function setupTuitionTabs() {
-    const tabButtons = document.querySelectorAll('.payment-tabs-container .payment-tab-button');
-    const tabContents = document.querySelectorAll('.payment-tabs-container .payment-tab-content');
+    console.log("Thiết lập tabs cho quản lý học phí");
+    const tabButtons = document.querySelectorAll('.payment-tab-button');
+    console.log("Số lượng tab button:", tabButtons.length);
+    const tabContents = document.querySelectorAll('.payment-tab-content');
+    console.log("Số lượng tab content:", tabContents.length);
     
-    tabButtons.forEach(button => {
+    tabButtons.forEach((button, index) => {
+        console.log(`Tab button ${index+1}:`, button.dataset.tab);
         button.addEventListener('click', function() {
             const tabId = this.dataset.tab;
+            console.log("Đã click tab:", tabId);
             
             // Xóa active class từ tất cả các tab
             tabButtons.forEach(btn => btn.classList.remove('active'));
@@ -118,15 +134,20 @@ function setupTuitionTabs() {
             
             // Thêm active class cho tab được chọn
             this.classList.add('active');
-            document.getElementById(tabId).classList.add('active');
-            
-            // Nếu tab là học sinh chưa thanh toán, hiển thị danh sách học sinh chưa thanh toán
-            if (tabId === 'unpaid-students') {
-                displayUnpaidStudents();
-            } 
-            // Nếu tab là lịch sử thanh toán, hiển thị danh sách thanh toán
-            else if (tabId === 'payment-history') {
-                displayPaymentHistory();
+            const tabContent = document.getElementById(tabId);
+            if (tabContent) {
+                tabContent.classList.add('active');
+                
+                // Nếu tab là học sinh chưa thanh toán, hiển thị danh sách học sinh chưa thanh toán
+                if (tabId === 'unpaid-students') {
+                    setTimeout(() => displayUnpaidStudents(), 100);
+                } 
+                // Nếu tab là lịch sử thanh toán, hiển thị danh sách thanh toán
+                else if (tabId === 'payment-history') {
+                    setTimeout(() => displayPaymentHistory(), 100);
+                }
+            } else {
+                console.error(`Không tìm thấy phần tử có ID: ${tabId}`);
             }
         });
     });
