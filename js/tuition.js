@@ -292,6 +292,9 @@ function displayUnpaidStudents() {
 function displayPaymentHistory(filteredPayments = null) {
     console.log("Đang hiển thị lịch sử thanh toán...");
     
+    // Cập nhật danh sách lớp trong bộ lọc
+    updatePaymentClassFilter();
+    
     // Tìm thẻ tbody cho lịch sử thanh toán
     let paymentsTableBody = document.getElementById('payments-table-body');
     
@@ -925,10 +928,44 @@ function deletePayment(paymentId) {
 }
 
 // Lọc thanh toán theo tìm kiếm và bộ lọc
+// Cập nhật danh sách lớp học trong bộ lọc thanh toán
+function updatePaymentClassFilter() {
+    // Lấy tất cả các lớp học hiện có
+    const classes = getClasses();
+    if (!classes || classes.length === 0) return;
+    
+    // Tìm select filter cho lớp học
+    const classFilter = document.getElementById('payment-class-filter');
+    if (!classFilter) {
+        console.error("Không tìm thấy bộ lọc lớp học (payment-class-filter)");
+        return;
+    }
+    
+    // Xóa các option hiện tại ngoại trừ option mặc định
+    while (classFilter.options.length > 1) {
+        classFilter.remove(1);
+    }
+    
+    // Thêm danh sách lớp vào select
+    classes.forEach(cls => {
+        const option = document.createElement('option');
+        option.value = cls.id;
+        option.textContent = cls.name;
+        classFilter.appendChild(option);
+    });
+    
+    console.log(`Đã cập nhật ${classes.length} lớp học vào bộ lọc thanh toán`);
+}
+
 function filterPayments() {
     const searchTerm = document.getElementById('payment-search').value.toLowerCase();
     const classFilter = document.getElementById('payment-class-filter').value;
     const dateFilter = document.getElementById('payment-date-filter').value;
+    
+    // Cập nhật danh sách lớp nếu chưa có
+    if (document.getElementById('payment-class-filter').options.length <= 1) {
+        updatePaymentClassFilter();
+    }
     
     let filteredPayments = getPayments();
     
