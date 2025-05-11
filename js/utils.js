@@ -255,7 +255,7 @@ function isClassToday(classData) {
     
     if (dayOfWeek === 0) {
         // Chủ nhật
-        dayVariants = ["Chủ nhật", "CN", "CN.", "Chu nhat"];
+        dayVariants = ["Chủ nhật", "Chủ Nhật", "CN", "CN.", "Chu nhat", "chủ nhật"];
     } else {
         // Các ngày trong tuần
         const dayNumber = dayOfWeek + 1;

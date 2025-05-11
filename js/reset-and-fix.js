@@ -29,10 +29,21 @@ function resetAndFixApp() {
                 name: 'Lớp Tiếng Anh giao tiếp',
                 teacher: 'Trần Thị Anh',
                 description: 'Rèn luyện kỹ năng giao tiếp tiếng Anh',
-                schedule: ['Thứ 3', 'Thứ 5'],
+                schedule: ['T.3', 'T.5'],
                 timeStart: '17:30',
                 timeEnd: '19:00',
                 fee: 450000,
+                feeCycle: '1 tháng'
+            },
+            {
+                id: 'class003',
+                name: 'Lớp Nghệ Thuật',
+                teacher: 'Lê Thị Tâm',
+                description: 'Phát triển năng khiếu và sáng tạo',
+                schedule: ['CN', 'T.7'],
+                timeStart: '09:00',
+                timeEnd: '11:00',
+                fee: 600000,
                 feeCycle: '1 tháng'
             }
         ];
@@ -74,6 +85,18 @@ function resetAndFixApp() {
                 classId: 'class001',
                 registerDate: '2023-02-01',
                 paymentCycle: '8 buổi'
+            },
+            {
+                id: 'HS004',
+                name: 'Hoàng Minh Tuấn',
+                phone: '0976543210',
+                birthdate: '2013-12-03',
+                parentName: 'Hoàng Văn Phụ huynh',
+                parentPhone: '0912345678',
+                address: '456 Đường Nguyễn Huệ, Quận 5',
+                classId: 'class003',
+                registerDate: '2023-05-15',
+                paymentCycle: '1 tháng'
             }
         ];
         
@@ -124,6 +147,14 @@ function resetAndFixApp() {
                 date: '2023-01-03',
                 students: [
                     { id: 'HS002', status: 'present' }
+                ]
+            },
+            {
+                id: 'ATT003',
+                classId: 'class003',
+                date: '2023-05-21',
+                students: [
+                    { id: 'HS004', status: 'present' }
                 ]
             }
         ];

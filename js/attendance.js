@@ -238,15 +238,30 @@ function openAttendanceModal(classId) {
     const formattedDate = today.toISOString().split('T')[0];
     document.getElementById('attendance-date').textContent = formatDate(formattedDate);
     
+    // Ghi log debug
+    console.log(`Modal điểm danh cho lớp ${classData.name} - ID: ${classData.id}`);
+    console.log(`Lịch học lớp: ${classData.schedule.join(', ')}`);
+    console.log(`Ngày điểm danh: ${formattedDate}`);
+    console.log(`Học sinh trong lớp: ${students.length}`);
+    
     // Tạo danh sách học sinh để điểm danh
     const attendanceList = document.getElementById('attendance-list');
     attendanceList.innerHTML = '';
     
     // Kiểm tra xem lớp đã được điểm danh hôm nay chưa
     const attendance = getAttendance();
+    
+    // Hiển thị dữ liệu điểm danh để debug
+    console.log(`Tổng số bản ghi điểm danh: ${attendance.length}`);
+    attendance.forEach(record => {
+        console.log(`Bản ghi: Lớp=${record.classId}, Ngày=${record.date}, Học sinh=${record.students ? record.students.length : 0}`);
+    });
+    
     const todayAttendance = attendance.find(record => 
         record.date === formattedDate && record.classId === classId
     );
+    console.log(`Đã tìm thấy bản ghi điểm danh cho hôm nay: ${todayAttendance ? 'Có' : 'Không'}`);
+    
     
     students.forEach(student => {
         const attendanceItem = document.createElement('div');
