@@ -68,6 +68,11 @@ function displayStudentInfo(studentId) {
     document.getElementById('student-register-date').textContent = formatDate(student.registerDate);
     document.getElementById('student-payment-cycle').textContent = student.paymentCycle;
     
+    // Hiển thị thông tin bổ sung
+    document.getElementById('student-phone').textContent = student.phone || '';
+    document.getElementById('student-birth-date').textContent = student.birthDate ? formatDate(student.birthDate) : '';
+    document.getElementById('student-address').textContent = student.address || '';
+    
     // Kiểm tra trạng thái thanh toán
     const paymentStatus = checkPaymentStatus(student);
     const statusText = getPaymentStatusText(paymentStatus);
