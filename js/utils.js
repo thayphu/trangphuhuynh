@@ -261,17 +261,21 @@ function isClassToday(classData) {
         const dayNumber = dayOfWeek + 1;
         dayVariants = [
             `Thứ ${dayNumber}`,
-            `Thứ ${dayNumber}`,
+            `Thứ${dayNumber}`,
             `T${dayNumber}`,
             `T.${dayNumber}`,
             `Thu ${dayNumber}`
         ];
     }
     
-    // Kiểm tra xem lịch học có chứa bất kỳ biến thể nào của thứ trong tuần
-    for (const variant of dayVariants) {
-        for (const scheduleDay of classData.schedule) {
-            if (scheduleDay.includes(variant)) {
+    // Kiểm tra xem bất kỳ biến thể nào của thứ trong tuần có khớp với lịch học không
+    for (const scheduleDay of classData.schedule) {
+        // Chuẩn hóa để so sánh dễ dàng hơn
+        const normalizedScheduleDay = scheduleDay.trim().toLowerCase();
+        
+        for (const variant of dayVariants) {
+            if (normalizedScheduleDay === variant.toLowerCase() || 
+                normalizedScheduleDay.includes(variant.toLowerCase())) {
                 return true;
             }
         }
@@ -329,6 +333,16 @@ function initializeSampleData() {
                 location: 'Phòng 202',
                 fee: 450000,
                 paymentCycle: '8 buổi'
+            },
+            {
+                id: 'class003',
+                name: 'Lớp Nghệ Thuật',
+                schedule: ['CN', 'T.7'],
+                timeStart: '09:00',
+                timeEnd: '11:00',
+                location: 'Phòng 303',
+                fee: 600000,
+                paymentCycle: '1 tháng'
             }
         ];
         
