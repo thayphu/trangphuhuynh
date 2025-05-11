@@ -308,22 +308,23 @@ function displayPaymentInfo(student, classData) {
     
     // Tạo mã QR
     try {
-        // Fix: Tạo URI cho API VietQR
+        // Tạo URI cho API VietQR với định dạng đúng
         const accountNumber = '9704229262085470'; 
-        const bankCode = 'MB';
-        const accountName = encodeURIComponent('Tran Dong Phu'); // Mã hóa tên
-        const content = encodeURIComponent(`HP${student.id}`); // Mã hóa nội dung
+        const bankCode = 'MB';  // Mã ngân hàng MB Bank
         
-        // Tạo URL VietQR
-        const qrUrl = `https://img.vietqr.io/image/${bankCode}-${accountNumber}-compact.png?amount=${amount}&addInfo=${content}&accountName=${accountName}`;
-        console.log("URL VietQR đã tạo:", qrUrl);
+        // Không encode fullname nữa, dùng cách gọi trực tiếp
+        const qrUrl = `https://api.vietqr.io/image/${bankCode}/${accountNumber}?amount=${amount}&addInfo=HP${student.id}`;
         
-        // Hiển thị mã QR
+        console.log("URL VietQR mới:", qrUrl);
+        
+        // Thiết lập mã QR
         const qrImage = document.getElementById('qr-code-image');
         if (qrImage) {
-            qrImage.src = qrUrl;
+            // Đặt lại src và thêm timestamp để tránh cache
+            qrImage.src = qrUrl + '&t=' + new Date().getTime();
             qrImage.style.width = "100%";
             qrImage.style.maxWidth = "200px";
+            
             qrImage.onerror = function() {
                 console.error("Không thể tải mã QR từ URL:", qrUrl);
                 this.onerror = null; 
