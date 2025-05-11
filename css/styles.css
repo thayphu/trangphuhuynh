@@ -959,17 +959,20 @@ footer {
     border: 1px solid var(--border-color);
 }
 
-.payment-tabs, .payment-tabs-container {
+.payment-tabs, .payment-tabs-container,
+.attendance-tabs {
     margin: 20px 0;
 }
 
-.payment-tab-buttons {
+.payment-tab-buttons,
+.attendance-tabs {
     display: flex;
     border-bottom: 1px solid var(--border-color);
     margin-bottom: 15px;
 }
 
-.payment-tab-button {
+.payment-tab-button,
+.attendance-tab {
     background: none;
     border: none;
     padding: 10px 20px;
@@ -980,11 +983,13 @@ footer {
     font-size: 15px;
 }
 
-.payment-tab-button.active {
+.payment-tab-button.active,
+.attendance-tab.active {
     color: var(--primary-color);
 }
 
-.payment-tab-button.active::after {
+.payment-tab-button.active::after,
+.attendance-tab.active::after {
     content: '';
     position: absolute;
     bottom: -1px;
@@ -994,12 +999,14 @@ footer {
     background-color: var(--primary-color);
 }
 
-.payment-tab-content {
+.payment-tab-content,
+.attendance-tab-content {
     display: none;
     padding: 15px 0;
 }
 
-.payment-tab-content.active {
+.payment-tab-content.active,
+.attendance-tab-content.active {
     display: block;
 }
 

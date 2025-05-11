@@ -194,13 +194,29 @@
 
                     <!-- Điểm danh Tab -->
                     <div id="attendance" class="tab-pane hidden">
-                        <div class="section-header">
-                            <h2>Điểm danh</h2>
-                            <div class="date-display">
-                                <span id="current-date"></span>
+                        <div class="attendance-tabs">
+                            <button type="button" class="attendance-tab active" data-tab="attendance-main">Điểm danh</button>
+                            <button type="button" class="attendance-tab" data-tab="attendance-makeup">Học bù</button>
+                        </div>
+                        
+                        <div id="attendance-main" class="attendance-tab-content active">
+                            <div class="section-header">
+                                <h2>Điểm danh</h2>
+                                <div class="date-display">
+                                    <span id="current-date"></span>
+                                </div>
+                            </div>
+                            <div id="attendance-classes" class="grid-container"></div>
+                        </div>
+                        
+                        <div id="attendance-makeup" class="attendance-tab-content">
+                            <div class="section-header">
+                                <h2>Lịch học bù</h2>
+                            </div>
+                            <div id="makeup-classes" class="grid-container">
+                                <p class="no-data" id="no-makeup-classes">Không có lớp nào cần học bù.</p>
                             </div>
                         </div>
-                        <div id="attendance-classes" class="grid-container"></div>
                     </div>
 
                     <!-- Báo cáo Tab -->

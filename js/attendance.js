@@ -22,6 +22,12 @@ document.addEventListener('DOMContentLoaded', function() {
     if (attendanceForm) {
         attendanceForm.addEventListener('submit', handleAttendance);
     }
+    
+    // Thiết lập tabs cho điểm danh
+    setupAttendanceTabs();
+    
+    // Hiển thị danh sách lớp học bù
+    displayMakeupClasses();
 });
 
 // Hiển thị danh sách lớp để điểm danh
@@ -90,6 +96,9 @@ function displayAttendanceClasses() {
                       allAttended ? 'Đã điểm danh đủ' : 
                       '<span class="blink">Điểm danh</span>'}
                 </button>
+                <button class="teacher-absent-btn" data-id="${classData.id}" ${!isTodayClass ? 'disabled' : ''}>
+                    GV vắng
+                </button>
             </div>
         `;
         
@@ -102,6 +111,7 @@ function displayAttendanceClasses() {
 
 // Gắn sự kiện cho các nút điểm danh
 function attachAttendanceButtonEvents() {
+    // Sự kiện cho nút điểm danh
     const attendanceButtons = document.querySelectorAll('.attendance-btn');
     attendanceButtons.forEach(button => {
         if (!button.disabled) {
@@ -111,6 +121,81 @@ function attachAttendanceButtonEvents() {
             });
         }
     });
+    
+    // Sự kiện cho nút GV vắng
+    const teacherAbsentButtons = document.querySelectorAll('.teacher-absent-btn');
+    teacherAbsentButtons.forEach(button => {
+        if (!button.disabled) {
+            button.addEventListener('click', function() {
+                const classId = this.dataset.id;
+                if (confirm('Xác nhận giáo viên vắng mặt? Tất cả học sinh sẽ được chuyển sang trạng thái GV nghỉ.')) {
+                    markTeacherAbsent(classId);
+                }
+            });
+        }
+    });
+}
+
+// Đánh dấu giáo viên vắng mặt
+function markTeacherAbsent(classId) {
+    // Lấy ngày hiện tại
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Lấy danh sách học sinh của lớp
+    const students = getStudents().filter(student => student.classId === classId);
+    
+    if (students.length === 0) {
+        alert('Lớp này chưa có học sinh nào.');
+        return;
+    }
+    
+    // Lấy danh sách điểm danh hiện tại
+    const attendance = getAttendance();
+    
+    // Kiểm tra xem đã có bản ghi điểm danh cho ngày hôm nay chưa
+    let todayAttendance = attendance.find(record => 
+        record.date === today && record.classId === classId
+    );
+    
+    // Tạo danh sách học sinh với trạng thái "GV nghỉ"
+    const attendanceStudents = students.map(student => ({
+        id: student.id,
+        status: 'teacher-absent'
+    }));
+    
+    if (todayAttendance) {
+        // Cập nhật bản ghi hiện có
+        todayAttendance.students = attendanceStudents;
+        
+        // Đánh dấu là lớp cần học bù
+        if (!todayAttendance.needMakeup) {
+            todayAttendance.needMakeup = true;
+            todayAttendance.makeupDate = null;
+        }
+    } else {
+        // Tạo bản ghi mới
+        todayAttendance = {
+            id: generateId('attendance', 5),
+            classId: classId,
+            date: today,
+            students: attendanceStudents,
+            needMakeup: true,
+            makeupDate: null
+        };
+        attendance.push(todayAttendance);
+    }
+    
+    // Lưu vào localStorage
+    localStorage.setItem('attendance', JSON.stringify(attendance));
+    
+    // Hiển thị lại danh sách lớp
+    displayAttendanceClasses();
+    
+    // Cập nhật danh sách lớp học bù
+    displayMakeupClasses();
+    
+    // Hiển thị thông báo thành công
+    showNotification('Đã đánh dấu giáo viên vắng mặt cho lớp này', 'success');
 }
 
 // Mở modal điểm danh
