@@ -244,9 +244,10 @@ function displayPaymentHistory(filteredPayments = null) {
             <td><span class="fee-highlight">${formatCurrency(payment.amount)} VND</span></td>
             <td>${payment.cycle}</td>
             <td>${payment.method}</td>
-            <td>
-                <button class="view-receipt-btn" data-id="${payment.id}">Xem biên nhận</button>
-                <button class="delete-payment-btn" data-id="${payment.id}">Xóa</button>
+            <td class="action-buttons">
+                <button class="view-receipt-btn btn-icon" data-id="${payment.id}" title="Xem biên nhận"><i class="fas fa-eye"></i></button>
+                <button class="edit-receipt-btn btn-icon" data-id="${payment.id}" title="Sửa biên nhận"><i class="fas fa-edit"></i></button>
+                <button class="delete-payment-btn btn-icon" data-id="${payment.id}" title="Xóa biên nhận"><i class="fas fa-trash-alt"></i></button>
             </td>
         `;
         
@@ -265,6 +266,16 @@ function attachPaymentButtonEvents() {
         button.addEventListener('click', function() {
             const paymentId = this.dataset.id;
             openReceiptModal(paymentId);
+        });
+    });
+    
+    // Gắn sự kiện cho nút sửa biên nhận
+    const editButtons = document.querySelectorAll('.edit-receipt-btn');
+    editButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const paymentId = this.dataset.id;
+            // Mở form chỉnh sửa biên nhận (dùng lại form thêm thanh toán)
+            openEditPaymentModal(paymentId);
         });
     });
     

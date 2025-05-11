@@ -307,6 +307,225 @@ function openAttendanceModal(classId) {
     modal.classList.remove('hidden');
 }
 
+// Thiết lập tabs cho điểm danh
+function setupAttendanceTabs() {
+    const tabButtons = document.querySelectorAll('.attendance-tab');
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const tabId = this.dataset.tab;
+            
+            // Xóa active class từ tất cả các tab
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.attendance-tab-content').forEach(content => content.classList.remove('active'));
+            
+            // Thêm active class cho tab được chọn
+            this.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        });
+    });
+}
+
+// Hiển thị danh sách lớp học bù
+function displayMakeupClasses() {
+    const makeupClassesContainer = document.getElementById('makeup-classes');
+    const noMakeupMessage = document.getElementById('no-makeup-classes');
+    
+    if (!makeupClassesContainer) return;
+    
+    // Xóa nội dung hiện tại (trừ thông báo không có lớp học bù)
+    Array.from(makeupClassesContainer.children).forEach(child => {
+        if (child.id !== 'no-makeup-classes') {
+            child.remove();
+        }
+    });
+    
+    // Lấy danh sách điểm danh
+    const attendance = getAttendance();
+    
+    // Lọc ra các lớp cần học bù
+    const needMakeupRecords = attendance.filter(record => record.needMakeup);
+    
+    // Hiển thị thông báo nếu không có lớp nào cần học bù
+    if (needMakeupRecords.length === 0) {
+        noMakeupMessage.style.display = 'block';
+        return;
+    }
+    
+    // Ẩn thông báo không có lớp học bù
+    noMakeupMessage.style.display = 'none';
+    
+    // Hiển thị các lớp cần học bù
+    needMakeupRecords.forEach(record => {
+        const classData = getClassById(record.classId);
+        if (!classData) return;
+        
+        const makeupCard = document.createElement('div');
+        makeupCard.className = 'class-card';
+        
+        // Định dạng ngày
+        const absentDate = formatDate(record.date);
+        
+        // Định dạng ngày học bù (nếu có)
+        const makeupDate = record.makeupDate ? formatDate(record.makeupDate) : 'Chưa đặt lịch';
+        
+        makeupCard.innerHTML = `
+            <h3>${classData.name}</h3>
+            <div class="class-details">
+                <div><span>Ngày nghỉ:</span> ${absentDate}</div>
+                <div><span>Lịch học bù:</span> ${record.makeupDate ? makeupDate : '<span class="status-unpaid">Chưa đặt lịch</span>'}</div>
+                <div><span>Thời gian:</span> ${formatTime(classData.timeStart)} - ${formatTime(classData.timeEnd)}</div>
+                <div><span>Địa điểm:</span> ${classData.location}</div>
+            </div>
+            <div class="class-actions">
+                ${!record.makeupDate ? 
+                  `<button class="schedule-makeup-btn" data-id="${record.id}" data-class-id="${classData.id}" data-date="${record.date}">Đặt lịch học bù</button>` : 
+                  `<button class="change-makeup-btn" data-id="${record.id}" data-class-id="${classData.id}" data-date="${record.date}">Thay đổi lịch học bù</button>`}
+            </div>
+        `;
+        
+        makeupClassesContainer.appendChild(makeupCard);
+    });
+    
+    // Thêm sự kiện cho nút đặt lịch học bù
+    document.querySelectorAll('.schedule-makeup-btn, .change-makeup-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const recordId = this.dataset.id;
+            const classId = this.dataset.classId;
+            const absentDate = this.dataset.date;
+            
+            // Mở modal đặt lịch học bù
+            openScheduleMakeupModal(recordId, classId, absentDate);
+        });
+    });
+}
+
+// Mở modal đặt lịch học bù
+function openScheduleMakeupModal(recordId, classId, absentDate) {
+    // Hiển thị modal thông thường
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.id = 'schedule-makeup-modal';
+    
+    const classData = getClassById(classId);
+    if (!classData) return;
+    
+    // Lấy bản ghi điểm danh
+    const attendance = getAttendance();
+    const record = attendance.find(r => r.id === recordId);
+    
+    if (!record) return;
+    
+    // Tính toán ngày học bù mặc định (1 tuần sau ngày nghỉ)
+    const absentDateObj = new Date(absentDate);
+    const suggestedDate = new Date(absentDateObj);
+    suggestedDate.setDate(suggestedDate.getDate() + 7);
+    
+    // Format để dùng trong input date
+    const suggestedDateFormatted = suggestedDate.toISOString().split('T')[0];
+    const currentMakeupDate = record.makeupDate || suggestedDateFormatted;
+    
+    // Tạo nội dung modal
+    modal.innerHTML = `
+        <div class="modal-content">
+            <span class="close-btn" onclick="document.getElementById('schedule-makeup-modal').remove()">&times;</span>
+            <h2>Đặt lịch học bù cho lớp ${classData.name}</h2>
+            <form id="schedule-makeup-form">
+                <input type="hidden" name="record-id" value="${recordId}">
+                <div class="form-group">
+                    <label>Ngày nghỉ:</label>
+                    <input type="text" value="${formatDate(absentDate)}" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Ngày học bù:</label>
+                    <input type="date" name="makeup-date" id="makeup-date" value="${currentMakeupDate}" min="${new Date().toISOString().split('T')[0]}" required>
+                </div>
+                <div id="date-conflict-warning" class="warning" style="display: none; color: red; margin-top: 10px;">
+                    Cảnh báo: Ngày đã chọn trùng với lịch học hiện tại của lớp.
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="submit-btn">Lưu lịch học bù</button>
+                    <button type="button" class="cancel-btn" onclick="document.getElementById('schedule-makeup-modal').remove()">Hủy</button>
+                </div>
+            </form>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Hiển thị modal
+    setTimeout(() => {
+        modal.style.opacity = '1';
+    }, 10);
+    
+    // Xử lý thay đổi ngày để kiểm tra xung đột
+    const makeupDateInput = document.getElementById('makeup-date');
+    const dateConflictWarning = document.getElementById('date-conflict-warning');
+    
+    makeupDateInput.addEventListener('change', function() {
+        const selectedDate = new Date(this.value);
+        const dayOfWeek = selectedDate.getDay(); // 0: CN, 1: T2, ..., 6: T7
+        
+        // Chuyển đổi thứ trong tuần sang định dạng "Thứ X" hoặc "Chủ nhật"
+        let dayInVietnamese;
+        if (dayOfWeek === 0) {
+            dayInVietnamese = "Chủ nhật";
+        } else {
+            dayInVietnamese = `Thứ ${dayOfWeek + 1}`;
+        }
+        
+        // Kiểm tra xem ngày được chọn có trùng với lịch học của lớp không
+        const hasScheduleConflict = classData.schedule.includes(dayInVietnamese);
+        
+        // Hiển thị cảnh báo nếu có xung đột
+        dateConflictWarning.style.display = hasScheduleConflict ? 'block' : 'none';
+    });
+    
+    // Kích hoạt sự kiện change để kiểm tra ngày mặc định
+    const event = new Event('change');
+    makeupDateInput.dispatchEvent(event);
+    
+    // Xử lý form đặt lịch học bù
+    const scheduleMakeupForm = document.getElementById('schedule-makeup-form');
+    if (scheduleMakeupForm) {
+        scheduleMakeupForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const recordId = this.elements['record-id'].value;
+            const makeupDate = this.elements['makeup-date'].value;
+            
+            // Lưu lịch học bù
+            saveScheduleMakeup(recordId, makeupDate);
+            
+            // Đóng modal
+            document.getElementById('schedule-makeup-modal').remove();
+        });
+    }
+}
+
+// Lưu lịch học bù
+function saveScheduleMakeup(recordId, makeupDate) {
+    // Lấy danh sách điểm danh
+    const attendance = getAttendance();
+    
+    // Tìm bản ghi cần cập nhật
+    const record = attendance.find(r => r.id === recordId);
+    
+    if (!record) return;
+    
+    // Cập nhật ngày học bù
+    record.makeupDate = makeupDate;
+    
+    // Lưu vào localStorage
+    localStorage.setItem('attendance', JSON.stringify(attendance));
+    
+    // Cập nhật danh sách lớp học bù
+    displayMakeupClasses();
+    
+    // Hiển thị thông báo thành công
+    showNotification('Đã đặt lịch học bù thành công', 'success');
+}
+
 // Xử lý lưu điểm danh
 function handleAttendance(event) {
     event.preventDefault();
