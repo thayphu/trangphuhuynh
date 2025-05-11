@@ -244,29 +244,32 @@ function displayPaymentInfo(student, classData) {
     let amount = 0;
     if (classData) {
         if (student.paymentCycle === '8 buổi') {
-            // Nếu chu kỳ là 8 buổi, số tiền đã nhập là học phí/buổi, tổng học phí = fee × 8
-            amount = classData.fee * 8;
+            // Nếu chu kỳ là 8 buổi
+            const sessionFee = Math.round(classData.tuition / 8); // Giả sử 8 buổi = 1 tháng
+            amount = sessionFee * 8;
         } else if (student.paymentCycle === '10 buổi') {
-            // Nếu chu kỳ là 10 buổi, số tiền đã nhập là học phí/buổi, tổng học phí = fee × 10
-            amount = classData.fee * 10;
-        } else if (student.paymentCycle === '1 tháng' || student.paymentCycle === 'Theo ngày') {
-            // Nếu chu kỳ là 1 tháng hoặc Theo ngày, học phí = số tiền đã nhập
-            amount = classData.fee;
+            // Nếu chu kỳ là 10 buổi
+            const sessionFee = Math.round(classData.tuition / 8); // Giả sử 8 buổi = 1 tháng
+            amount = sessionFee * 10;
+        } else if (student.paymentCycle === '1 tháng') {
+            // Nếu chu kỳ là 1 tháng
+            amount = classData.tuition;
+        } else if (student.paymentCycle === 'Theo ngày') {
+            // Nếu chu kỳ là theo ngày, lấy học phí theo buổi
+            amount = Math.round(classData.tuition / 8);
         }
     }
     
-    // Hiển thị số tiền
-    document.getElementById('payment-amount').textContent = formatCurrency(amount);
-    
-    // Tạo nội dung chuyển khoản
-    const transferContent = `HP${student.id}`;
-    document.getElementById('transfer-content').textContent = transferContent;
+    // Hiển thị thông tin thanh toán
+    document.getElementById('payment-description').textContent = `HP${student.id}`;
+    document.getElementById('payment-amount-due').textContent = formatCurrency(amount);
     
     // Tạo mã QR
-    const qrCodeUrl = generatePaymentQRCode(student.id, amount);
-    const qrCodeImg = document.getElementById('qr-code-img');
-    qrCodeImg.src = qrCodeUrl;
-    qrCodeImg.alt = 'QR Code Thanh toán';
+    const qrCodeContainer = document.getElementById('payment-qr-code');
+    if (qrCodeContainer) {
+        const qrCodeUrl = generatePaymentQRCode(student.id, amount);
+        qrCodeContainer.innerHTML = `<img src="${qrCodeUrl}" alt="Mã QR thanh toán" style="width:100%;">`;
+    }
 }
 
 // Các hàm tiện ích được sử dụng từ các file khác

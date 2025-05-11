@@ -198,13 +198,14 @@ function getPaymentStatusText(status) {
 // Hàm tạo QR code cho thanh toán
 function generatePaymentQRCode(studentId, amount) {
     const bankAccountNumber = '9704229262085470';
-    const bankName = 'MB Bank';
-    const accountHolder = 'Tran Dong Phu';
+    const bankName = 'MB';
+    const accountHolder = 'TRAN DONG PHU';
     const transferContent = `HP${studentId}`;
     
     // Tạo URL VietQR
     const vietQRUrl = `https://img.vietqr.io/image/${bankName}-${bankAccountNumber}-compact.png?amount=${amount}&addInfo=${transferContent}&accountName=${accountHolder}`;
     
+    console.log("Đã tạo QR code thanh toán:", vietQRUrl);
     return vietQRUrl;
 }
 
