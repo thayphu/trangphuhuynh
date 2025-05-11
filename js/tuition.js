@@ -271,14 +271,48 @@ function displayUnpaidStudents() {
 
 // Hiển thị lịch sử thanh toán
 function displayPaymentHistory(filteredPayments = null) {
+    console.log("Đang hiển thị lịch sử thanh toán...");
     const paymentsTableBody = document.getElementById('payments-table-body');
-    if (!paymentsTableBody) return;
+    
+    // Nếu không tìm thấy phần tử, thử tạo lại
+    if (!paymentsTableBody) {
+        console.error("Không tìm thấy phần tử payments-table-body");
+        
+        // Kiểm tra nếu phần tử cha tồn tại
+        const paymentHistory = document.getElementById('payment-history');
+        if (paymentHistory) {
+            // Tìm bảng trong phần tử cha
+            const table = paymentHistory.querySelector('table');
+            if (table) {
+                // Tìm tbody hoặc tạo mới nếu không có
+                let tbody = table.querySelector('tbody');
+                if (!tbody) {
+                    tbody = document.createElement('tbody');
+                    tbody.id = 'payments-table-body';
+                    table.appendChild(tbody);
+                } else if (!tbody.id) {
+                    tbody.id = 'payments-table-body';
+                }
+                return displayPaymentHistory(filteredPayments); // Gọi lại hàm sau khi đã tạo element
+            }
+        }
+        return; // Nếu không tìm được parent thì thoát
+    }
     
     paymentsTableBody.innerHTML = '';
     
-    const payments = filteredPayments || getPayments();
+    // Lấy dữ liệu từ localStorage
+    let payments = [];
+    try {
+        payments = filteredPayments || getPayments();
+        console.log(`Số lượng thanh toán: ${payments.length}`);
+    } catch (e) {
+        console.error("Lỗi khi lấy dữ liệu thanh toán:", e);
+        payments = [];
+    }
     
-    if (payments.length === 0) {
+    if (!payments || payments.length === 0) {
+        console.log("Không có dữ liệu thanh toán");
         paymentsTableBody.innerHTML = `
             <tr>
                 <td colspan="9" class="no-data">Chưa có thanh toán nào. Vui lòng thêm thanh toán mới.</td>

@@ -220,7 +220,19 @@ function getStudents() {
 
 // Hàm lấy dữ liệu thanh toán từ localStorage
 function getPayments() {
-    return JSON.parse(localStorage.getItem('payments')) || [];
+    try {
+        const payments = localStorage.getItem('payments');
+        if (!payments) {
+            console.log("Không có dữ liệu thanh toán trong localStorage");
+            return [];
+        }
+        const parsedPayments = JSON.parse(payments);
+        console.log(`Đã lấy ${parsedPayments.length} thanh toán từ localStorage`);
+        return parsedPayments;
+    } catch (e) {
+        console.error("Lỗi khi lấy dữ liệu thanh toán:", e);
+        return [];
+    }
 }
 
 // Hàm lấy dữ liệu điểm danh từ localStorage

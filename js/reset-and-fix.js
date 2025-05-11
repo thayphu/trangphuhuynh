@@ -130,14 +130,12 @@ function resetAndFixApp() {
         paymentTabsContainer.removeChild(paymentTabsContainer.firstChild);
     }
     
-    // Tạo lại tab buttons
+    // Tạo lại tab buttons - chỉ giữ 2 tab chính
     var tabButtons = document.createElement('div');
     tabButtons.className = 'payment-tab-buttons';
     tabButtons.innerHTML = `
         <button class="payment-tab-button active" data-tab="unpaid-students">Học sinh chưa thanh toán</button>
         <button class="payment-tab-button" data-tab="payment-history">Lịch sử thanh toán</button>
-        <button class="payment-tab-button" data-tab="additional-fee">Thu thêm</button>
-        <button class="payment-tab-button" data-tab="flexible-payment">Thanh toán linh hoạt</button>
     `;
     
     // Thêm lại toàn bộ nội dung
@@ -145,14 +143,7 @@ function resetAndFixApp() {
     paymentTabsContainer.appendChild(unpaidStudents);
     paymentTabsContainer.appendChild(paymentHistory);
     
-    // Thêm lại các tab còn lại nếu có
-    if (additionalFeeTab) {
-        paymentTabsContainer.appendChild(additionalFeeTab);
-    }
-    
-    if (flexiblePaymentTab) {
-        paymentTabsContainer.appendChild(flexiblePaymentTab);
-    }
+    // Không thêm các tab Thu thêm và Thanh toán linh hoạt
     
     console.log("✓ Đã tạo lại toàn bộ tab thanh toán");
     
