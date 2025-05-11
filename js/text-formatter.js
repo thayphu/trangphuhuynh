@@ -16,12 +16,23 @@ function applyTextFormatters() {
     const forms = document.querySelectorAll('form');
     
     forms.forEach(form => {
+        // Bỏ qua form đăng nhập
+        if (form.id === 'login-form') {
+            console.log("Bỏ qua định dạng form đăng nhập");
+            return;
+        }
+        
         // Lấy tất cả các input trong form
         const inputs = form.querySelectorAll('input[type="text"], textarea');
         
         inputs.forEach(input => {
             // Xác định loại trường để áp dụng định dạng phù hợp
             const fieldName = input.name || input.id || '';
+            
+            // Bỏ qua trường đăng nhập
+            if (fieldName === 'username' || fieldName === 'password') {
+                return;
+            }
             
             if (fieldName.includes('name') || fieldName.includes('teacher') || fieldName.includes('description') || 
                 fieldName.includes('address') || fieldName.includes('parent')) {
