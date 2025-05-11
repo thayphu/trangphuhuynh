@@ -234,10 +234,17 @@
                 <span class="close-btn">&times;</span>
                 <h2>Thêm lớp học mới</h2>
                 <form id="add-class-form">
-                    <div class="form-group">
-                        <label for="class-name">Tên lớp:</label>
-                        <input type="text" id="class-name" required>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="class-name">Tên lớp:</label>
+                            <input type="text" id="class-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="class-location">Địa điểm:</label>
+                            <input type="text" id="class-location" required>
+                        </div>
                     </div>
+                    
                     <div class="form-group">
                         <label for="class-schedule">Lịch học:</label>
                         <div class="schedule-checkboxes">
@@ -250,28 +257,31 @@
                             <label><input type="checkbox" name="schedule" value="Chủ nhật"> Chủ nhật</label>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="class-time">Giờ học:</label>
-                        <input type="time" id="class-time-start" required> - 
-                        <input type="time" id="class-time-end" required>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="class-time">Giờ học:</label>
+                            <div class="time-inputs">
+                                <input type="time" id="class-time-start" required> - 
+                                <input type="time" id="class-time-end" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="class-payment-cycle">Chu kỳ học phí:</label>
+                            <select id="class-payment-cycle" required>
+                                <option value="1 tháng">1 tháng</option>
+                                <option value="8 buổi">8 buổi</option>
+                                <option value="10 buổi">10 buổi</option>
+                                <option value="Theo ngày">Theo ngày</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="class-location">Địa điểm:</label>
-                        <input type="text" id="class-location" required>
-                    </div>
+                    
                     <div class="form-group">
                         <label for="class-fee">Học phí (VND):</label>
                         <input type="number" id="class-fee" min="0" step="1000" required>
                     </div>
-                    <div class="form-group">
-                        <label for="class-payment-cycle">Chu kỳ học phí:</label>
-                        <select id="class-payment-cycle" required>
-                            <option value="1 tháng">1 tháng</option>
-                            <option value="8 buổi">8 buổi</option>
-                            <option value="10 buổi">10 buổi</option>
-                            <option value="Theo ngày">Theo ngày</option>
-                        </select>
-                    </div>
+                    
                     <div class="form-group">
                         <button type="submit">Thêm lớp học</button>
                     </div>
@@ -286,10 +296,17 @@
                 <h2>Chỉnh sửa lớp học</h2>
                 <form id="edit-class-form">
                     <input type="hidden" id="edit-class-id">
-                    <div class="form-group">
-                        <label for="edit-class-name">Tên lớp:</label>
-                        <input type="text" id="edit-class-name" required>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="edit-class-name">Tên lớp:</label>
+                            <input type="text" id="edit-class-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-class-location">Địa điểm:</label>
+                            <input type="text" id="edit-class-location" required>
+                        </div>
                     </div>
+                    
                     <div class="form-group">
                         <label for="edit-class-schedule">Lịch học:</label>
                         <div class="schedule-checkboxes">
@@ -302,28 +319,31 @@
                             <label><input type="checkbox" name="edit-schedule" value="Chủ nhật"> Chủ nhật</label>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="edit-class-time">Giờ học:</label>
-                        <input type="time" id="edit-class-time-start" required> - 
-                        <input type="time" id="edit-class-time-end" required>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="edit-class-time">Giờ học:</label>
+                            <div class="time-inputs">
+                                <input type="time" id="edit-class-time-start" required> - 
+                                <input type="time" id="edit-class-time-end" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-class-payment-cycle">Chu kỳ học phí:</label>
+                            <select id="edit-class-payment-cycle" required>
+                                <option value="1 tháng">1 tháng</option>
+                                <option value="8 buổi">8 buổi</option>
+                                <option value="10 buổi">10 buổi</option>
+                                <option value="Theo ngày">Theo ngày</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="edit-class-location">Địa điểm:</label>
-                        <input type="text" id="edit-class-location" required>
-                    </div>
+                    
                     <div class="form-group">
                         <label for="edit-class-fee">Học phí (VND):</label>
                         <input type="number" id="edit-class-fee" min="0" step="1000" required>
                     </div>
-                    <div class="form-group">
-                        <label for="edit-class-payment-cycle">Chu kỳ học phí:</label>
-                        <select id="edit-class-payment-cycle" required>
-                            <option value="1 tháng">1 tháng</option>
-                            <option value="8 buổi">8 buổi</option>
-                            <option value="10 buổi">10 buổi</option>
-                            <option value="Theo ngày">Theo ngày</option>
-                        </select>
-                    </div>
+                    
                     <div class="form-group">
                         <button type="submit">Cập nhật lớp học</button>
                     </div>

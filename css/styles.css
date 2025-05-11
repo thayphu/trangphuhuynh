@@ -137,6 +137,12 @@ button:hover {
     min-width: 45%;
 }
 
+.time-inputs {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
 .form-group label {
     display: block;
     margin-bottom: 5px;
