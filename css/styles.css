@@ -949,7 +949,7 @@ footer {
     border: 1px solid var(--border-color);
 }
 
-.payment-tabs {
+.payment-tabs, .payment-tabs-container {
     margin: 20px 0;
 }
 
@@ -967,6 +967,7 @@ footer {
     font-weight: 500;
     color: var(--light-text-color);
     position: relative;
+    font-size: 15px;
 }
 
 .payment-tab-button.active {

@@ -3,6 +3,9 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Thiết lập tabs cho màn hình thanh toán
+    setupTuitionTabs();
+    
     // Hiển thị danh sách thanh toán
     displayPayments();
     
@@ -58,10 +61,19 @@ document.addEventListener('DOMContentLoaded', function() {
         paymentSearch.addEventListener('input', filterPayments);
     }
     
-    // Xử lý lọc theo lớp
-    const paymentClassFilter = document.getElementById('payment-class-filter');
-    if (paymentClassFilter) {
-        paymentClassFilter.addEventListener('change', filterPayments);
+    // Cập nhật select lớp học trong bộ lọc
+    const classFilter = document.getElementById('payment-class-filter');
+    if (classFilter) {
+        const classes = getClasses();
+        
+        classes.forEach(classData => {
+            const option = document.createElement('option');
+            option.value = classData.id;
+            option.textContent = classData.name;
+            classFilter.appendChild(option);
+        });
+        
+        classFilter.addEventListener('change', filterPayments);
     }
     
     // Xử lý lọc theo ngày
@@ -87,6 +99,26 @@ document.addEventListener('DOMContentLoaded', function() {
         saveReceiptPdf.addEventListener('click', saveReceiptAsPdf);
     }
 });
+
+// Thiết lập tabs cho quản lý học phí
+function setupTuitionTabs() {
+    const tabButtons = document.querySelectorAll('.payment-tabs-container .payment-tab-button');
+    const tabContents = document.querySelectorAll('.payment-tabs-container .payment-tab-content');
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const tabId = this.dataset.tab;
+            
+            // Xóa active class từ tất cả các tab
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // Thêm active class cho tab được chọn
+            this.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        });
+    });
+}
 
 // Hiển thị danh sách thanh toán và học sinh chưa thanh toán
 function displayPayments(filteredPayments = null) {

@@ -133,58 +133,62 @@
                             <h2>Quản lý học phí</h2>
                             <button id="add-payment-btn" class="action-btn"><i class="fas fa-plus"></i> Thêm thanh toán</button>
                         </div>
-                        <div class="search-filter">
-                            <input type="text" id="payment-search" placeholder="Tìm kiếm thanh toán...">
-                            <select id="payment-class-filter">
-                                <option value="">Tất cả lớp</option>
-                            </select>
-                            <input type="date" id="payment-date-filter">
-                            <button id="clear-payment-filter">Xóa lọc</button>
-                        </div>
-                        
-                        <!-- Học sinh chưa thanh toán -->
-                        <div class="section-subheader">
-                            <h3>Học sinh chưa thanh toán</h3>
-                        </div>
-                        <div id="unpaid-students-list" class="table-container">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Mã HS</th>
-                                        <th>Họ tên</th>
-                                        <th>Lớp</th>
-                                        <th>Ngày đăng ký</th>
-                                        <th>Tổng học phí</th>
-                                        <th>Chu kỳ thanh toán</th>
-                                        <th>Hạn đóng học phí</th>
-                                        <th>Hành động</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="unpaid-students-table-body"></tbody>
-                            </table>
-                        </div>
-                        
-                        <!-- Lịch sử thanh toán -->
-                        <div class="section-subheader">
-                            <h3>Lịch sử thanh toán</h3>
-                        </div>
-                        <div id="payments-list" class="table-container">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Số hóa đơn</th>
-                                        <th>Mã HS</th>
-                                        <th>Họ tên</th>
-                                        <th>Lớp</th>
-                                        <th>Ngày thanh toán</th>
-                                        <th>Số tiền</th>
-                                        <th>Chu kỳ thanh toán</th>
-                                        <th>Hình thức</th>
-                                        <th>Hành động</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="payments-table-body"></tbody>
-                            </table>
+                        <div class="payment-tabs-container">
+                            <div class="payment-tab-buttons">
+                                <button type="button" class="payment-tab-button active" data-tab="unpaid-students">Học sinh chưa thanh toán</button>
+                                <button type="button" class="payment-tab-button" data-tab="payment-history">Lịch sử thanh toán</button>
+                            </div>
+                            
+                            <!-- Tab học sinh chưa thanh toán -->
+                            <div id="unpaid-students" class="payment-tab-content active">
+                                <div id="unpaid-students-list" class="table-container">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Mã HS</th>
+                                                <th>Họ tên</th>
+                                                <th>Lớp</th>
+                                                <th>Ngày đăng ký</th>
+                                                <th>Tổng học phí</th>
+                                                <th>Chu kỳ thanh toán</th>
+                                                <th>Hạn đóng học phí</th>
+                                                <th>Hành động</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="unpaid-students-table-body"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <!-- Tab lịch sử thanh toán -->
+                            <div id="payment-history" class="payment-tab-content">
+                                <div class="search-filter">
+                                    <input type="text" id="payment-search" placeholder="Tìm kiếm thanh toán...">
+                                    <select id="payment-class-filter">
+                                        <option value="">Tất cả lớp</option>
+                                    </select>
+                                    <input type="date" id="payment-date-filter">
+                                    <button id="clear-payment-filter">Xóa lọc</button>
+                                </div>
+                                <div id="payments-list" class="table-container">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Số hóa đơn</th>
+                                                <th>Mã HS</th>
+                                                <th>Họ tên</th>
+                                                <th>Lớp</th>
+                                                <th>Ngày thanh toán</th>
+                                                <th>Số tiền</th>
+                                                <th>Chu kỳ thanh toán</th>
+                                                <th>Hình thức</th>
+                                                <th>Hành động</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="payments-table-body"></tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
