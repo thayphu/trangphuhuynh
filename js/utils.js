@@ -377,6 +377,19 @@ function initializeSampleData() {
                 classId: 'class002',
                 registerDate: '2023-02-05',
                 paymentCycle: '8 buổi'
+            },
+            {
+                id: 'HS004',
+                name: 'Hoàng Minh Tuấn',
+                birthDate: '2009-12-03',
+                phone: '0976543210',
+                address: '456 Đường Nguyễn Huệ, Quận 5',
+                classId: 'class003',
+                registerDate: '2023-05-15',
+                paymentCycle: '1 tháng',
+                latestPaymentDate: '2023-05-15',
+                nextPaymentDate: '2023-06-15',
+                status: 'paid'
             }
         ];
         

@@ -18,7 +18,7 @@ function resetAndFixApp() {
                 name: 'Lớp Toán nâng cao',
                 teacher: 'Nguyễn Văn Giáo',
                 description: 'Lớp học dành cho học sinh khá giỏi, thi HSG',
-                schedule: ['Thứ 2', 'Thứ 4', 'Thứ 6'],
+                schedule: ['T.2', 'T.4', 'T.6'],
                 timeStart: '18:00',
                 timeEnd: '19:30',
                 fee: 500000,

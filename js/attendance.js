@@ -74,6 +74,13 @@ function displayAttendanceClasses() {
         // Kiểm tra xem lớp đã được điểm danh hôm nay chưa
         const today = new Date().toISOString().split('T')[0];
         const attendance = getAttendance();
+        
+        // Log để debug
+        console.log(`Kiểm tra điểm danh lớp ${classData.name} - ID: ${classData.id}`);
+        console.log(`Lịch học lớp: ${classData.schedule.join(', ')}`);
+        console.log(`isTodayClass: ${isTodayClass}`);
+        console.log(`Ngày hôm nay: ${today}`);
+        
         const todayAttendance = attendance.find(record => 
             record.date === today && record.classId === classData.id
         );
