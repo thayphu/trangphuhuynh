@@ -7,6 +7,22 @@ document.addEventListener('DOMContentLoaded', function() {
     // Khởi tạo dữ liệu mẫu nếu cần thiết
     initializeSampleData();
     
+    // Thêm nút reset dữ liệu (chỉ hiển thị trong chế độ phát triển)
+    const devModeContainer = document.createElement('div');
+    devModeContainer.className = 'dev-mode-container';
+    devModeContainer.style.position = 'fixed';
+    devModeContainer.style.bottom = '10px';
+    devModeContainer.style.right = '10px';
+    devModeContainer.style.zIndex = '9999';
+    
+    const resetButton = document.createElement('button');
+    resetButton.textContent = 'Reset Dữ Liệu';
+    resetButton.className = 'action-btn danger-btn';
+    resetButton.addEventListener('click', resetAppData);
+    
+    devModeContainer.appendChild(resetButton);
+    document.body.appendChild(devModeContainer);
+    
     // Hiển thị ngày hiện tại
     displayCurrentDate();
     

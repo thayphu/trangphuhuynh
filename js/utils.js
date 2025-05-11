@@ -392,3 +392,19 @@ function initializeSampleData() {
         localStorage.setItem('initialized', 'true');
     }
 }
+
+// Reset the application data
+function resetAppData() {
+    // Clear localStorage
+    localStorage.clear();
+    
+    // Xóa đánh dấu đã khởi tạo
+    localStorage.removeItem('initialized');
+    
+    // Khởi tạo lại dữ liệu mẫu
+    initializeSampleData();
+    
+    // Reload trang
+    window.location.reload();
+}
+

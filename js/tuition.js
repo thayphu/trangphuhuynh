@@ -153,19 +153,27 @@ function displayPayments(filteredPayments = null) {
 
 // Hiển thị danh sách học sinh chưa thanh toán
 function displayUnpaidStudents() {
+    console.log("Đang hiển thị học sinh chưa thanh toán...");
     const unpaidStudentsTableBody = document.getElementById('unpaid-students-table-body');
-    if (!unpaidStudentsTableBody) return;
+    if (!unpaidStudentsTableBody) {
+        console.error("Không tìm thấy phần tử unpaid-students-table-body");
+        return;
+    }
     
     unpaidStudentsTableBody.innerHTML = '';
     
     // Lấy tất cả học sinh
     const students = getStudents();
+    console.log("Tổng số học sinh:", students.length);
     
     // Lọc học sinh chưa thanh toán
     const unpaidStudents = students.filter(student => {
         const paymentStatus = checkPaymentStatus(student);
+        console.log(`Học sinh ${student.id}: ${student.name}, trạng thái: ${paymentStatus}`);
         return paymentStatus === 'unpaid' || paymentStatus === 'overdue';
     });
+    
+    console.log("Số học sinh chưa thanh toán:", unpaidStudents.length);
     
     if (unpaidStudents.length === 0) {
         unpaidStudentsTableBody.innerHTML = `
