@@ -296,8 +296,97 @@ function initializeSampleData() {
             }
         ];
         
-        // Lưu lớp học mẫu vào localStorage
+        // Học sinh mẫu
+        const sampleStudents = [
+            {
+                id: 'HS001',
+                name: 'Nguyễn Văn A',
+                birthDate: '2010-05-15',
+                phone: '0901234567',
+                address: '123 Đường Lê Lợi, Quận 1',
+                classId: 'class001',
+                registerDate: '2023-01-10',
+                paymentCycle: '1 tháng'
+            },
+            {
+                id: 'HS002',
+                name: 'Trần Thị B',
+                birthDate: '2011-08-20',
+                phone: '0912345678',
+                address: '456 Đường Nguyễn Huệ, Quận 3',
+                classId: 'class001',
+                registerDate: '2023-01-15',
+                paymentCycle: '1 tháng'
+            },
+            {
+                id: 'HS003',
+                name: 'Phạm Văn C',
+                birthDate: '2010-11-12',
+                phone: '0923456789',
+                address: '789 Đường Lê Duẩn, Quận 2',
+                classId: 'class002',
+                registerDate: '2023-02-05',
+                paymentCycle: '8 buổi'
+            }
+        ];
+        
+        // Thanh toán mẫu
+        const samplePayments = [
+            {
+                id: 'PAY001',
+                studentId: 'HS001',
+                date: '2023-01-10',
+                amount: 500000,
+                method: 'Tiền mặt',
+                cycle: '1 tháng',
+                receiptNumber: 'BL0001',
+                additionalAmount: 0,
+                additionalReason: '',
+                discount: 0,
+                discountReason: ''
+            },
+            {
+                id: 'PAY002',
+                studentId: 'HS003',
+                date: '2023-02-05',
+                amount: 450000 * 8,
+                method: 'Chuyển khoản',
+                cycle: '8 buổi',
+                receiptNumber: 'BL0002',
+                additionalAmount: 0,
+                additionalReason: '',
+                discount: 0,
+                discountReason: ''
+            }
+        ];
+        
+        // Điểm danh mẫu
+        const sampleAttendance = [
+            {
+                id: 'ATT001',
+                classId: 'class001',
+                date: '2023-01-11',
+                students: [
+                    { id: 'HS001', status: 'present' },
+                    { id: 'HS002', status: 'present' }
+                ]
+            },
+            {
+                id: 'ATT002',
+                classId: 'class001',
+                date: '2023-01-13',
+                students: [
+                    { id: 'HS001', status: 'present' },
+                    { id: 'HS002', status: 'absent' }
+                ]
+            }
+        ];
+        
+        // Lưu dữ liệu mẫu vào localStorage
         localStorage.setItem('classes', JSON.stringify(sampleClasses));
+        localStorage.setItem('students', JSON.stringify(sampleStudents));
+        localStorage.setItem('payments', JSON.stringify(samplePayments));
+        localStorage.setItem('attendance', JSON.stringify(sampleAttendance));
         
         // Đánh dấu đã khởi tạo
         localStorage.setItem('initialized', 'true');
