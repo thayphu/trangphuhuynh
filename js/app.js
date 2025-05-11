@@ -23,6 +23,19 @@ document.addEventListener('DOMContentLoaded', function() {
     displayPayments();
     displayAttendanceClasses();
     updateReportsData();
+    
+    // Lắng nghe sự kiện thay đổi dữ liệu để cập nhật giao diện
+    document.addEventListener('dataChanged', function(e) {
+        // Cập nhật danh sách điểm danh khi dữ liệu thay đổi
+        if (typeof displayAttendanceClasses === 'function') {
+            displayAttendanceClasses();
+        }
+        
+        // Cập nhật danh sách học phí khi dữ liệu thay đổi
+        if (typeof displayPayments === 'function') {
+            displayPayments();
+        }
+    });
 });
 
 // Hiển thị ngày hiện tại

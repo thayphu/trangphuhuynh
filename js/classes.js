@@ -80,17 +80,23 @@ function displayClasses() {
         classCard.innerHTML = `
             <h3>${classData.name}</h3>
             <div class="class-details">
-                <div class="class-detail-row">
-                    <div><span>Lịch học:</span> ${formatSchedule(classData.schedule)}</div>
-                    <div><span>Giờ học:</span> ${formatTime(classData.timeStart)} - ${formatTime(classData.timeEnd)}</div>
+                <div>
+                    <span>Lịch học:</span> ${formatSchedule(classData.schedule)}
                 </div>
-                <div class="class-detail-row">
-                    <div><span>Địa điểm:</span> ${classData.location}</div>
-                    <div><span>Tổng học phí:</span> ${formatCurrency(totalFee)} VND</div>
+                <div>
+                    <span>Giờ học:</span> ${formatTime(classData.timeStart)} - ${formatTime(classData.timeEnd)}
                 </div>
-                <div class="class-detail-row">
-                    <div><span>Chu kỳ:</span> ${classData.paymentCycle}</div>
-                    <div><span>Học phí/buổi:</span> ${formatCurrency(sessionFee)} VND</div>
+                <div>
+                    <span>Địa điểm:</span> ${classData.location}
+                </div>
+                <div>
+                    <span>Tổng học phí:</span> <span class="fee-highlight">${formatCurrency(totalFee)} VND</span>
+                </div>
+                <div>
+                    <span>Chu kỳ:</span> ${classData.paymentCycle}
+                </div>
+                <div>
+                    <span>Học phí/buổi:</span> ${formatCurrency(sessionFee)} VND
                 </div>
             </div>
             <div class="class-actions">
@@ -213,6 +219,9 @@ function handleAddClass(event) {
     
     // Cập nhật danh sách lớp trong các select box
     updateClassSelectOptions();
+    
+    // Thông báo dữ liệu đã thay đổi
+    document.dispatchEvent(new Event('dataChanged'));
 }
 
 // Xử lý chỉnh sửa lớp

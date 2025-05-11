@@ -277,17 +277,13 @@ button:hover {
     align-items: flex-start;
 }
 
-.class-detail-row {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 15px;
-    margin-bottom: 10px;
-}
-
-.class-detail-row > div {
-    flex: 1;
-    min-width: 45%;
+.fee-highlight {
+    font-weight: bold;
+    color: #dc3545;
+    background-color: #fffacd;
+    padding: 3px 10px;
+    border-radius: 8px;
+    display: inline-block;
 }
 
 .class-details span {
