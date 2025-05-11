@@ -520,19 +520,8 @@ function calculateTotalPayment() {
     // Học phí linh hoạt
     const flexibleAmount = parseInt(document.getElementById('payment-flexible-amount').value) || 0;
     
-    // Tính tổng cộng
-    let totalAmount = 0;
-    
-    // Kiểm tra xem tab nào đang active
-    const isAdditionalFeeActive = document.getElementById('additional-fee').classList.contains('active');
-    
-    if (isAdditionalFeeActive) {
-        // Nếu tab Chi phí bổ sung đang active
-        totalAmount = baseAmount + additionalFee - discount;
-    } else {
-        // Nếu tab Học phí linh hoạt đang active
-        totalAmount = flexibleAmount;
-    }
+    // Tính tổng cộng = Học phí cơ bản + Chi phí bổ sung - Khấu trừ + Học phí linh hoạt
+    const totalAmount = baseAmount + additionalFee - discount + flexibleAmount;
     
     // Cập nhật tổng số tiền
     document.getElementById('payment-amount').value = totalAmount;
@@ -579,27 +568,16 @@ function handleAddPayment(event) {
         date,
         cycle,
         method,
-        paymentType: isAdditionalFeeActive ? 'regular' : 'flexible',
-        details: {}
-    };
-    
-    // Thêm thông tin chi tiết dựa vào loại thanh toán
-    if (isAdditionalFeeActive) {
-        // Thanh toán thông thường với chi phí bổ sung và khấu trừ
-        newPayment.details = {
+        details: {
             baseAmount,
             additionalFee,
             additionalReason: additionalReason === 'Khác' ? additionalOther : additionalReason,
             discount,
-            discountReason: discountReason === 'Khác' ? discountOther : discountReason
-        };
-    } else {
-        // Thanh toán học phí linh hoạt
-        newPayment.details = {
+            discountReason: discountReason === 'Khác' ? discountOther : discountReason,
             flexibleAmount,
             flexibleSessions
-        };
-    }
+        }
+    };
     
     // Lấy danh sách thanh toán hiện tại và thêm thanh toán mới
     const payments = getPayments();
