@@ -127,6 +127,16 @@ function displayPayments(filteredPayments = null) {
     
     // Hiển thị danh sách học sinh chưa thanh toán
     displayUnpaidStudents();
+    
+    // Thiết lập tab mặc định (nếu chưa có tab nào được chọn)
+    const tabButtons = document.querySelectorAll('.payment-tabs-container .payment-tab-button');
+    if (tabButtons.length > 0 && !document.querySelector('.payment-tab-button.active')) {
+        tabButtons[0].classList.add('active');
+        const defaultTabId = tabButtons[0].dataset.tab;
+        if (defaultTabId) {
+            document.getElementById(defaultTabId).classList.add('active');
+        }
+    }
 }
 
 // Hiển thị danh sách học sinh chưa thanh toán
@@ -216,9 +226,9 @@ function displayPaymentHistory(filteredPayments = null) {
     }
     
     // Sắp xếp thanh toán theo ngày, mới nhất lên đầu
-    payments.sort((a, b) => new Date(b.date) - new Date(a.date));
+    const sortedPayments = [...payments].sort((a, b) => new Date(b.date) - new Date(a.date));
     
-    payments.forEach(payment => {
+    sortedPayments.forEach(payment => {
         const student = getStudentById(payment.studentId);
         
         // Nếu học sinh không còn tồn tại, bỏ qua
@@ -226,12 +236,12 @@ function displayPaymentHistory(filteredPayments = null) {
         
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td>${payment.receiptNumber}</td>
+            <td>${payment.receiptNumber || ''}</td>
             <td>${payment.studentId}</td>
             <td>${student.name}</td>
             <td>${getClassName(student.classId)}</td>
             <td>${formatDate(payment.date)}</td>
-            <td>${formatCurrency(payment.amount)} VND</td>
+            <td><span class="fee-highlight">${formatCurrency(payment.amount)} VND</span></td>
             <td>${payment.cycle}</td>
             <td>${payment.method}</td>
             <td>
@@ -662,7 +672,7 @@ function filterPayments() {
             
             return payment.studentId.toLowerCase().includes(searchTerm) || 
                   student.name.toLowerCase().includes(searchTerm) ||
-                  payment.receiptNumber.toLowerCase().includes(searchTerm);
+                  (payment.receiptNumber && payment.receiptNumber.toLowerCase().includes(searchTerm));
         });
     }
     
@@ -681,8 +691,19 @@ function filterPayments() {
         );
     }
     
-    // Hiển thị kết quả lọc
-    displayPayments(filteredPayments);
+    // Hiển thị kết quả lọc trong tab lịch sử thanh toán
+    displayPaymentHistory(filteredPayments);
+    
+    // Chuyển sang tab lịch sử thanh toán nếu đang thực hiện tìm kiếm
+    if (searchTerm || classFilter || dateFilter) {
+        const tabButtons = document.querySelectorAll('.payment-tabs-container .payment-tab-button');
+        tabButtons.forEach(button => {
+            if (button.dataset.tab === 'payment-history') {
+                // Kích hoạt tab lịch sử thanh toán
+                button.click();
+            }
+        });
+    }
 }
 
 // Xóa bộ lọc thanh toán
