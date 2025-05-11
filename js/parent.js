@@ -245,10 +245,16 @@ function displayStudentPaymentHistory(studentId) {
 
 // Hiển thị thông tin thanh toán
 function displayPaymentInfo(student, classData) {
+    // Tìm phần tử thông tin thanh toán
     const paymentInfo = document.getElementById('payment-info');
-    if (!paymentInfo) return;
+    if (!paymentInfo) {
+        console.error("Không tìm thấy phần tử payment-info trong trang");
+        return;
+    }
     
+    // Đảm bảo phần tử hiển thị
     paymentInfo.classList.remove('hidden');
+    console.log("Hiển thị thông tin thanh toán cho học sinh:", student.id, student.name);
     
     // Lấy số tiền cần thanh toán dựa vào chu kỳ
     let amount = 0;
@@ -278,17 +284,41 @@ function displayPaymentInfo(student, classData) {
             // Trường hợp mặc định, sử dụng học phí 1 tháng
             amount = tuition;
         }
+    } else {
+        // Nếu không có thông tin lớp, đặt giá trị mặc định
+        amount = 500000;
+        console.warn("Không tìm thấy thông tin lớp học, sử dụng học phí mặc định:", amount);
     }
     
-    // Hiển thị thông tin thanh toán
-    document.getElementById('payment-description').textContent = `HP${student.id}`;
-    document.getElementById('payment-amount-due').textContent = formatCurrency(amount);
+    // Thiết lập nội dung chuyển khoản
+    const paymentDescription = document.getElementById('payment-description');
+    if (paymentDescription) {
+        paymentDescription.textContent = `HP${student.id}`;
+    } else {
+        console.error("Không tìm thấy phần tử payment-description");
+    }
+    
+    // Hiển thị số tiền cần thanh toán
+    const amountDueElement = document.getElementById('payment-amount-due');
+    if (amountDueElement) {
+        amountDueElement.textContent = formatCurrency(amount);
+    } else {
+        console.error("Không tìm thấy phần tử payment-amount-due");
+    }
     
     // Tạo mã QR
     const qrCodeContainer = document.getElementById('payment-qr-code');
     if (qrCodeContainer) {
-        const qrCodeUrl = generatePaymentQRCode(student.id, amount);
-        qrCodeContainer.innerHTML = `<img src="${qrCodeUrl}" alt="Mã QR thanh toán" style="width:100%;">`;
+        try {
+            const qrCodeUrl = generatePaymentQRCode(student.id, amount);
+            console.log("Đã tạo mã QR với URL:", qrCodeUrl);
+            qrCodeContainer.innerHTML = `<img src="${qrCodeUrl}" alt="Mã QR thanh toán" style="width:100%;">`;
+        } catch (error) {
+            console.error("Lỗi khi tạo mã QR:", error);
+            qrCodeContainer.innerHTML = `<p class="error">Không thể tạo mã QR</p>`;
+        }
+    } else {
+        console.error("Không tìm thấy phần tử payment-qr-code");
     }
 }
 
