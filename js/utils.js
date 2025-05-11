@@ -313,7 +313,7 @@ function initializeSampleData() {
             {
                 id: 'class001',
                 name: 'Lớp 1',
-                schedule: ['Thứ 2', 'Thứ 4', 'Thứ 6'],
+                schedule: ['T.2', 'T.4', 'T.6'],
                 timeStart: '08:00',
                 timeEnd: '09:30',
                 location: 'Phòng 101',
@@ -323,7 +323,7 @@ function initializeSampleData() {
             {
                 id: 'class002',
                 name: 'Lớp 2',
-                schedule: ['Thứ 3', 'Thứ 5'],
+                schedule: ['T.3', 'T.5'],
                 timeStart: '14:00',
                 timeEnd: '15:30',
                 location: 'Phòng 202',
