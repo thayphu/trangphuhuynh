@@ -497,6 +497,40 @@ table tr:hover {
 }
 
 /* Report Styles */
+.report-tabs {
+    display: flex;
+    margin-bottom: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.report-tab {
+    flex: 1;
+    padding: 12px 15px;
+    text-align: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.report-tab.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.report-tab-content {
+    display: none;
+}
+
+.report-tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
 .report-cards {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -508,6 +542,17 @@ table tr:hover {
     border-radius: var(--border-radius);
     padding: 20px;
     box-shadow: var(--shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.report-card.clickable {
+    cursor: pointer;
+}
+
+.report-card.clickable:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid var(--primary-color);
 }
 
 .report-card h3 {
@@ -540,6 +585,41 @@ table tr:hover {
 .report-chart {
     height: 200px;
     margin-top: 10px;
+}
+
+.filter-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: var(--border-radius);
+}
+
+.filter-controls select,
+.filter-controls input {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    flex: 1;
+    min-width: 180px;
+}
+
+.filter-controls .btn {
+    min-width: auto;
+}
+
+.attendance-history-list {
+    background-color: var(--card-bg-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    overflow-x: auto;
+}
+
+.modal-lg {
+    min-width: 80%;
+    max-width: 1200px;
 }
 
 /* Parent Link Styles */

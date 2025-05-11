@@ -239,38 +239,123 @@
 
                     <!-- Báo cáo Tab -->
                     <div id="reports" class="tab-pane hidden">
-                        <div class="section-header">
-                            <h2>Báo cáo tổng hợp</h2>
+                        <div class="report-tabs">
+                            <button type="button" class="report-tab active" data-tab="financial-report">Báo cáo tài chính</button>
+                            <button type="button" class="report-tab" data-tab="attendance-stats">Thống kê điểm danh</button>
+                            <button type="button" class="report-tab" data-tab="attendance-history">Lịch sử điểm danh</button>
                         </div>
-                        <div class="report-cards">
-                            <div class="report-card">
-                                <h3>Tổng quan</h3>
-                                <div class="report-stats">
-                                    <div class="stat">
-                                        <span class="stat-label">Tổng số lớp:</span>
-                                        <span class="stat-value" id="total-classes">0</span>
+                        
+                        <!-- Báo cáo tài chính -->
+                        <div id="financial-report" class="report-tab-content active">
+                            <div class="section-header">
+                                <h2>Báo cáo tài chính</h2>
+                            </div>
+                            <div class="report-cards">
+                                <div class="report-card clickable" id="paid-students-card">
+                                    <h3>Đã thanh toán</h3>
+                                    <div class="report-stats">
+                                        <div class="stat">
+                                            <span class="stat-label">Tổng số học sinh:</span>
+                                            <span class="stat-value" id="paid-students-count">0</span>
+                                        </div>
+                                        <div class="stat">
+                                            <span class="stat-label">Tổng số tiền:</span>
+                                            <span class="stat-value" id="paid-students-amount">0 VND</span>
+                                        </div>
                                     </div>
-                                    <div class="stat">
-                                        <span class="stat-label">Tổng số học sinh:</span>
-                                        <span class="stat-value" id="total-students">0</span>
-                                    </div>
-                                    <div class="stat">
-                                        <span class="stat-label">Học sinh chưa thanh toán:</span>
-                                        <span class="stat-value" id="unpaid-students">0</span>
+                                </div>
+                                <div class="report-card clickable" id="unpaid-students-card">
+                                    <h3>Chưa thanh toán</h3>
+                                    <div class="report-stats">
+                                        <div class="stat">
+                                            <span class="stat-label">Tổng số học sinh:</span>
+                                            <span class="stat-value" id="unpaid-students-count">0</span>
+                                        </div>
+                                        <div class="stat">
+                                            <span class="stat-label">Tổng số tiền dự kiến:</span>
+                                            <span class="stat-value" id="unpaid-students-amount">0 VND</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="report-card">
-                                <h3>Doanh thu</h3>
-                                <div class="report-chart">
-                                    <canvas id="revenue-chart"></canvas>
+                        </div>
+                        
+                        <!-- Thống kê điểm danh -->
+                        <div id="attendance-stats" class="report-tab-content">
+                            <div class="section-header">
+                                <h2>Thống kê điểm danh</h2>
+                            </div>
+                            <div class="report-cards">
+                                <div class="report-card clickable" id="total-students-card">
+                                    <h3>Tổng hợp học sinh</h3>
+                                    <div class="report-stats">
+                                        <div class="stat">
+                                            <span class="stat-label">Tổng số học sinh:</span>
+                                            <span class="stat-value" id="total-students">0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="report-card clickable" id="present-students-card">
+                                    <h3>Có mặt</h3>
+                                    <div class="report-stats">
+                                        <div class="stat">
+                                            <span class="stat-label">Số học sinh có mặt:</span>
+                                            <span class="stat-value" id="present-students">0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="report-card clickable" id="absent-students-card">
+                                    <h3>Vắng mặt</h3>
+                                    <div class="report-stats">
+                                        <div class="stat">
+                                            <span class="stat-label">Số học sinh vắng mặt:</span>
+                                            <span class="stat-value" id="absent-students">0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="report-card clickable" id="teacher-absent-card">
+                                    <h3>GV Vắng</h3>
+                                    <div class="report-stats">
+                                        <div class="stat">
+                                            <span class="stat-label">Số lớp GV vắng:</span>
+                                            <span class="stat-value" id="teacher-absent-classes">0</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="report-card">
-                                <h3>Điểm danh</h3>
-                                <div class="report-chart">
-                                    <canvas id="attendance-chart"></canvas>
-                                </div>
+                        </div>
+                        
+                        <!-- Lịch sử điểm danh -->
+                        <div id="attendance-history" class="report-tab-content">
+                            <div class="section-header">
+                                <h2>Lịch sử điểm danh</h2>
+                            </div>
+                            <div class="filter-controls">
+                                <select id="attendance-history-class-filter">
+                                    <option value="">Tất cả lớp</option>
+                                </select>
+                                <select id="attendance-history-status-filter">
+                                    <option value="">Tất cả trạng thái</option>
+                                    <option value="present">Có mặt</option>
+                                    <option value="absent">Vắng mặt</option>
+                                    <option value="teacher-absent">GV vắng</option>
+                                </select>
+                                <button id="apply-attendance-filter" class="btn">Lọc</button>
+                                <button id="clear-attendance-filter" class="btn">Xóa bộ lọc</button>
+                            </div>
+                            <div class="attendance-history-list">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Ngày</th>
+                                            <th>Lớp</th>
+                                            <th>Học sinh</th>
+                                            <th>Trạng thái</th>
+                                            <th>Ghi chú</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="attendance-history-table-body"></tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -293,6 +378,143 @@
         </main>
 
         <!-- Modals -->
+        <!-- Report Modals -->
+        <!-- Paid Students Report Modal -->
+        <div id="paid-students-modal" class="modal hidden">
+            <div class="modal-content modal-lg">
+                <span class="close-btn">&times;</span>
+                <h2>Danh sách học sinh đã thanh toán</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mã</th>
+                                <th>Họ và tên</th>
+                                <th>Lớp</th>
+                                <th>Chu kỳ</th>
+                                <th>Ngày thanh toán</th>
+                                <th>Số tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody id="paid-students-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Unpaid Students Report Modal -->
+        <div id="unpaid-students-modal" class="modal hidden">
+            <div class="modal-content modal-lg">
+                <span class="close-btn">&times;</span>
+                <h2>Danh sách học sinh chưa thanh toán</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mã</th>
+                                <th>Họ và tên</th>
+                                <th>Lớp</th>
+                                <th>Chu kỳ</th>
+                                <th>Ngày hết hạn</th>
+                                <th>Số tiền dự kiến</th>
+                            </tr>
+                        </thead>
+                        <tbody id="unpaid-students-report-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Students Attendance Stats Modal -->
+        <div id="students-attendance-modal" class="modal hidden">
+            <div class="modal-content modal-lg">
+                <span class="close-btn">&times;</span>
+                <h2>Thống kê điểm danh học sinh</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mã</th>
+                                <th>Họ và tên</th>
+                                <th>Lớp</th>
+                                <th>Chu kỳ thanh toán</th>
+                                <th>Tổng số buổi</th>
+                                <th>Có mặt</th>
+                                <th>Vắng mặt</th>
+                                <th>Tổng tiền đã đóng</th>
+                            </tr>
+                        </thead>
+                        <tbody id="students-attendance-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Present Students Modal -->
+        <div id="present-students-modal" class="modal hidden">
+            <div class="modal-content modal-lg">
+                <span class="close-btn">&times;</span>
+                <h2>Danh sách học sinh có mặt</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mã</th>
+                                <th>Họ và tên</th>
+                                <th>Lớp</th>
+                                <th>Ngày</th>
+                                <th>Ghi chú</th>
+                            </tr>
+                        </thead>
+                        <tbody id="present-students-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Absent Students Modal -->
+        <div id="absent-students-modal" class="modal hidden">
+            <div class="modal-content modal-lg">
+                <span class="close-btn">&times;</span>
+                <h2>Danh sách học sinh vắng mặt</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mã</th>
+                                <th>Họ và tên</th>
+                                <th>Lớp</th>
+                                <th>Ngày</th>
+                                <th>Ghi chú</th>
+                            </tr>
+                        </thead>
+                        <tbody id="absent-students-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Teacher Absent Classes Modal -->
+        <div id="teacher-absent-classes-modal" class="modal hidden">
+            <div class="modal-content modal-lg">
+                <span class="close-btn">&times;</span>
+                <h2>Danh sách lớp giáo viên vắng</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Lớp</th>
+                                <th>Ngày GV vắng</th>
+                                <th>Lịch học bù</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teacher-absent-classes-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <!-- Add Class Modal -->
         <div id="add-class-modal" class="modal hidden">
             <div class="modal-content">
