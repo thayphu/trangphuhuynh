@@ -1100,8 +1100,8 @@ footer {
 /* Parent Portal Payment Styles */
 .payment-info {
     margin-top: 20px;
-    padding: 15px;
-    border: 2px dashed var(--danger-color);
+    padding: 20px;
+    border: 1px dashed var(--danger-color);
     border-radius: 10px;
     background-color: #fff9f9;
 }
@@ -1110,35 +1110,44 @@ footer {
     color: var(--danger-color);
     margin-bottom: 15px;
     text-align: center;
-    font-size: 1.2em;
+    font-size: 1.3em;
+    font-weight: bold;
 }
 
-.bank-details {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 20px;
+.payment-container {
+    max-width: 550px;
+    margin: 0 auto;
 }
 
-.bank-info {
-    flex: 1;
-    min-width: 300px;
+.payment-details {
+    margin-bottom: 15px;
 }
 
-.bank-info p {
+.payment-details p {
     margin: 8px 0;
-    line-height: 1.5;
+    line-height: 1.6;
+    font-size: 15px;
 }
 
-.qr-container {
-    flex: 1;
-    min-width: 200px;
+.payment-details p strong {
+    display: inline-block;
+    width: 140px;
+    color: #555;
+}
+
+.payment-details p span {
+    font-weight: 600;
+}
+
+.qr-section {
     text-align: center;
+    margin-top: 20px;
 }
 
-.qr-container h4 {
-    margin-bottom: 10px;
+.qr-section h4 {
+    margin-bottom: 15px;
     color: var(--primary-color);
+    font-size: 16px;
 }
 
 #payment-qr-code {
@@ -1148,10 +1157,19 @@ footer {
     background-color: #fff;
     padding: 10px;
     border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-#payment-amount-due {
+#payment-qr-code img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.amount {
     font-weight: bold;
     color: var(--danger-color);
+    font-size: 18px;
 }
 

@@ -307,18 +307,23 @@ function displayPaymentInfo(student, classData) {
     }
     
     // Tạo mã QR
-    const qrCodeContainer = document.getElementById('payment-qr-code');
-    if (qrCodeContainer) {
+    const qrCodeImage = document.getElementById('qr-code-image');
+    if (qrCodeImage) {
         try {
             const qrCodeUrl = generatePaymentQRCode(student.id, amount);
             console.log("Đã tạo mã QR với URL:", qrCodeUrl);
-            qrCodeContainer.innerHTML = `<img src="${qrCodeUrl}" alt="Mã QR thanh toán" style="width:100%;">`;
+            qrCodeImage.src = qrCodeUrl;
+            qrCodeImage.style.width = "100%";
+            qrCodeImage.style.maxWidth = "200px";
         } catch (error) {
             console.error("Lỗi khi tạo mã QR:", error);
-            qrCodeContainer.innerHTML = `<p class="error">Không thể tạo mã QR</p>`;
+            const qrCodeContainer = document.getElementById('payment-qr-code');
+            if (qrCodeContainer) {
+                qrCodeContainer.innerHTML = `<p class="error">Không thể tạo mã QR</p>`;
+            }
         }
     } else {
-        console.error("Không tìm thấy phần tử payment-qr-code");
+        console.error("Không tìm thấy phần tử qr-code-image");
     }
 }
 

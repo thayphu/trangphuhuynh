@@ -76,17 +76,20 @@
                 <!-- Thông tin thanh toán (chỉ hiển thị khi trạng thái là chưa thanh toán) -->
                 <div id="payment-info" class="payment-info hidden">
                     <h3>Thông tin thanh toán</h3>
-                    <div class="bank-details">
-                        <div class="bank-info">
-                            <p><strong>Số tài khoản:</strong> 9704229262085470</p>
-                            <p><strong>Ngân hàng:</strong> Quân đội MB Bank</p>
-                            <p><strong>Chủ TK:</strong> Tran Dong Phu</p>
+                    <div class="payment-container">
+                        <div class="payment-details">
+                            <p><strong>Số tài khoản:</strong> <span>9704229262085470</span></p>
+                            <p><strong>Ngân hàng:</strong> <span>Quân đội MB Bank</span></p>
+                            <p><strong>Chủ TK:</strong> <span>Tran Dong Phu</span></p>
                             <p><strong>Nội dung CK:</strong> <span id="payment-description">HP</span></p>
-                            <p><strong>Số tiền:</strong> <span id="payment-amount-due">0</span> VND</p>
+                            <p><strong>Số tiền:</strong> <span id="payment-amount-due" class="amount">0</span> VND</p>
                         </div>
-                        <div class="qr-container">
+                        
+                        <div class="qr-section">
                             <h4>Quét mã QR để thanh toán</h4>
-                            <div id="payment-qr-code"></div>
+                            <div id="payment-qr-code">
+                                <img src="" alt="Mã QR thanh toán" id="qr-code-image">
+                            </div>
                         </div>
                     </div>
                 </div>
