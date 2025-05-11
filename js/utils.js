@@ -7,6 +7,23 @@ function formatCurrency(amount) {
     return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
+// Hàm định dạng lịch học với viết tắt
+function formatSchedule(scheduleArray) {
+    if (!scheduleArray || scheduleArray.length === 0) return '';
+    
+    const shortDays = {
+        'Thứ 2': 'T.2',
+        'Thứ 3': 'T.3',
+        'Thứ 4': 'T.4',
+        'Thứ 5': 'T.5',
+        'Thứ 6': 'T.6',
+        'Thứ 7': 'T.7',
+        'Chủ nhật': 'CN'
+    };
+    
+    return scheduleArray.map(day => shortDays[day] || day).join(', ');
+}
+
 // Hàm chuyển đổi số thành chữ tiếng Việt
 function numberToWords(number) {
     const units = ['', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'];

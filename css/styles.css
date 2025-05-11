@@ -125,6 +125,18 @@ button:hover {
     margin-bottom: 20px;
 }
 
+.form-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 10px;
+}
+
+.form-row .form-group {
+    flex: 1;
+    min-width: 45%;
+}
+
 .form-group label {
     display: block;
     margin-bottom: 5px;
@@ -257,6 +269,19 @@ button:hover {
     margin-bottom: 5px;
     display: flex;
     align-items: flex-start;
+}
+
+.class-detail-row {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.class-detail-row > div {
+    flex: 1;
+    min-width: 45%;
 }
 
 .class-details span {

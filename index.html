@@ -335,22 +335,44 @@
                 <span class="close-btn">&times;</span>
                 <h2>Thêm học sinh mới</h2>
                 <form id="add-student-form">
-                    <div class="form-group">
-                        <label for="student-name">Họ tên:</label>
-                        <input type="text" id="student-name" required>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="student-name">Họ tên:</label>
+                            <input type="text" id="student-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="student-id">Mã HS (tự động):</label>
+                            <input type="text" id="student-id" readonly>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="student-id">Mã HS (tự động):</label>
-                        <input type="text" id="student-id" readonly>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="student-phone">Số điện thoại:</label>
+                            <input type="tel" id="student-phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="student-birth-date">Ngày sinh:</label>
+                            <input type="date" id="student-birth-date" required>
+                        </div>
                     </div>
+                    
                     <div class="form-group">
-                        <label for="student-class">Lớp:</label>
-                        <select id="student-class" required></select>
+                        <label for="student-address">Địa chỉ:</label>
+                        <input type="text" id="student-address" required>
                     </div>
-                    <div class="form-group">
-                        <label for="student-register-date">Ngày đăng ký:</label>
-                        <input type="date" id="student-register-date" required>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="student-class">Lớp:</label>
+                            <select id="student-class" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="student-register-date">Ngày đăng ký:</label>
+                            <input type="date" id="student-register-date" required>
+                        </div>
                     </div>
+                    
                     <div class="form-group">
                         <label for="student-payment-cycle">Chu kỳ thanh toán:</label>
                         <select id="student-payment-cycle" required>
@@ -360,6 +382,7 @@
                             <option value="Theo ngày">Theo ngày</option>
                         </select>
                     </div>
+                    
                     <div class="form-group">
                         <button type="submit">Thêm học sinh</button>
                     </div>
@@ -373,22 +396,44 @@
                 <span class="close-btn">&times;</span>
                 <h2>Chỉnh sửa thông tin học sinh</h2>
                 <form id="edit-student-form">
-                    <div class="form-group">
-                        <label for="edit-student-name">Họ tên:</label>
-                        <input type="text" id="edit-student-name" required>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="edit-student-name">Họ tên:</label>
+                            <input type="text" id="edit-student-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-student-id">Mã HS:</label>
+                            <input type="text" id="edit-student-id" readonly>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="edit-student-id">Mã HS:</label>
-                        <input type="text" id="edit-student-id" readonly>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="edit-student-phone">Số điện thoại:</label>
+                            <input type="tel" id="edit-student-phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-student-birth-date">Ngày sinh:</label>
+                            <input type="date" id="edit-student-birth-date" required>
+                        </div>
                     </div>
+                    
                     <div class="form-group">
-                        <label for="edit-student-class">Lớp:</label>
-                        <select id="edit-student-class" required></select>
+                        <label for="edit-student-address">Địa chỉ:</label>
+                        <input type="text" id="edit-student-address" required>
                     </div>
-                    <div class="form-group">
-                        <label for="edit-student-register-date">Ngày đăng ký:</label>
-                        <input type="date" id="edit-student-register-date" required>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="edit-student-class">Lớp:</label>
+                            <select id="edit-student-class" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-student-register-date">Ngày đăng ký:</label>
+                            <input type="date" id="edit-student-register-date" required>
+                        </div>
                     </div>
+                    
                     <div class="form-group">
                         <label for="edit-student-payment-cycle">Chu kỳ thanh toán:</label>
                         <select id="edit-student-payment-cycle" required>
@@ -398,6 +443,7 @@
                             <option value="Theo ngày">Theo ngày</option>
                         </select>
                     </div>
+                    
                     <div class="form-group">
                         <button type="submit">Cập nhật thông tin</button>
                     </div>
