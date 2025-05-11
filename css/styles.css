@@ -1097,3 +1097,61 @@ footer {
     justify-content: flex-start;
 }
 
+/* Parent Portal Payment Styles */
+.payment-info {
+    margin-top: 20px;
+    padding: 15px;
+    border: 2px dashed var(--danger-color);
+    border-radius: 10px;
+    background-color: #fff9f9;
+}
+
+.payment-info h3 {
+    color: var(--danger-color);
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 1.2em;
+}
+
+.bank-details {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.bank-info {
+    flex: 1;
+    min-width: 300px;
+}
+
+.bank-info p {
+    margin: 8px 0;
+    line-height: 1.5;
+}
+
+.qr-container {
+    flex: 1;
+    min-width: 200px;
+    text-align: center;
+}
+
+.qr-container h4 {
+    margin-bottom: 10px;
+    color: var(--primary-color);
+}
+
+#payment-qr-code {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+#payment-amount-due {
+    font-weight: bold;
+    color: var(--danger-color);
+}
+

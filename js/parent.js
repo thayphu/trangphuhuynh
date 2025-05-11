@@ -93,7 +93,10 @@ function displayStudentInfo(studentId) {
     if (paymentStatus === 'unpaid' || paymentStatus === 'overdue') {
         displayPaymentInfo(student, classData);
     } else {
-        document.getElementById('payment-info').classList.add('hidden');
+        const paymentInfoElement = document.getElementById('payment-info');
+        if (paymentInfoElement) {
+            paymentInfoElement.classList.add('hidden');
+        }
     }
 }
 
