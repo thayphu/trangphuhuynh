@@ -135,8 +135,8 @@
                         </div>
                         <div class="payment-tabs-container">
                             <div class="payment-tab-buttons">
-                                <button type="button" class="payment-tab-button active" data-tab="unpaid-students">Học sinh chưa thanh toán</button>
-                                <button type="button" class="payment-tab-button" data-tab="payment-history">Lịch sử thanh toán</button>
+                                <button type="button" class="payment-tab-button active" data-tab="unpaid-students"><i class="fas fa-exclamation-circle"></i> Học sinh chưa thanh toán</button>
+                                <button type="button" class="payment-tab-button" data-tab="payment-history"><i class="fas fa-history"></i> Lịch sử thanh toán</button>
                             </div>
                             
                             <!-- Tab học sinh chưa thanh toán -->
@@ -167,8 +167,8 @@
                                     <select id="payment-class-filter">
                                         <option value="">Tất cả lớp</option>
                                     </select>
-                                    <input type="date" id="payment-date-filter">
-                                    <button id="clear-payment-filter">Xóa lọc</button>
+                                    <input type="date" id="payment-date-filter" placeholder="dd/mm/yyyy">
+                                    <button id="clear-payment-filter" class="btn-icon"><i class="fas fa-times"></i> Xóa lọc</button>
                                 </div>
                                 <div id="payments-list" class="table-container">
                                     <table>
