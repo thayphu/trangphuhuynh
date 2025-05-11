@@ -28,6 +28,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Hiển thị danh sách lớp học bù
     displayMakeupClasses();
+    
+    // Lắng nghe sự kiện thay đổi dữ liệu
+    document.addEventListener('dataChanged', function() {
+        console.log("Phát hiện thay đổi dữ liệu, cập nhật lại tab Điểm danh");
+        displayAttendanceClasses();
+        displayMakeupClasses();
+    });
 });
 
 // Hiển thị danh sách lớp để điểm danh

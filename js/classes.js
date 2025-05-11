@@ -290,6 +290,9 @@ function handleEditClass(event) {
     
     // Cập nhật danh sách lớp trong các select box
     updateClassSelectOptions();
+    
+    // Thông báo dữ liệu đã thay đổi
+    document.dispatchEvent(new Event('dataChanged'));
 }
 
 // Xóa lớp học
