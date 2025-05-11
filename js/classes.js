@@ -181,12 +181,22 @@ function handleAddClass(event) {
     event.preventDefault();
     
     // Lấy thông tin từ form
-    const name = document.getElementById('class-name').value;
+    let name = document.getElementById('class-name').value;
     const timeStart = document.getElementById('class-time-start').value;
     const timeEnd = document.getElementById('class-time-end').value;
-    const location = document.getElementById('class-location').value;
+    let location = document.getElementById('class-location').value;
     const fee = parseInt(document.getElementById('class-fee').value);
     const paymentCycle = document.getElementById('class-payment-cycle').value;
+    
+    // Áp dụng định dạng viết hoa
+    if (window.TextFormatter) {
+        name = window.TextFormatter.toTitleCase(name);
+        location = window.TextFormatter.toTitleCase(location);
+    } else {
+        // Định dạng cơ bản nếu không có TextFormatter
+        name = name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+        location = location.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+    }
     
     // Lấy lịch học được chọn
     const scheduleCheckboxes = document.querySelectorAll('input[name="schedule"]:checked');
@@ -230,12 +240,22 @@ function handleEditClass(event) {
     
     // Lấy thông tin từ form
     const id = document.getElementById('edit-class-id').value;
-    const name = document.getElementById('edit-class-name').value;
+    let name = document.getElementById('edit-class-name').value;
     const timeStart = document.getElementById('edit-class-time-start').value;
     const timeEnd = document.getElementById('edit-class-time-end').value;
-    const location = document.getElementById('edit-class-location').value;
+    let location = document.getElementById('edit-class-location').value;
     const fee = parseInt(document.getElementById('edit-class-fee').value);
     const paymentCycle = document.getElementById('edit-class-payment-cycle').value;
+    
+    // Áp dụng định dạng viết hoa
+    if (window.TextFormatter) {
+        name = window.TextFormatter.toTitleCase(name);
+        location = window.TextFormatter.toTitleCase(location);
+    } else {
+        // Định dạng cơ bản nếu không có TextFormatter
+        name = name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+        location = location.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+    }
     
     // Lấy lịch học được chọn
     const scheduleCheckboxes = document.querySelectorAll('input[name="edit-schedule"]:checked');

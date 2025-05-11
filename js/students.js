@@ -221,14 +221,24 @@ function handleAddStudent(event) {
     event.preventDefault();
     
     // Lấy thông tin từ form
-    const name = document.getElementById('student-name').value;
+    let name = document.getElementById('student-name').value;
     const id = document.getElementById('student-id').value;
     const classId = document.getElementById('student-class').value;
     const registerDate = document.getElementById('student-register-date').value;
     const paymentCycle = document.getElementById('student-payment-cycle').value;
     const phone = document.getElementById('student-phone').value;
     const birthDate = document.getElementById('student-birth-date').value;
-    const address = document.getElementById('student-address').value;
+    let address = document.getElementById('student-address').value;
+    
+    // Áp dụng định dạng viết hoa cho các trường
+    if (window.TextFormatter) {
+        name = window.TextFormatter.toTitleCase(name);
+        address = window.TextFormatter.toTitleCase(address);
+    } else {
+        // Định dạng cơ bản nếu không có TextFormatter
+        name = name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+        address = address.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+    }
     
     // Tạo đối tượng học sinh mới
     const newStudent = {
@@ -268,13 +278,23 @@ function handleEditStudent(event) {
     
     // Lấy thông tin từ form
     const id = document.getElementById('edit-student-id').value;
-    const name = document.getElementById('edit-student-name').value;
+    let name = document.getElementById('edit-student-name').value;
     const classId = document.getElementById('edit-student-class').value;
     const registerDate = document.getElementById('edit-student-register-date').value;
     const paymentCycle = document.getElementById('edit-student-payment-cycle').value;
     const phone = document.getElementById('edit-student-phone').value;
     const birthDate = document.getElementById('edit-student-birth-date').value;
-    const address = document.getElementById('edit-student-address').value;
+    let address = document.getElementById('edit-student-address').value;
+    
+    // Áp dụng định dạng viết hoa cho các trường
+    if (window.TextFormatter) {
+        name = window.TextFormatter.toTitleCase(name);
+        address = window.TextFormatter.toTitleCase(address);
+    } else {
+        // Định dạng cơ bản nếu không có TextFormatter
+        name = name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+        address = address.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+    }
     
     // Lấy danh sách học sinh hiện tại
     let students = getStudents();
