@@ -187,9 +187,18 @@ function displayStudentAttendanceHistory(studentId) {
 // Hiển thị lịch sử thanh toán
 function displayStudentPaymentHistory(studentId) {
     const paymentHistory = document.getElementById('payment-history-list');
-    if (!paymentHistory) return;
+    if (!paymentHistory) {
+        console.error("Không tìm thấy phần tử payment-history-list");
+        return;
+    }
     
-    const payments = getPayments().filter(payment => payment.studentId === studentId);
+    // Lấy tất cả các thanh toán
+    const allPayments = getPayments();
+    console.log(`Tổng số thanh toán: ${allPayments.length}`);
+    
+    // Lọc các thanh toán của học sinh
+    const payments = allPayments.filter(payment => payment.studentId === studentId);
+    console.log(`Số thanh toán của học sinh ${studentId}: ${payments.length}`);
     
     if (payments.length === 0) {
         paymentHistory.innerHTML = '<p class="no-history">Chưa có lịch sử thanh toán</p>';
@@ -202,6 +211,7 @@ function displayStudentPaymentHistory(studentId) {
     paymentHistory.innerHTML = '';
     
     const table = document.createElement('table');
+    table.className = 'data-table';
     table.innerHTML = `
         <thead>
             <tr>
@@ -220,11 +230,11 @@ function displayStudentPaymentHistory(studentId) {
     payments.forEach(payment => {
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td>${payment.receiptNumber}</td>
+            <td>${payment.receiptNumber || 'N/A'}</td>
             <td>${formatDate(payment.date)}</td>
             <td>${formatCurrency(payment.amount)} VND</td>
-            <td>${payment.cycle}</td>
-            <td>${payment.method}</td>
+            <td>${payment.cycle || 'N/A'}</td>
+            <td>${payment.method || 'N/A'}</td>
         `;
         
         tbody.appendChild(row);

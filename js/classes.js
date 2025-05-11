@@ -320,6 +320,9 @@ function deleteClass(classId) {
     
     // Cập nhật danh sách lớp trong các select box
     updateClassSelectOptions();
+    
+    // Thông báo dữ liệu đã thay đổi
+    document.dispatchEvent(new Event('dataChanged'));
 }
 
 // Cập nhật các select box chứa danh sách lớp
