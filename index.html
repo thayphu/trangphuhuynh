@@ -650,8 +650,11 @@
                     
                     <!-- Tổng thanh toán -->
                     <div class="payment-total">
-                        <label for="payment-amount">Tổng cộng:</label>
-                        <input type="number" id="payment-amount" min="0" step="1000" required>
+                        <div class="summary-container">
+                            <div class="summary-label">Tổng cộng:</div>
+                            <div class="summary-value"><span class="total-amount">0</span> VND</div>
+                        </div>
+                        <input type="hidden" id="payment-amount" min="0" step="1000" required>
                     </div>
                     
                     <div class="form-group">

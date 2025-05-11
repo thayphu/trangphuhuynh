@@ -467,29 +467,40 @@ function openAddPaymentModal(studentId = null) {
     if (studentId) {
         const studentSelect = document.getElementById('payment-student');
         if (studentSelect) {
-            // Điền giá trị cho select
-            studentSelect.value = studentId;
-            
-            // Cập nhật tiêu đề modal
+            // Lấy thông tin học sinh
             const student = getStudentById(studentId);
             if (student) {
+                // Cập nhật tiêu đề modal
                 document.getElementById('payment-modal-title').textContent = `Thu học phí cho ${student.name}`;
                 
-                // Cập nhật dropdown hiển thị tên học sinh
-                // Tìm hoặc tạo option cho học sinh này
-                let option = Array.from(studentSelect.options).find(opt => opt.value === studentId);
-                if (!option) {
-                    option = document.createElement('option');
-                    option.value = studentId;
-                    option.text = `${student.name} (${student.id} - ${getClassName(student.classId)})`;
-                    studentSelect.add(option);
-                }
+                // Xóa tất cả các option hiện tại
+                studentSelect.innerHTML = '';
+                
+                // Tạo và thêm option cho học sinh này
+                const option = document.createElement('option');
+                option.value = studentId;
+                option.text = `${student.name} (${student.id} - ${getClassName(student.classId)})`;
+                studentSelect.add(option);
+                
+                // Chọn học sinh này
                 studentSelect.value = studentId;
+                
+                // Làm cho select không thể thay đổi
+                studentSelect.disabled = true;
             }
         }
     } else {
-        // Reset tiêu đề modal
+        // Reset tiêu đề modal và làm mới danh sách học sinh
         document.getElementById('payment-modal-title').textContent = "Thêm thanh toán học phí";
+        
+        // Kích hoạt select học sinh
+        const studentSelect = document.getElementById('payment-student');
+        if (studentSelect) {
+            studentSelect.disabled = false;
+            
+            // Làm mới danh sách học sinh nếu là thêm mới
+            updateStudentSelectOptions();
+        }
     }
     
     // Cấu hình các tab trong form thanh toán
@@ -652,36 +663,44 @@ function updateStudentDetails(studentId) {
     if (!studentId) return;
     
     const student = getStudentById(studentId);
-    if (!student) return;
+    if (!student) {
+        console.error("Không tìm thấy thông tin học sinh:", studentId);
+        return;
+    }
+    
+    console.log("Cập nhật thông tin học sinh:", student.name);
     
     // Cập nhật mã học sinh
     document.getElementById('payment-student-id').value = student.id;
     
     // Cập nhật tên lớp học
     const classData = getClassById(student.classId);
-    if (!classData) return;
+    if (!classData) {
+        console.error("Không tìm thấy thông tin lớp học cho học sinh:", student.name);
+        return;
+    }
     
+    console.log("Lớp học:", classData.name, "- Học phí:", classData.fee);
     document.getElementById('payment-class').value = classData.name;
     
     // Cập nhật chu kỳ thanh toán
     const cycleSelect = document.getElementById('payment-cycle');
     if (cycleSelect) {
-        // Đảm bảo lựa chọn tồn tại
-        const validCycle = Array.from(cycleSelect.options).some(opt => opt.value === student.paymentCycle);
+        // Xóa tất cả các option hiện tại
+        cycleSelect.innerHTML = '';
         
-        if (validCycle) {
-            cycleSelect.value = student.paymentCycle;
-        } else {
-            // Tạo option mới nếu không tồn tại
-            const option = document.createElement('option');
-            option.value = student.paymentCycle;
-            option.text = student.paymentCycle;
-            cycleSelect.add(option);
-            cycleSelect.value = student.paymentCycle;
-        }
+        // Tạo và thêm option cho chu kỳ thanh toán của học sinh
+        const option = document.createElement('option');
+        option.value = student.paymentCycle;
+        option.text = student.paymentCycle;
+        cycleSelect.add(option);
+        cycleSelect.value = student.paymentCycle;
+        
+        // Làm cho select không thể thay đổi
+        cycleSelect.disabled = true;
     }
     
-    // Cập nhật số tiền cần thanh toán dựa trên chu kỳ và lớp học
+    // Tính và hiển thị số tiền cần thanh toán dựa trên chu kỳ và lớp học
     let baseAmount = 0;
     
     if (student.paymentCycle === '8 buổi') {
@@ -692,22 +711,16 @@ function updateStudentDetails(studentId) {
         baseAmount = classData.fee;
     }
     
+    console.log("Học phí cơ bản:", baseAmount, "dựa trên chu kỳ:", student.paymentCycle);
+    
     // Cập nhật học phí cơ bản và tổng học phí
     document.getElementById('payment-base-amount').value = baseAmount;
     document.getElementById('payment-amount').value = baseAmount;
     
-    // Áp dụng định dạng số tiền nếu cần
-    const amountField = document.getElementById('payment-amount');
-    if (amountField && amountField.value) {
-        try {
-            const numericValue = parseInt(amountField.value.replace(/,/g, ''));
-            if (!isNaN(numericValue)) {
-                // Cập nhật hiển thị với định dạng tiền tệ
-                amountField.value = numericValue;
-            }
-        } catch (e) {
-            console.error("Lỗi định dạng số tiền:", e);
-        }
+    // Cập nhật tổng học phí trên giao diện
+    const totalElement = document.querySelector('.total-amount');
+    if (totalElement) {
+        totalElement.textContent = baseAmount.toLocaleString('vi-VN');
     }
 }
 
