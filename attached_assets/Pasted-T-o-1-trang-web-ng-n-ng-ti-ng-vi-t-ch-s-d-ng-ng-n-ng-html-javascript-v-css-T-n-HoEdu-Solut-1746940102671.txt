@@ -1,0 +1,39 @@
+Tạo 1 trang web ngôn ngữ tiếng việt, chỉ sử dụng ngôn ngữ html, javascript và css
+ Tên: HoEdu Solution
+ Tên admin: Đông Phú
+ Username: dongphubte
+ Password: @Bentre2013
+ Không có chức năng dăng ký người dung mới, password có thể thay đổi sau khi đăng nhập
+Tất cả các dữ liệu phải tự động cập nhật, các dữ liệu sau khi nhập phải được lưu trữ vĩnh viễn
+ Tạo ra các tab dọc với các tên và chức năng:
+-Tab  “Lớp học” hiển thị danh sách các lớp “Lớp 1, Lớp 2”, “Lớp 3,Lớp 4, Lớp 5” mỗi lớp hiện trong 1 ô với thông tin “Tên lớp”, “Lịch học” (lịch học sẽ hiển thị các lựa chọn từ thứ 2 đến chủ nhật), “Giờ học” (dựa vào lựa chọn khi tạo lớp)  , “Địa điểm” “Học phí” (theo VND, có dấu phân cách hang nghìn , Học phí tính theo chu kỳ: 1 tháng, 8 buổi, 10 buổi, Theo ngày), số học sinh đang học, có nút “Thêm lớp mới” với các trường dữ liệu “Tên lớp”, “Lịch học” (Thứ 2, Thứ 3, Thứ 4, …..), “Giờ học (sẽ nhập thủ công), “Học phí” (theo VND, có dấu phân cách hang nghìn), “Chu kỳ thanh toán” (1 tháng, 8 buổi, 10 buổi, Theo ngày); có chức năng sửa, xóa lớp, đóng lớp, thêm học sinh vào lớp, tự động sắp xếp các lớp theo thứ tự bảng chữ cái, mỗi lớp là 1 ô khác nhau
+- Tab “Học sinh” gồm “Họ tên”, “Mã HS”, “Lớp”, Ngày đăng ký, “Chu kỳ thanh toán:, “Tình trạng thanh toán” (Đã thanh toán, Chưa thanh toán, Qúa hạn); có nút Thêm học sinhvới các trường thông tin “Họ tên”, “Mã HS” (theo định dạng Năm hiện tại><3 số ngẫu nhiên từ 001 đến 999), “Lớp”, Ngày đăng ký, “Chu kỳ thanh toán” <1 tháng, 8 buổi, 10 buổi, Theo ngày>  và chức năng chỉnh sửa, xóa. “Danh xưng” <Anh / Chị / Học sinh>Logic hiển thị: kiểm tra trong danh sách lớp ngày đăng ký / ngày thanh toán gần nhất, nếu đăng ký theo 1 mà sau 1 tháng mà chưa thanh toán, hiện “quá hạn”, nếu đăng ký theo 8 buổi / 10 buổi thì sau 8 buổi / 10 buổi mà không thanh toán thì hiện quá hạn, nếu đăng ký theo ngày thì sau 1 ngày mà không thanh toán thì hiện quá hạn.Nếu học sinh chưa thanh toán hoặc bị quá hạn thì hiện “Thanh toán”, nếu đã thanh toán thì hiện “Đã thanh toán” (màu xanh và dấu tick),
+-Tab “Học phí” hiển thị dữ liệu các học sinh đã đóng tiền học, có chức năng như xóa, xuất Biên nhận dưới dạng hình ảnh hoặc pdf với template sau:
+Biên nhận (chữ hoa, màu trắng, nằm trong hình chữ nhật bo 4 góc màu cam, canh giữa)
+No. <năm hiện tại><số thứ tự của hóa đơn, ví dụ 001) (in đậm, màu đỏ, màu đỏ)
+Đã nhận <số tiền> (chữ to, in đậm)  Bằng chữ (đọc số tiền bằng tiếng Việt)
+Chu kỳ thanh toán: 1 tháng, 8 buổi, 10 buổi hoặc Theo ngày”
+Chu kỳ thanh toán tiếp theo <tính theo chu kỳ tiếp theo>
+Lịch sử điểm danh (có mặt, vắng mặt, GV nghỉ, mỗi dữ liệu vào 1 ô, trang trí cho đẹp mắt)
+Lịch sử thanh toán (nếu chưa có thì ghi “Chưa có lịch sử thanh toán”
+Anh / Chị vui lòng kiểm tra kỹ thông tin hiện trong Biên nhận này, nếu có sai sót hãy liên hệ để giải quyết.
+“Trân trọng
+Trần Đông Phú”
+-Tab “Điểm danh” , có chức năng điểm danh theo lớp, mỗi 1 lớp để trong 1 ô khác nhau, dựa vào dữ liệu của “Lớp học” mà hiển thị, nếu hôm nay có lớp thì hiển chữ “Điểm danh” trong khung màu vàng nhấp nháy, các lớp khác không có lịch học thì khóa chức năng điểm danh, sắp xếp các lớp có lịch học lên trước. Khi click vào Điểm danh chỉ hiển thị danh sách học sinh đang đăng ký học lớp đó, có tính năng “có mặt, vắng mặt, GV nghỉ”, “Học bù””, thống kê số có mặt, vắng mặt, GV nghỉ, Học bù đề hiện ra ở giao diện của Tab “Điểm danh” (trang trí cho đẹp)
+-Trang “Phụ huynh” nằm phía dưới tab “Báo cáo”, khi click vào sẽ trở 1 cửa sổ mới
+Để phụ huynh tra cứu thông tin học sinh bằng mã hs
+Hiển thị các nội dung sau
+Họ và tên Mã hs
+ Lớp Ngày đăng ký
+Chu kỳ thanh toán: 8 buổi, 10 buổi, … Trạng thái thanh toán: Đã thanh toán, Chưa thanh toán
+Thống kê điểm danh: Tổng số buổi đã học, Số buổi có mặt, Số buổi vắng, Số buổi GV vắng (mỗi dữ liệu trong 1 ô, có trang trí với các icon phù hợp
+Lịch sử điểm danh:
+Lịch sử thanh toán (số hóa đơn, ngày thanh toán, số tiền, hình thức Tiền mặt/ CK)
+Nếu hs có trạng thái chưa thanh toán thì hiện thông tin chuyển khoản như sau:
+Số tài khoản: 9704229262085470
+Ngân hàng Quân đội MB Bank
+Chủ TK: Tran Dong Phu
+Nội dung chuyển khoản: HP<MÃ HỌC SINH
+Số tiền cần thanh toán
+Và 1 mã QR code được tạo từ hướng dẫn sau https://www.vietqr.io/danh-sach-api/link-tao-ma-nhanh/ với  <AMOUNT> là số tiền thanh toán
+
