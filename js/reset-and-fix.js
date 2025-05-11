@@ -1,17 +1,17 @@
 /**
  * Công cụ sửa chữa dữ liệu và hiển thị
+ * Phiên bản đơn giản hóa để tránh xung đột
  */
 
 // Hàm sửa chữa và reset dữ liệu ứng dụng
 function resetAndFixApp() {
-    console.log("== BẮT ĐẦU QUÁ TRÌNH RESET VÀ SỬA LỖI ==");
+    console.log("==== BẮT ĐẦU RESET DỮ LIỆU ====");
     
     try {
         // Xóa dữ liệu cũ
         localStorage.clear();
-        console.log("✓ Đã xóa dữ liệu localStorage");
         
-        // Khởi tạo lại dữ liệu mẫu cho lớp học và học sinh
+        // Tạo dữ liệu lớp học mẫu
         const sampleClasses = [
             {
                 id: 'class001',
@@ -37,6 +37,7 @@ function resetAndFixApp() {
             }
         ];
         
+        // Tạo dữ liệu học sinh mẫu
         const sampleStudents = [
             {
                 id: 'HS001',
@@ -76,7 +77,7 @@ function resetAndFixApp() {
             }
         ];
         
-        // Tạo thanh toán mẫu mới
+        // Tạo dữ liệu thanh toán mẫu
         const samplePayments = [
             {
                 id: 'PAY001',
@@ -134,148 +135,11 @@ function resetAndFixApp() {
         localStorage.setItem('attendance', JSON.stringify(sampleAttendance));
         localStorage.setItem('initialized', 'true');
         
-        console.log("✓ Đã lưu dữ liệu mẫu vào localStorage");
-        
-        // Tạo lại cấu trúc tab học phí
-        createPaymentTabs();
-        
-        // Hiển thị dữ liệu học sinh chưa thanh toán
-        console.log("Hiển thị học sinh chưa thanh toán...");
-        displayUnpaidStudents();
-        
-        // Hiển thị lịch sử thanh toán
-        console.log("Hiển thị lịch sử thanh toán...");
-        displayPaymentHistory();
-        
-        // Thông báo hoàn thành
-        alert('Đã reset dữ liệu và sửa lỗi hiển thị. Hãy kiểm tra lại tab Học phí.');
-        console.log("== HOÀN THÀNH RESET VÀ SỬA LỖI ==");
+        // Làm mới trang để tránh xung đột DOM
+        window.location.reload();
         
     } catch (error) {
         console.error("Lỗi khi reset dữ liệu:", error);
         alert('Đã xảy ra lỗi khi reset dữ liệu: ' + error.message);
     }
-}
-
-// Hàm tạo lại cấu trúc tab học phí
-function createPaymentTabs() {
-    const paymentTabsContainer = document.querySelector('.payment-tabs-container');
-    
-    if (!paymentTabsContainer) {
-        console.error("Không tìm thấy container tab học phí");
-        return;
-    }
-    
-    // Xóa nội dung cũ
-    paymentTabsContainer.innerHTML = '';
-    
-    // Tạo tab buttons
-    const tabButtons = document.createElement('div');
-    tabButtons.className = 'payment-tab-buttons';
-    tabButtons.innerHTML = `
-        <button class="payment-tab-button active" data-tab="unpaid-students">Học sinh chưa thanh toán</button>
-        <button class="payment-tab-button" data-tab="payment-history">Lịch sử thanh toán</button>
-    `;
-    
-    // Tạo tab content cho học sinh chưa thanh toán
-    const unpaidStudentsTab = document.createElement('div');
-    unpaidStudentsTab.id = 'unpaid-students';
-    unpaidStudentsTab.className = 'payment-tab-content active';
-    unpaidStudentsTab.innerHTML = `
-        <div id="unpaid-students-list" class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Mã HS</th>
-                        <th>Họ tên</th>
-                        <th>Lớp</th>
-                        <th>Ngày đăng ký</th>
-                        <th>Tổng học phí</th>
-                        <th>Chu kỳ thanh toán</th>
-                        <th>Hạn đóng học phí</th>
-                        <th>Hành động</th>
-                    </tr>
-                </thead>
-                <tbody id="unpaid-students-table-body"></tbody>
-            </table>
-        </div>
-    `;
-    
-    // Tạo tab content cho lịch sử thanh toán
-    const paymentHistoryTab = document.createElement('div');
-    paymentHistoryTab.id = 'payment-history';
-    paymentHistoryTab.className = 'payment-tab-content';
-    paymentHistoryTab.innerHTML = `
-        <div class="search-filter">
-            <input type="text" id="payment-search" placeholder="Tìm kiếm thanh toán...">
-            <select id="payment-class-filter">
-                <option value="">Tất cả lớp</option>
-            </select>
-            <input type="date" id="payment-date-filter" placeholder="dd/mm/yyyy">
-            <button id="clear-payment-filter" class="btn-icon"><i class="fas fa-times"></i> Xóa lọc</button>
-        </div>
-        <div id="payments-list" class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Số hóa đơn</th>
-                        <th>Mã HS</th>
-                        <th>Họ tên</th>
-                        <th>Lớp</th>
-                        <th>Ngày thanh toán</th>
-                        <th>Số tiền</th>
-                        <th>Chu kỳ thanh toán</th>
-                        <th>Hình thức</th>
-                        <th>Hành động</th>
-                    </tr>
-                </thead>
-                <tbody id="payments-table-body"></tbody>
-            </table>
-        </div>
-    `;
-    
-    // Thêm các thành phần vào container
-    paymentTabsContainer.appendChild(tabButtons);
-    paymentTabsContainer.appendChild(unpaidStudentsTab);
-    paymentTabsContainer.appendChild(paymentHistoryTab);
-    
-    // Thêm sự kiện click cho tab
-    document.querySelectorAll('.payment-tab-button').forEach(button => {
-        button.addEventListener('click', function() {
-            // Lấy ID tab cần hiển thị
-            const tabId = this.dataset.tab;
-            console.log("Đã click tab:", tabId);
-            
-            // Loại bỏ trạng thái active khỏi tất cả tab buttons
-            document.querySelectorAll('.payment-tab-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            // Thêm trạng thái active cho tab button được click
-            this.classList.add('active');
-            
-            // Ẩn tất cả tab content
-            document.querySelectorAll('.payment-tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            
-            // Hiện tab content tương ứng
-            const targetTab = document.getElementById(tabId);
-            if (targetTab) {
-                targetTab.classList.add('active');
-                
-                // Nếu là tab học sinh chưa thanh toán, hiển thị danh sách
-                if (tabId === 'unpaid-students') {
-                    displayUnpaidStudents();
-                }
-                
-                // Nếu là tab lịch sử thanh toán, hiển thị danh sách
-                if (tabId === 'payment-history') {
-                    displayPaymentHistory();
-                }
-            }
-        });
-    });
-    
-    console.log("✓ Đã tạo lại cấu trúc tab học phí");
 }
