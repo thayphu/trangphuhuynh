@@ -26,6 +26,18 @@ function applyTextFormatters() {
             if (fieldName.includes('name') || fieldName.includes('teacher') || fieldName.includes('description') || 
                 fieldName.includes('address') || fieldName.includes('parent')) {
                 // Trường tên, giáo viên, mô tả, địa chỉ, phụ huynh - viết hoa chữ cái đầu mỗi từ
+                
+                // Viết hoa ngay khi đang nhập
+                input.addEventListener('input', function() {
+                    // Viết hoa ngay lập tức khi nhập
+                    const start = this.selectionStart;
+                    const end = this.selectionEnd;
+                    this.value = toTitleCase(this.value);
+                    // Giữ vị trí con trỏ
+                    this.setSelectionRange(start, end);
+                });
+                
+                // Sự kiện blur để đảm bảo dữ liệu được định dạng khi ra khỏi trường
                 input.addEventListener('blur', function() {
                     this.value = toTitleCase(this.value);
                 });
@@ -85,6 +97,16 @@ function addModalInputHandlers() {
                                 fieldName.includes('description') || fieldName.includes('address') || 
                                 fieldName.includes('parent')) {
                                 // Trường tên, giáo viên, mô tả, địa chỉ, phụ huynh - viết hoa chữ cái đầu mỗi từ
+                                input.addEventListener('input', function() {
+                                    // Viết hoa ngay lập tức khi nhập
+                                    const start = this.selectionStart;
+                                    const end = this.selectionEnd;
+                                    this.value = toTitleCase(this.value);
+                                    // Giữ vị trí con trỏ
+                                    this.setSelectionRange(start, end);
+                                });
+                                
+                                // Thêm sự kiện blur để chắc chắn dữ liệu đã được định dạng khi rời khỏi trường
                                 input.addEventListener('blur', function() {
                                     this.value = toTitleCase(this.value);
                                 });
