@@ -2,6 +2,17 @@
  * Quản lý điểm danh
  */
 
+// Cập nhật trạng thái viền của mục điểm danh khi thay đổi
+function updateAttendanceItemStatus(radioButton) {
+    const attendanceItem = radioButton.closest('.attendance-item');
+    
+    if (radioButton.value === 'present') {
+        attendanceItem.classList.add('present');
+    } else {
+        attendanceItem.classList.remove('present');
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Hiển thị danh sách lớp để điểm danh
     displayAttendanceClasses();
