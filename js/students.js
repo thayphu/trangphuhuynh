@@ -44,6 +44,18 @@ document.addEventListener('DOMContentLoaded', function() {
     if (paymentStatusFilter) {
         paymentStatusFilter.addEventListener('change', filterStudents);
     }
+    
+    // Xử lý thay đổi lớp học để tự động cập nhật chu kỳ thanh toán
+    const studentClassSelect = document.getElementById('student-class');
+    if (studentClassSelect) {
+        studentClassSelect.addEventListener('change', updatePaymentCycleByClass);
+    }
+    
+    // Xử lý thay đổi lớp học trong form chỉnh sửa
+    const editStudentClassSelect = document.getElementById('edit-student-class');
+    if (editStudentClassSelect) {
+        editStudentClassSelect.addEventListener('change', updateEditPaymentCycleByClass);
+    }
 });
 
 // Hiển thị danh sách học sinh
@@ -129,8 +141,37 @@ function openAddStudentModal() {
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('student-register-date').value = today;
     
+    // Điền ngày sinh mặc định (để trống)
+    document.getElementById('student-birth-date').value = '';
+    
     // Hiển thị modal
     modal.classList.remove('hidden');
+}
+
+// Cập nhật chu kỳ thanh toán dựa trên lớp học được chọn
+function updatePaymentCycleByClass() {
+    const classId = document.getElementById('student-class').value;
+    const paymentCycleSelect = document.getElementById('student-payment-cycle');
+    
+    if (classId && paymentCycleSelect) {
+        const classData = getClassById(classId);
+        if (classData && classData.paymentCycle) {
+            paymentCycleSelect.value = classData.paymentCycle;
+        }
+    }
+}
+
+// Cập nhật chu kỳ thanh toán trong form chỉnh sửa dựa trên lớp học được chọn
+function updateEditPaymentCycleByClass() {
+    const classId = document.getElementById('edit-student-class').value;
+    const paymentCycleSelect = document.getElementById('edit-student-payment-cycle');
+    
+    if (classId && paymentCycleSelect) {
+        const classData = getClassById(classId);
+        if (classData && classData.paymentCycle) {
+            paymentCycleSelect.value = classData.paymentCycle;
+        }
+    }
 }
 
 // Mở modal chỉnh sửa học sinh
@@ -149,6 +190,25 @@ function openEditStudentModal(studentId) {
         document.getElementById('edit-student-register-date').value = student.registerDate;
         document.getElementById('edit-student-payment-cycle').value = student.paymentCycle;
         
+        // Điền các trường bổ sung nếu có
+        if (student.phone) {
+            document.getElementById('edit-student-phone').value = student.phone;
+        } else {
+            document.getElementById('edit-student-phone').value = '';
+        }
+        
+        if (student.birthDate) {
+            document.getElementById('edit-student-birth-date').value = student.birthDate;
+        } else {
+            document.getElementById('edit-student-birth-date').value = '';
+        }
+        
+        if (student.address) {
+            document.getElementById('edit-student-address').value = student.address;
+        } else {
+            document.getElementById('edit-student-address').value = '';
+        }
+        
         // Hiển thị modal
         modal.classList.remove('hidden');
     }
@@ -164,6 +224,9 @@ function handleAddStudent(event) {
     const classId = document.getElementById('student-class').value;
     const registerDate = document.getElementById('student-register-date').value;
     const paymentCycle = document.getElementById('student-payment-cycle').value;
+    const phone = document.getElementById('student-phone').value;
+    const birthDate = document.getElementById('student-birth-date').value;
+    const address = document.getElementById('student-address').value;
     
     // Tạo đối tượng học sinh mới
     const newStudent = {
@@ -171,7 +234,10 @@ function handleAddStudent(event) {
         name,
         classId,
         registerDate,
-        paymentCycle
+        paymentCycle,
+        phone,
+        birthDate,
+        address
     };
     
     // Lấy danh sách học sinh hiện tại và thêm học sinh mới
@@ -189,6 +255,9 @@ function handleAddStudent(event) {
     
     // Cập nhật danh sách học sinh trong select box của thanh toán
     updateStudentSelectOptions();
+    
+    // Hiển thị thông báo thành công
+    showNotification('Đã thêm học sinh mới thành công');
 }
 
 // Xử lý chỉnh sửa học sinh
@@ -201,6 +270,9 @@ function handleEditStudent(event) {
     const classId = document.getElementById('edit-student-class').value;
     const registerDate = document.getElementById('edit-student-register-date').value;
     const paymentCycle = document.getElementById('edit-student-payment-cycle').value;
+    const phone = document.getElementById('edit-student-phone').value;
+    const birthDate = document.getElementById('edit-student-birth-date').value;
+    const address = document.getElementById('edit-student-address').value;
     
     // Lấy danh sách học sinh hiện tại
     let students = getStudents();
@@ -213,7 +285,10 @@ function handleEditStudent(event) {
             name,
             classId,
             registerDate,
-            paymentCycle
+            paymentCycle,
+            phone,
+            birthDate,
+            address
         };
         
         // Lưu vào localStorage
@@ -228,6 +303,9 @@ function handleEditStudent(event) {
     
     // Cập nhật danh sách học sinh trong select box của thanh toán
     updateStudentSelectOptions();
+    
+    // Hiển thị thông báo thành công
+    showNotification('Đã cập nhật thông tin học sinh thành công');
 }
 
 // Xóa học sinh
