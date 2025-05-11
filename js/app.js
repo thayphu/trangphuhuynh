@@ -4,9 +4,6 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Xóa trạng thái khởi tạo để tạo lại dữ liệu mẫu
-    localStorage.removeItem('initialized');
-    
     // Khởi tạo dữ liệu mẫu nếu cần thiết
     initializeSampleData();
     
