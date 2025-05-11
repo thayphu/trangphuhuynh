@@ -194,10 +194,13 @@ function openAddPaymentModal() {
                     
                     // Tính toán học phí dựa vào chu kỳ đã chọn
                     if (selectedCycle === '8 buổi') {
+                        // Nếu chu kỳ là 8 buổi, số tiền đã nhập là học phí/buổi, tổng học phí = fee × 8
                         amount = classData.fee * 8;
                     } else if (selectedCycle === '10 buổi') {
+                        // Nếu chu kỳ là 10 buổi, số tiền đã nhập là học phí/buổi, tổng học phí = fee × 10
                         amount = classData.fee * 10;
                     } else if (selectedCycle === '1 tháng' || selectedCycle === 'Theo ngày') {
+                        // Nếu chu kỳ là 1 tháng hoặc Theo ngày, học phí = số tiền đã nhập
                         amount = classData.fee;
                     }
                     
@@ -212,10 +215,13 @@ function openAddPaymentModal() {
                 
                 // Tính toán học phí dựa vào chu kỳ
                 if (student.paymentCycle === '8 buổi') {
+                    // Nếu chu kỳ là 8 buổi, số tiền đã nhập là học phí/buổi, tổng học phí = fee × 8
                     amount = classData.fee * 8;
                 } else if (student.paymentCycle === '10 buổi') {
+                    // Nếu chu kỳ là 10 buổi, số tiền đã nhập là học phí/buổi, tổng học phí = fee × 10
                     amount = classData.fee * 10;
                 } else if (student.paymentCycle === '1 tháng' || student.paymentCycle === 'Theo ngày') {
+                    // Nếu chu kỳ là 1 tháng hoặc Theo ngày, học phí = số tiền đã nhập
                     amount = classData.fee;
                 }
                 

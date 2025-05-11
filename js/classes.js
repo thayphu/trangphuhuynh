@@ -59,9 +59,21 @@ function displayClasses() {
         
         // Tính học phí theo buổi dựa vào chu kỳ
         let sessionFee = 0;
+        let totalFee = classData.fee;
+        
         if (classData.paymentCycle === '1 tháng') {
+            // Nếu chu kỳ là 1 tháng, học phí/buổi = học phí ÷ 8
             sessionFee = Math.round(classData.fee / 8);
-        } else if (classData.paymentCycle === '8 buổi' || classData.paymentCycle === '10 buổi' || classData.paymentCycle === 'Theo ngày') {
+        } else if (classData.paymentCycle === '8 buổi') {
+            // Nếu chu kỳ là 8 buổi, số tiền đã nhập là học phí/buổi, tổng học phí = fee × 8
+            sessionFee = classData.fee;
+            totalFee = classData.fee * 8;
+        } else if (classData.paymentCycle === '10 buổi') {
+            // Nếu chu kỳ là 10 buổi, số tiền đã nhập là học phí/buổi, tổng học phí = fee × 10
+            sessionFee = classData.fee;
+            totalFee = classData.fee * 10;
+        } else if (classData.paymentCycle === 'Theo ngày') {
+            // Nếu chu kỳ là Theo ngày, học phí/buổi = học phí đã nhập
             sessionFee = classData.fee;
         }
         
@@ -71,7 +83,7 @@ function displayClasses() {
                 <div><span>Lịch học:</span> ${classData.schedule.join(', ')}</div>
                 <div><span>Giờ học:</span> ${formatTime(classData.timeStart)} - ${formatTime(classData.timeEnd)}</div>
                 <div><span>Địa điểm:</span> ${classData.location}</div>
-                <div><span>Học phí:</span> ${formatCurrency(classData.fee)} VND</div>
+                <div><span>Tổng học phí:</span> ${formatCurrency(totalFee)} VND</div>
                 <div><span>Chu kỳ:</span> ${classData.paymentCycle}</div>
                 <div><span>Học phí/buổi:</span> ${formatCurrency(sessionFee)} VND</div>
             </div>
