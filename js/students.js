@@ -85,6 +85,8 @@ function displayStudents(filteredStudents = null) {
         row.innerHTML = `
             <td>${student.id}</td>
             <td>${student.name}</td>
+            <td>${student.phone || ''}</td>
+            <td>${student.birthDate ? formatDate(student.birthDate) : ''}</td>
             <td>${getClassName(student.classId)}</td>
             <td>${formatDate(student.registerDate)}</td>
             <td>${student.paymentCycle}</td>
