@@ -4,10 +4,12 @@
  */
 
 // Thông tin tài khoản admin mặc định
-// Không lưu mật khẩu trực tiếp, chỉ lưu hash
+// Lưu cả mật khẩu văn bản và hash để đảm bảo tương thích
 const defaultAdmin = {
     username: 'dongphubte',
-    // Hash của mật khẩu "@Bentre2013"
+    // Mật khẩu gốc (để đăng nhập trực tiếp) - Giữ cho tương thích ngược
+    password: '@Bentre2013',
+    // Hash của mật khẩu "@Bentre2013" (cho phương thức bảo mật mới)
     passwordHash: "8f831e01b44d72f9f7558f22fc951b0cc98b3d428db6388df8a52c29c655d33e",
     name: 'Đông Phú'
 };
@@ -55,11 +57,15 @@ document.addEventListener('DOMContentLoaded', function() {
 // Kiểm tra xác thực
 function checkAuthentication() {
     const isAuthenticated = localStorage.getItem('authenticated');
-    const adminPassword = localStorage.getItem('adminPassword');
     
-    // Kiểm tra nếu chưa có mật khẩu admin, thì lưu mật khẩu mặc định
-    if (!adminPassword) {
+    // Đảm bảo giá trị mặc định được lưu
+    if (!localStorage.getItem('adminPassword')) {
         localStorage.setItem('adminPassword', defaultAdmin.password);
+    }
+    
+    // Đảm bảo hash mật khẩu cũng được lưu
+    if (!localStorage.getItem('adminPasswordHash')) {
+        localStorage.setItem('adminPasswordHash', defaultAdmin.passwordHash);
     }
     
     const loginContainer = document.getElementById('login-container');
@@ -111,16 +117,23 @@ function generateSessionToken() {
            Math.random().toString(36).substring(2, 15);
 }
 
-// Xử lý đăng nhập với bảo mật tốt hơn
+// Xử lý đăng nhập với cả hai phương thức xác thực (cũ và mới)
 function handleLogin(event) {
     event.preventDefault();
     
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
-    const storedHash = localStorage.getItem('adminPasswordHash') || defaultAdmin.passwordHash;
     
-    // Kiểm tra thông tin đăng nhập bằng hash thay vì mật khẩu gốc
-    if (username === defaultAdmin.username && verifyPassword(password, storedHash)) {
+    // Kiểm tra thông tin đăng nhập
+    // Phương thức 1: So sánh trực tiếp (cũ)
+    const directAuthentication = (username === defaultAdmin.username && password === defaultAdmin.password);
+    
+    // Phương thức 2: So sánh bằng hash (mới - bảo mật hơn)
+    const storedHash = localStorage.getItem('adminPasswordHash') || defaultAdmin.passwordHash;
+    const hashAuthentication = (username === defaultAdmin.username && verifyPassword(password, storedHash));
+    
+    // Nếu một trong hai phương thức xác thực thành công
+    if (directAuthentication || hashAuthentication) {
         // Đăng nhập thành công
         const sessionToken = generateSessionToken();
         localStorage.setItem('authenticated', 'true');
@@ -131,11 +144,15 @@ function handleLogin(event) {
         setupSessionTimeout();
         
         checkAuthentication();
+        
+        console.log("Đăng nhập thành công!");
     } else {
         // Đăng nhập thất bại
         const loginError = document.getElementById('login-error');
         loginError.textContent = 'Tên đăng nhập hoặc mật khẩu không đúng!';
         loginError.classList.remove('hidden');
+        
+        console.log("Đăng nhập thất bại!");
     }
 }
 
