@@ -502,40 +502,140 @@
 
         <!-- Add Payment Modal -->
         <div id="add-payment-modal" class="modal hidden">
-            <div class="modal-content">
+            <div class="modal-content payment-modal-content">
                 <span class="close-btn">&times;</span>
-                <h2>Thêm thanh toán học phí</h2>
+                <h2 id="payment-modal-title">Thêm thanh toán học phí</h2>
                 <form id="add-payment-form">
-                    <div class="form-group">
-                        <label for="payment-student">Học sinh:</label>
-                        <select id="payment-student" required></select>
+                    <input type="hidden" id="payment-receipt-number">
+                    
+                    <!-- Thông tin học sinh -->
+                    <div class="student-payment-info">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="payment-student">Học sinh:</label>
+                                <select id="payment-student" required></select>
+                            </div>
+                            <div class="form-group">
+                                <label for="payment-student-id">Mã học sinh:</label>
+                                <input type="text" id="payment-student-id" readonly>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="payment-class">Lớp:</label>
+                                <input type="text" id="payment-class" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="payment-cycle">Chu kỳ thanh toán:</label>
+                                <select id="payment-cycle" required>
+                                    <option value="1 tháng">1 tháng</option>
+                                    <option value="8 buổi">8 buổi</option>
+                                    <option value="10 buổi">10 buổi</option>
+                                    <option value="Theo ngày">Theo ngày</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="payment-date">Ngày thanh toán:</label>
+                                <input type="date" id="payment-date" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="payment-method">Hình thức thanh toán:</label>
+                                <select id="payment-method" required>
+                                    <option value="Tiền mặt">Tiền mặt</option>
+                                    <option value="Chuyển khoản">Chuyển khoản</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="payment-base-amount">Tổng học phí:</label>
+                                <input type="number" id="payment-base-amount" min="0" step="1000" readonly>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="payment-amount">Số tiền (VND):</label>
+                    
+                    <!-- Tabs cho thông tin thanh toán bổ sung -->
+                    <div class="payment-tabs">
+                        <div class="payment-tab-buttons">
+                            <button type="button" class="payment-tab-button active" data-tab="additional-fee">Chi phí bổ sung</button>
+                            <button type="button" class="payment-tab-button" data-tab="flexible-payment">Học phí linh hoạt</button>
+                        </div>
+                        
+                        <!-- Tab Chi phí bổ sung -->
+                        <div id="additional-fee" class="payment-tab-content active">
+                            <div class="section-subtitle">Chi phí bổ sung</div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="payment-additional-fee">Chi phí:</label>
+                                    <input type="number" id="payment-additional-fee" min="0" step="1000" value="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="payment-additional-reason">Diễn giải:</label>
+                                    <select id="payment-additional-reason">
+                                        <option value="">-- Chọn --</option>
+                                        <option value="Tài liệu">Tài liệu</option>
+                                        <option value="Khác">Khác</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row" id="payment-additional-other-container" style="display: none;">
+                                <div class="form-group">
+                                    <label for="payment-additional-other">Diễn giải khác:</label>
+                                    <input type="text" id="payment-additional-other">
+                                </div>
+                            </div>
+                            
+                            <div class="section-subtitle">Khấu trừ</div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="payment-discount">Số tiền khấu trừ:</label>
+                                    <input type="number" id="payment-discount" min="0" step="1000" value="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="payment-discount-reason">Lý do:</label>
+                                    <select id="payment-discount-reason">
+                                        <option value="">-- Chọn --</option>
+                                        <option value="Lớp nghỉ sớm">Lớp nghỉ sớm</option>
+                                        <option value="GV vắng không bù giờ">GV vắng không bù giờ</option>
+                                        <option value="Học sinh học không đủ buổi">Học sinh học không đủ buổi</option>
+                                        <option value="Khác">Khác</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row" id="payment-discount-other-container" style="display: none;">
+                                <div class="form-group">
+                                    <label for="payment-discount-other">Lý do khác:</label>
+                                    <input type="text" id="payment-discount-other">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Tab Học phí linh hoạt -->
+                        <div id="flexible-payment" class="payment-tab-content">
+                            <div class="section-subtitle">Đóng học phí linh hoạt</div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="payment-flexible-amount">Số tiền đóng trước:</label>
+                                    <input type="number" id="payment-flexible-amount" min="0" step="1000" value="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="payment-flexible-sessions">Số buổi tương ứng:</label>
+                                    <input type="number" id="payment-flexible-sessions" min="0" value="0" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tổng thanh toán -->
+                    <div class="payment-total">
+                        <label for="payment-amount">Tổng cộng:</label>
                         <input type="number" id="payment-amount" min="0" step="1000" required>
                     </div>
+                    
                     <div class="form-group">
-                        <label for="payment-date">Ngày thanh toán:</label>
-                        <input type="date" id="payment-date" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="payment-cycle">Chu kỳ thanh toán:</label>
-                        <select id="payment-cycle" required>
-                            <option value="1 tháng">1 tháng</option>
-                            <option value="8 buổi">8 buổi</option>
-                            <option value="10 buổi">10 buổi</option>
-                            <option value="Theo ngày">Theo ngày</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="payment-method">Hình thức thanh toán:</label>
-                        <select id="payment-method" required>
-                            <option value="Tiền mặt">Tiền mặt</option>
-                            <option value="Chuyển khoản">Chuyển khoản</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <button type="submit">Thêm thanh toán</button>
+                        <button type="submit">Xác nhận thanh toán</button>
                     </div>
                 </form>
             </div>

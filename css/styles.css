@@ -918,3 +918,96 @@ footer {
     font-size: 1.2rem;
     font-weight: 600;
 }
+
+/* Form thanh toán */
+.payment-modal-content {
+    max-width: 700px;
+}
+
+.student-payment-info {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-color);
+}
+
+.payment-tabs {
+    margin: 20px 0;
+}
+
+.payment-tab-buttons {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 15px;
+}
+
+.payment-tab-button {
+    background: none;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--light-text-color);
+    position: relative;
+}
+
+.payment-tab-button.active {
+    color: var(--primary-color);
+}
+
+.payment-tab-button.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--primary-color);
+}
+
+.payment-tab-content {
+    display: none;
+    padding: 15px 0;
+}
+
+.payment-tab-content.active {
+    display: block;
+}
+
+.section-subtitle {
+    font-weight: 500;
+    color: var(--primary-dark-color);
+    margin: 10px 0;
+    padding-left: 8px;
+    border-left: 3px solid var(--primary-color);
+}
+
+.payment-total {
+    display: flex;
+    align-items: center;
+    margin: 20px 0;
+    background-color: #fff8e1;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px dashed var(--warning-color);
+}
+
+.payment-total label {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--danger-color);
+    margin-right: 10px;
+    min-width: 120px;
+}
+
+.payment-total input {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--danger-color);
+    border: none;
+    background: transparent;
+    flex-grow: 1;
+    padding: 5px;
+    text-align: right;
+}

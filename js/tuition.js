@@ -259,132 +259,316 @@ function openAddPaymentModal(studentId = null) {
         const studentSelect = document.getElementById('payment-student');
         if (studentSelect) {
             studentSelect.value = studentId;
+            
+            // Cập nhật tiêu đề modal
+            const student = getStudentById(studentId);
+            if (student) {
+                document.getElementById('payment-modal-title').textContent = `Thu học phí cho ${student.name}`;
+            }
         }
+    } else {
+        // Reset tiêu đề modal
+        document.getElementById('payment-modal-title').textContent = "Thêm thanh toán học phí";
     }
+    
+    // Cấu hình các tab trong form thanh toán
+    setupPaymentTabs();
+    
+    // Cấu hình các trường bổ sung
+    setupAdditionalFields();
     
     // Xử lý thông tin học sinh
-    const studentSelect = document.getElementById('payment-student');
-    if (studentSelect && (studentSelect.value || studentId)) {
-        const sId = studentId || studentSelect.value;
-        const student = getStudentById(sId);
-        
-        // Tự động điền chu kỳ thanh toán theo học sinh
-        if (student) {
-            const cycleSelect = document.getElementById('payment-cycle');
-            cycleSelect.value = student.paymentCycle;
-            
-            // Tính học phí dựa vào thông tin lớp học và chu kỳ
-            const classData = getClassById(student.classId);
-            if (classData) {
-                let amount = classData.fee;
-                
-                // Tính học phí dựa vào chu kỳ
-                if (student.paymentCycle === '8 buổi') {
-                    // Nếu chu kỳ là 8 buổi, số tiền đã nhập là học phí/buổi, tổng học phí = fee × 8
-                    amount = classData.fee * 8;
-                } else if (student.paymentCycle === '10 buổi') {
-                    // Nếu chu kỳ là 10 buổi, số tiền đã nhập là học phí/buổi, tổng học phí = fee × 10
-                    amount = classData.fee * 10;
-                } else if (student.paymentCycle === '1 tháng' || student.paymentCycle === 'Theo ngày') {
-                    // Nếu chu kỳ là 1 tháng hoặc Theo ngày, học phí = số tiền đã nhập
-                    amount = classData.fee;
-                }
-                
-                document.getElementById('payment-amount').value = amount;
-            }
-        }
-    }
+    updateStudentPaymentInfo(studentId);
     
-    // Thêm event listener cho thay đổi học sinh
-    const studentSelectElement = document.getElementById('payment-student');
-    if (studentSelectElement) {
-        // Xóa event listener cũ nếu có
-        const newElement = studentSelectElement.cloneNode(true);
-        studentSelectElement.parentNode.replaceChild(newElement, studentSelectElement);
-        
-        // Thêm event listener mới
-        newElement.addEventListener('change', function() {
-            const selectedStudentId = this.value;
-            const student = getStudentById(selectedStudentId);
-            
-            if (student) {
-                // Điền chu kỳ thanh toán
-                const cycleSelect = document.getElementById('payment-cycle');
-                cycleSelect.value = student.paymentCycle;
-                
-                // Tính toán học phí
-                const classData = getClassById(student.classId);
-                if (classData) {
-                    let amount = classData.fee;
-                    
-                    // Tính học phí
-                    if (student.paymentCycle === '8 buổi') {
-                        // Nếu chu kỳ là 8 buổi, số tiền đã nhập là học phí/buổi, tổng học phí = fee × 8
-                        amount = classData.fee * 8;
-                    } else if (student.paymentCycle === '10 buổi') {
-                        // Nếu chu kỳ là 10 buổi, số tiền đã nhập là học phí/buổi, tổng học phí = fee × 10
-                        amount = classData.fee * 10;
-                    } else if (student.paymentCycle === '1 tháng' || student.paymentCycle === 'Theo ngày') {
-                        // Nếu chu kỳ là 1 tháng hoặc Theo ngày, học phí = số tiền đã nhập
-                        amount = classData.fee;
-                    }
-                    
-                    document.getElementById('payment-amount').value = amount;
-                }
-            }
-        });
-    }
-    
-    // Thêm event listener cho thay đổi chu kỳ
-    const cycleSelectElement = document.getElementById('payment-cycle');
-    if (cycleSelectElement && studentSelect && (studentSelect.value || studentId)) {
-        // Xóa event listener cũ nếu có
-        const newCycleElement = cycleSelectElement.cloneNode(true);
-        cycleSelectElement.parentNode.replaceChild(newCycleElement, cycleSelectElement);
-        
-        // Thêm event listener mới
-        newCycleElement.addEventListener('change', function() {
-            const selectedCycle = this.value;
-            const sId = studentId || studentSelect.value;
-            const student = getStudentById(sId);
-            
-            if (student) {
-                const classData = getClassById(student.classId);
-                if (classData) {
-                    let amount = classData.fee;
-                    
-                    // Tính học phí dựa vào chu kỳ đã chọn
-                    if (selectedCycle === '8 buổi') {
-                        amount = classData.fee * 8;
-                    } else if (selectedCycle === '10 buổi') {
-                        amount = classData.fee * 10;
-                    } else if (selectedCycle === '1 tháng' || selectedCycle === 'Theo ngày') {
-                        amount = classData.fee;
-                    }
-                    
-                    document.getElementById('payment-amount').value = amount;
-                }
-            }
-        });
-    }
+    // Tính tổng học phí
+    calculateTotalPayment();
     
     // Hiển thị modal
     modal.classList.remove('hidden');
+}
+
+// Thiết lập các tab trong form thanh toán
+function setupPaymentTabs() {
+    const tabButtons = document.querySelectorAll('.payment-tab-button');
+    const tabContents = document.querySelectorAll('.payment-tab-content');
+    
+    tabButtons.forEach(button => {
+        // Xóa event listener cũ nếu có
+        const newButton = button.cloneNode(true);
+        button.parentNode.replaceChild(newButton, button);
+        
+        // Thêm event listener mới
+        newButton.addEventListener('click', function() {
+            const tabId = this.dataset.tab;
+            
+            // Xóa active class từ tất cả các tab
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // Thêm active class cho tab được chọn
+            this.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+            
+            // Tính lại tổng thanh toán khi chuyển tab
+            calculateTotalPayment();
+        });
+    });
+}
+
+// Thiết lập các trường bổ sung (hiện/ẩn các ô nhập "khác")
+function setupAdditionalFields() {
+    // Diễn giải chi phí bổ sung
+    const additionalReason = document.getElementById('payment-additional-reason');
+    if (additionalReason) {
+        // Xóa event listener cũ nếu có
+        const newSelect = additionalReason.cloneNode(true);
+        additionalReason.parentNode.replaceChild(newSelect, additionalReason);
+        
+        // Thêm event listener mới
+        newSelect.addEventListener('change', function() {
+            const otherContainer = document.getElementById('payment-additional-other-container');
+            if (this.value === 'Khác') {
+                otherContainer.style.display = 'block';
+            } else {
+                otherContainer.style.display = 'none';
+            }
+            
+            // Tính lại tổng thanh toán
+            calculateTotalPayment();
+        });
+    }
+    
+    // Lý do khấu trừ
+    const discountReason = document.getElementById('payment-discount-reason');
+    if (discountReason) {
+        // Xóa event listener cũ nếu có
+        const newSelect = discountReason.cloneNode(true);
+        discountReason.parentNode.replaceChild(newSelect, discountReason);
+        
+        // Thêm event listener mới
+        newSelect.addEventListener('change', function() {
+            const otherContainer = document.getElementById('payment-discount-other-container');
+            if (this.value === 'Khác') {
+                otherContainer.style.display = 'block';
+            } else {
+                otherContainer.style.display = 'none';
+            }
+            
+            // Tính lại tổng thanh toán
+            calculateTotalPayment();
+        });
+    }
+    
+    // Xử lý sự kiện thay đổi chi phí bổ sung
+    const additionalFee = document.getElementById('payment-additional-fee');
+    if (additionalFee) {
+        additionalFee.addEventListener('input', calculateTotalPayment);
+    }
+    
+    // Xử lý sự kiện thay đổi khấu trừ
+    const discount = document.getElementById('payment-discount');
+    if (discount) {
+        discount.addEventListener('input', calculateTotalPayment);
+    }
+    
+    // Xử lý sự kiện thay đổi học phí linh hoạt
+    const flexibleAmount = document.getElementById('payment-flexible-amount');
+    if (flexibleAmount) {
+        flexibleAmount.addEventListener('input', function() {
+            calculateFlexibleSessions();
+            calculateTotalPayment();
+        });
+    }
+}
+
+// Cập nhật thông tin học sinh trong form thanh toán
+function updateStudentPaymentInfo(studentId = null) {
+    // Xử lý thông tin học sinh
+    const studentSelect = document.getElementById('payment-student');
+    if (studentSelect) {
+        // Xóa event listener cũ nếu có
+        const newElement = studentSelect.cloneNode(true);
+        studentSelect.parentNode.replaceChild(newElement, studentSelect);
+        
+        // Cập nhật thông tin học sinh hiện tại nếu có
+        if (newElement.value || studentId) {
+            const sId = studentId || newElement.value;
+            updateStudentDetails(sId);
+        }
+        
+        // Thêm event listener mới cho việc thay đổi học sinh
+        newElement.addEventListener('change', function() {
+            const selectedStudentId = this.value;
+            updateStudentDetails(selectedStudentId);
+        });
+    }
+    
+    // Xử lý chu kỳ thanh toán
+    const cycleSelect = document.getElementById('payment-cycle');
+    if (cycleSelect) {
+        // Xóa event listener cũ nếu có
+        const newCycleElement = cycleSelect.cloneNode(true);
+        cycleSelect.parentNode.replaceChild(newCycleElement, cycleSelect);
+        
+        // Thêm event listener mới cho việc thay đổi chu kỳ
+        newCycleElement.addEventListener('change', function() {
+            // Tính lại học phí khi chu kỳ thay đổi
+            calculateBaseAmount();
+            
+            // Tính lại tổng thanh toán
+            calculateTotalPayment();
+        });
+    }
+}
+
+// Cập nhật chi tiết học sinh khi chọn học sinh
+function updateStudentDetails(studentId) {
+    if (!studentId) return;
+    
+    const student = getStudentById(studentId);
+    if (!student) return;
+    
+    // Cập nhật mã học sinh
+    document.getElementById('payment-student-id').value = student.id;
+    
+    // Cập nhật tên lớp học
+    const classData = getClassById(student.classId);
+    if (classData) {
+        document.getElementById('payment-class').value = classData.name;
+    }
+    
+    // Cập nhật chu kỳ thanh toán
+    const cycleSelect = document.getElementById('payment-cycle');
+    cycleSelect.value = student.paymentCycle;
+    
+    // Tính học phí cơ bản
+    calculateBaseAmount();
+    
+    // Tính tổng số tiền thanh toán
+    calculateTotalPayment();
+}
+
+// Tính học phí cơ bản dựa vào chu kỳ và lớp học
+function calculateBaseAmount() {
+    const studentSelect = document.getElementById('payment-student');
+    if (!studentSelect || !studentSelect.value) return;
+    
+    const student = getStudentById(studentSelect.value);
+    if (!student) return;
+    
+    const classData = getClassById(student.classId);
+    if (!classData) return;
+    
+    const selectedCycle = document.getElementById('payment-cycle').value;
+    let amount = classData.fee;
+    
+    // Tính học phí dựa vào chu kỳ đã chọn
+    if (selectedCycle === '8 buổi') {
+        amount = classData.fee * 8;
+    } else if (selectedCycle === '10 buổi') {
+        amount = classData.fee * 10;
+    } else if (selectedCycle === '1 tháng' || selectedCycle === 'Theo ngày') {
+        amount = classData.fee;
+    }
+    
+    // Cập nhật học phí cơ bản
+    document.getElementById('payment-base-amount').value = amount;
+    
+    return amount;
+}
+
+// Tính số buổi tương ứng với số tiền đóng trước
+function calculateFlexibleSessions() {
+    const flexibleAmount = parseInt(document.getElementById('payment-flexible-amount').value) || 0;
+    const studentSelect = document.getElementById('payment-student');
+    if (!flexibleAmount || !studentSelect || !studentSelect.value) {
+        document.getElementById('payment-flexible-sessions').value = 0;
+        return 0;
+    }
+    
+    const student = getStudentById(studentSelect.value);
+    if (!student) {
+        document.getElementById('payment-flexible-sessions').value = 0;
+        return 0;
+    }
+    
+    const classData = getClassById(student.classId);
+    if (!classData || !classData.fee) {
+        document.getElementById('payment-flexible-sessions').value = 0;
+        return 0;
+    }
+    
+    // Tính số buổi = số tiền đóng trước / học phí 1 buổi
+    const perSessionFee = classData.fee;
+    const sessions = Math.floor(flexibleAmount / perSessionFee);
+    
+    document.getElementById('payment-flexible-sessions').value = sessions;
+    return sessions;
+}
+
+// Tính tổng số tiền thanh toán
+function calculateTotalPayment() {
+    // Học phí cơ bản
+    const baseAmount = parseInt(document.getElementById('payment-base-amount').value) || 0;
+    
+    // Chi phí bổ sung
+    const additionalFee = parseInt(document.getElementById('payment-additional-fee').value) || 0;
+    
+    // Khấu trừ
+    const discount = parseInt(document.getElementById('payment-discount').value) || 0;
+    
+    // Học phí linh hoạt
+    const flexibleAmount = parseInt(document.getElementById('payment-flexible-amount').value) || 0;
+    
+    // Tính tổng cộng
+    let totalAmount = 0;
+    
+    // Kiểm tra xem tab nào đang active
+    const isAdditionalFeeActive = document.getElementById('additional-fee').classList.contains('active');
+    
+    if (isAdditionalFeeActive) {
+        // Nếu tab Chi phí bổ sung đang active
+        totalAmount = baseAmount + additionalFee - discount;
+    } else {
+        // Nếu tab Học phí linh hoạt đang active
+        totalAmount = flexibleAmount;
+    }
+    
+    // Cập nhật tổng số tiền
+    document.getElementById('payment-amount').value = totalAmount;
+    
+    return totalAmount;
 }
 
 // Xử lý thêm thanh toán mới
 function handleAddPayment(event) {
     event.preventDefault();
     
-    // Lấy thông tin từ form
+    // Lấy thông tin cơ bản từ form
     const studentId = document.getElementById('payment-student').value;
     const amount = parseInt(document.getElementById('payment-amount').value);
     const date = document.getElementById('payment-date').value;
     const cycle = document.getElementById('payment-cycle').value;
     const method = document.getElementById('payment-method').value;
+    const receiptNumber = document.getElementById('payment-receipt-number').value || generateReceiptNumber();
     
-    // Tạo mã biên nhận
-    const receiptNumber = generateReceiptNumber();
+    // Lấy thông tin về chi phí bổ sung
+    const baseAmount = parseInt(document.getElementById('payment-base-amount').value) || 0;
+    const additionalFee = parseInt(document.getElementById('payment-additional-fee').value) || 0;
+    const additionalReason = document.getElementById('payment-additional-reason').value;
+    const additionalOther = document.getElementById('payment-additional-other').value;
+    
+    // Lấy thông tin về khấu trừ
+    const discount = parseInt(document.getElementById('payment-discount').value) || 0;
+    const discountReason = document.getElementById('payment-discount-reason').value;
+    const discountOther = document.getElementById('payment-discount-other').value;
+    
+    // Lấy thông tin về học phí linh hoạt
+    const flexibleAmount = parseInt(document.getElementById('payment-flexible-amount').value) || 0;
+    const flexibleSessions = parseInt(document.getElementById('payment-flexible-sessions').value) || 0;
+    
+    // Kiểm tra tab nào đang active
+    const isAdditionalFeeActive = document.getElementById('additional-fee').classList.contains('active');
     
     // Tạo đối tượng thanh toán mới
     const newPayment = {
@@ -394,8 +578,28 @@ function handleAddPayment(event) {
         amount,
         date,
         cycle,
-        method
+        method,
+        paymentType: isAdditionalFeeActive ? 'regular' : 'flexible',
+        details: {}
     };
+    
+    // Thêm thông tin chi tiết dựa vào loại thanh toán
+    if (isAdditionalFeeActive) {
+        // Thanh toán thông thường với chi phí bổ sung và khấu trừ
+        newPayment.details = {
+            baseAmount,
+            additionalFee,
+            additionalReason: additionalReason === 'Khác' ? additionalOther : additionalReason,
+            discount,
+            discountReason: discountReason === 'Khác' ? discountOther : discountReason
+        };
+    } else {
+        // Thanh toán học phí linh hoạt
+        newPayment.details = {
+            flexibleAmount,
+            flexibleSessions
+        };
+    }
     
     // Lấy danh sách thanh toán hiện tại và thêm thanh toán mới
     const payments = getPayments();
@@ -409,6 +613,9 @@ function handleAddPayment(event) {
     
     // Hiển thị lại danh sách thanh toán
     displayPayments();
+    
+    // Hiển thị thông báo thành công
+    showNotification('Thanh toán học phí thành công', 'success');
     
     // Mở modal biên nhận
     openReceiptModal(newPayment.id);
