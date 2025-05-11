@@ -51,6 +51,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (typeof displayPayments === 'function') {
             displayPayments();
         }
+        
+        // Cập nhật báo cáo nếu đang xem tab báo cáo
+        const reportsTab = document.querySelector('.tab[data-tab="reports"]');
+        if (reportsTab && reportsTab.classList.contains('active') && typeof setupReportsTab === 'function') {
+            setupReportsTab();
+        }
     });
 });
 
@@ -99,7 +105,11 @@ function initTabs() {
             
             // Cập nhật dữ liệu báo cáo nếu chọn tab Báo cáo
             if (tabId === 'reports') {
-                updateReportsData();
+                if (typeof setupReportsTab === 'function') {
+                    setupReportsTab();
+                } else {
+                    console.error('Hàm setupReportsTab chưa được định nghĩa');
+                }
             }
         });
     });
@@ -125,6 +135,16 @@ window.addEventListener('load', function() {
                 modal.classList.add('hidden');
             });
         }
+    });
+    
+    // Thiết lập sự kiện đóng cho tất cả nút đóng trong modal
+    document.querySelectorAll('.close-btn').forEach(closeBtn => {
+        closeBtn.addEventListener('click', function() {
+            const modal = this.closest('.modal');
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+        });
     });
 });
 
