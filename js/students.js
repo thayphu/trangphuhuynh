@@ -81,12 +81,18 @@ function displayStudents(filteredStudents = null) {
         const statusText = getPaymentStatusText(paymentStatus);
         const statusClass = `status-${paymentStatus}`;
         
+        // Định dạng họ tên: họ và tên, không có tên đệm
+        let shortName = student.name;
+        const nameParts = student.name.split(' ');
+        if (nameParts.length > 1) {
+            shortName = nameParts[0] + ' ' + nameParts[nameParts.length - 1];
+        }
+
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${student.id}</td>
-            <td>${student.name}</td>
+            <td>${shortName}</td>
             <td>${student.phone || ''}</td>
-            <td>${student.birthDate ? formatDate(student.birthDate) : ''}</td>
             <td>${getClassName(student.classId)}</td>
             <td>${formatDate(student.registerDate)}</td>
             <td>${student.paymentCycle}</td>
