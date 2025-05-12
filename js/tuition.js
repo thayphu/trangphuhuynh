@@ -1143,19 +1143,13 @@ function openReceiptModal(paymentId) {
     // Điền thông tin cơ bản vào biên nhận
     document.getElementById('receipt-no').textContent = payment.receiptNumber;
     
-    // Tính lại tổng học phí dựa theo chu kỳ
-    let displayAmount = payment.amount;
+    // Sử dụng tổng số tiền thực tế đã thanh toán
+    const displayAmount = payment.amount;
     
-    // Nếu là chu kỳ 8 buổi, hiển thị số tiền = học phí một buổi × 8
-    if (payment.cycle === '8 buổi') {
-        displayAmount = classData.fee * 8;
-    } else if (payment.cycle === '10 buổi') {
-        displayAmount = classData.fee * 10;
-    }
-    
+    // Hiển thị tổng số tiền đã thanh toán thực tế
     document.getElementById('receipt-amount').textContent = formatCurrency(displayAmount);
     
-    // Xử lý hiển thị số tiền bằng chữ với cơ chế bảo vệ lỗi
+    // Hiển thị số tiền bằng chữ với cơ chế bảo vệ lỗi
     try {
         document.getElementById('receipt-amount-text').textContent = numberToWords(displayAmount);
     } catch (error) {
