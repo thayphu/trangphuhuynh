@@ -1151,6 +1151,22 @@ function openReceiptModal(paymentId) {
     
     document.getElementById('receipt-payment-method').textContent = payment.method || "Tiền mặt";
     document.getElementById('receipt-date').textContent = formatDate(payment.date);
+    document.getElementById('receipt-signature-date').textContent = formatDate(new Date().toISOString().split('T')[0]);
+    
+    // Hiển thị thông tin ngày đăng ký và lịch học
+    if (student.registrationDate) {
+        document.getElementById('receipt-registration-date').textContent = formatDate(student.registrationDate);
+    } else {
+        document.getElementById('receipt-registration-date').textContent = "Không có dữ liệu";
+    }
+    
+    // Hiển thị lịch học
+    if (classData.schedule && classData.schedule.length > 0) {
+        const formattedSchedule = formatSchedule(classData.schedule);
+        document.getElementById('receipt-class-schedule').textContent = formattedSchedule;
+    } else {
+        document.getElementById('receipt-class-schedule').textContent = "Không có dữ liệu";
+    }
     
     // Hiển thị chi phí bổ sung nếu có
     const additionalFeeContainer = document.getElementById('receipt-additional-fee-container');
