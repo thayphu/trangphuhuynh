@@ -879,9 +879,8 @@
                             <div class="receipt-info-column">
                                 <div class="receipt-info-item">Họ tên học sinh: <span id="receipt-student-name"></span></div>
                                 <div class="receipt-info-item">Mã học sinh: <span id="receipt-student-id"></span></div>
-                                <div class="receipt-info-item">Lớp: <span id="receipt-class"></span></div>
+                                <div class="receipt-info-item">Lớp: <span id="receipt-class"></span> (<span id="receipt-schedule-short"></span>)</div>
                                 <div class="receipt-info-item">Ngày đăng ký: <span id="receipt-register-date"></span></div>
-                                <div class="receipt-info-item">Lịch học: <span id="receipt-schedule"></span></div>
                             </div>
                             <div class="receipt-info-column">
                                 <div class="receipt-info-item">Chu kỳ thanh toán: <span id="receipt-payment-cycle"></span></div>
@@ -890,8 +889,21 @@
                             </div>
                         </div>
                         
+                        <!-- Học phí cơ bản -->
+                        <div id="receipt-base-fee-container" class="receipt-section receipt-compact-section">
+                            <h3>Học phí cơ bản</h3>
+                            <div class="receipt-info-container">
+                                <div class="receipt-info-column">
+                                    <div class="receipt-info-item">Học phí tính theo buổi: <span id="receipt-per-session-fee"></span> VND</div>
+                                </div>
+                                <div class="receipt-info-column">
+                                    <div class="receipt-info-item">Tổng học phí: <span id="receipt-total-fee"></span> VND</div>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <!-- Chi phí bổ sung (hiển thị khi có) -->
-                        <div id="receipt-additional-fee-container" class="receipt-section" style="display: none;">
+                        <div id="receipt-additional-fee-container" class="receipt-section receipt-compact-section" style="display: none;">
                             <h3>Chi phí bổ sung</h3>
                             <div class="receipt-info-container">
                                 <div class="receipt-info-column">
@@ -904,7 +916,7 @@
                         </div>
                         
                         <!-- Khấu trừ (hiển thị khi có) -->
-                        <div id="receipt-discount-container" class="receipt-section" style="display: none;">
+                        <div id="receipt-discount-container" class="receipt-section receipt-compact-section" style="display: none;">
                             <h3>Khấu trừ</h3>
                             <div class="receipt-info-container">
                                 <div class="receipt-info-column">
@@ -917,7 +929,7 @@
                         </div>
                         
                         <!-- Học phí linh hoạt (hiển thị khi có) -->
-                        <div id="receipt-flexible-container" class="receipt-section" style="display: none;">
+                        <div id="receipt-flexible-container" class="receipt-section receipt-compact-section" style="display: none;">
                             <h3>Học phí linh hoạt</h3>
                             <div class="receipt-info-container">
                                 <div class="receipt-info-column">

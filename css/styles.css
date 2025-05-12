@@ -772,12 +772,24 @@ table tr:hover {
     padding-bottom: 10px;
 }
 
+.receipt-compact-section {
+    margin-bottom: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
 .receipt-section h3 {
     color: var(--primary-color);
     font-size: 16px;
     margin-top: 0;
     margin-bottom: 10px;
     padding-bottom: 5px;
+}
+
+.receipt-compact-section h3 {
+    font-size: 14px;
+    margin-bottom: 5px;
+    padding-bottom: 3px;
     border-bottom: 1px solid var(--border-color);
 }
 
