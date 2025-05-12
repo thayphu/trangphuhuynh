@@ -22,7 +22,8 @@ function resetAndFixApp() {
                 timeStart: '18:00',
                 timeEnd: '19:30',
                 fee: 500000,
-                feeCycle: '1 tháng'
+                feeCycle: '1 tháng',
+                locked: false
             },
             {
                 id: 'class002',
@@ -33,7 +34,8 @@ function resetAndFixApp() {
                 timeStart: '17:30',
                 timeEnd: '19:00',
                 fee: 450000,
-                feeCycle: '1 tháng'
+                feeCycle: '1 tháng',
+                locked: false
             },
             {
                 id: 'class003',
@@ -44,7 +46,8 @@ function resetAndFixApp() {
                 timeStart: '09:00',
                 timeEnd: '11:00',
                 fee: 600000,
-                feeCycle: '1 tháng'
+                feeCycle: '1 tháng',
+                locked: false
             }
         ];
         

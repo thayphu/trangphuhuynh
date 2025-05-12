@@ -322,7 +322,8 @@ function initializeSampleData() {
                 timeEnd: '09:30',
                 location: 'Phòng 101',
                 fee: 500000,
-                paymentCycle: '1 tháng'
+                paymentCycle: '1 tháng',
+                locked: false
             },
             {
                 id: 'class002',
@@ -332,7 +333,8 @@ function initializeSampleData() {
                 timeEnd: '15:30',
                 location: 'Phòng 202',
                 fee: 450000,
-                paymentCycle: '8 buổi'
+                paymentCycle: '8 buổi',
+                locked: false
             },
             {
                 id: 'class003',
@@ -342,7 +344,8 @@ function initializeSampleData() {
                 timeEnd: '11:00',
                 location: 'Phòng 303',
                 fee: 600000,
-                paymentCycle: '1 tháng'
+                paymentCycle: '1 tháng',
+                locked: false
             }
         ];
         

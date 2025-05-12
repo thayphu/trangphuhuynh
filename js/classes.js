@@ -42,20 +42,30 @@ function displayClasses() {
         return;
     }
     
-    // Sắp xếp lớp có lịch học hôm nay lên đầu
+    // Sắp xếp lớp có lịch học hôm nay lên đầu và phân tách lớp đã khóa xuống dưới
     classes.sort((a, b) => {
-        const aTodayClass = isClassToday(a);
-        const bTodayClass = isClassToday(b);
+        // Lớp đã khóa luôn ở dưới
+        if (!a.locked && b.locked) return -1;
+        if (a.locked && !b.locked) return 1;
         
-        if (aTodayClass && !bTodayClass) return -1;
-        if (!aTodayClass && bTodayClass) return 1;
+        // Nếu cùng trạng thái khóa, sắp xếp theo lớp có lịch hôm nay
+        if (!a.locked && !b.locked) {
+            const aTodayClass = isClassToday(a);
+            const bTodayClass = isClassToday(b);
+            
+            if (aTodayClass && !bTodayClass) return -1;
+            if (!aTodayClass && bTodayClass) return 1;
+        }
+        
         return 0;
     });
     
     classes.forEach(classData => {
         const isTodayClass = isClassToday(classData);
+        const isLocked = classData.locked === true;
+        
         const classCard = document.createElement('div');
-        classCard.className = `class-card ${isTodayClass ? 'today-class' : ''}`;
+        classCard.className = `class-card ${isTodayClass ? 'today-class' : ''} ${isLocked ? 'locked-class' : ''}`;
         
         // Tính học phí theo buổi dựa vào chu kỳ
         let sessionFee = 0;
@@ -78,7 +88,7 @@ function displayClasses() {
         }
         
         classCard.innerHTML = `
-            <h3>${classData.name}</h3>
+            <h3>${classData.name} ${isLocked ? '<span class="status-unpaid">(Đã khóa)</span>' : ''}</h3>
             <div class="class-details">
                 <div>
                     <span>Lịch học:</span> ${formatSchedule(classData.schedule)}
@@ -98,17 +108,23 @@ function displayClasses() {
                 <div>
                     <span>Học phí/buổi:</span> ${formatCurrency(sessionFee)} VND
                 </div>
+                <div>
+                    <span>Trạng thái:</span> <span class="${isLocked ? 'status-unpaid' : 'status-paid'}">${isLocked ? 'Lớp này đã đóng' : 'Đang hoạt động'}</span>
+                </div>
             </div>
             <div class="class-actions">
-                <button class="edit-class-btn" data-id="${classData.id}">Chỉnh sửa</button>
-                <button class="delete-class-btn" data-id="${classData.id}">Xóa</button>
+                <button class="edit-class-btn" data-id="${classData.id}" ${isLocked ? 'disabled' : ''}>Chỉnh sửa</button>
+                <button class="delete-class-btn" data-id="${classData.id}" ${isLocked ? 'disabled' : ''}>Xóa</button>
+                <button class="toggle-lock-class-btn" data-id="${classData.id}" data-locked="${isLocked}">
+                    ${isLocked ? 'Mở khóa lớp' : 'Khóa lớp'}
+                </button>
             </div>
         `;
         
         classesList.appendChild(classCard);
     });
     
-    // Thêm sự kiện cho các nút chỉnh sửa và xóa
+    // Thêm sự kiện cho các nút
     attachClassButtonEvents();
 }
 
