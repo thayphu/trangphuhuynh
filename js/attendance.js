@@ -92,6 +92,9 @@ function displayAttendanceClasses() {
         return 0;
     });
     
+    // Lấy dữ liệu điểm danh
+    const attendance = getAttendance();
+    
     classes.forEach(classData => {
         const hasClassOnSelectedDay = isClassOnDay(classData, dayOfWeek);
         
@@ -108,53 +111,66 @@ function displayAttendanceClasses() {
             const classCard = document.createElement('div');
             classCard.className = `class-card ${hasClassOnSelectedDay ? 'today-class' : ''}`;
             
-            // Kiểm tra xem lớp đã được điểm danh cho ngày đã chọn chưa
-            const attendance = getAttendance();
-            
             // Log để debug
             console.log(`Kiểm tra điểm danh lớp ${classData.name} - ID: ${classData.id}`);
             console.log(`Lịch học lớp: ${classData.schedule.join(', ')}`);
             console.log(`Có lịch học vào ngày đã chọn: ${hasClassOnSelectedDay}`);
             console.log(`Ngày đã chọn: ${formattedDate}`);
-        
-        const classAttendance = attendance.find(record => 
-            record.date === formattedDate && record.classId === classData.id
-        );
-        
-        // Đếm số học sinh đã điểm danh
-        let attendedCount = 0;
-        if (classAttendance && classAttendance.students) {
-            attendedCount = classAttendance.students.length;
+            
+            // Kiểm tra xem lớp đã được điểm danh cho ngày đã chọn chưa
+            const classAttendance = attendance.find(record => 
+                record.date === formattedDate && record.classId === classData.id
+            );
+            
+            // Đếm số học sinh đã điểm danh
+            let attendedCount = 0;
+            if (classAttendance && classAttendance.students) {
+                attendedCount = classAttendance.students.length;
+            }
+            
+            const allAttended = classAttendance && attendedCount === studentCount;
+            const attendanceStatus = classAttendance ? `Đã điểm danh (${attendedCount}/${studentCount})` : 'Chưa điểm danh';
+            const attendanceStatusClass = classAttendance ? 'status-paid' : 'status-unpaid';
+            
+            classCard.innerHTML = `
+                <h3>${classData.name}</h3>
+                <div class="class-details">
+                    <div><span>Lịch học:</span> ${classData.schedule.join(', ')}</div>
+                    <div><span>Giờ học:</span> ${formatTime(classData.timeStart)} - ${formatTime(classData.timeEnd)}</div>
+                    <div><span>Địa điểm:</span> ${classData.location}</div>
+                    <div><span>Số học sinh:</span> ${studentCount}</div>
+                    <div><span>Trạng thái:</span> <span class="student-status ${attendanceStatusClass}">${attendanceStatus}</span></div>
+                </div>
+                <div class="class-actions">
+                    <button class="attendance-btn" data-id="${classData.id}">
+                        ${allAttended ? 'Đã điểm danh đủ' : '<span class="blink">Điểm danh</span>'}
+                    </button>
+                    <button class="teacher-absent-btn" data-id="${classData.id}">
+                        GV vắng
+                    </button>
+                </div>
+            `;
+            
+            attendanceClasses.appendChild(classCard);
         }
-        
-        const allAttended = classAttendance && attendedCount === studentCount;
-        const attendanceStatus = classAttendance ? `Đã điểm danh (${attendedCount}/${studentCount})` : 'Chưa điểm danh';
-        const attendanceStatusClass = classAttendance ? 'status-paid' : 'status-unpaid';
-        
-        classCard.innerHTML = `
-            <h3>${classData.name}</h3>
-            <div class="class-details">
-                <div><span>Lịch học:</span> ${classData.schedule.join(', ')}</div>
-                <div><span>Giờ học:</span> ${formatTime(classData.timeStart)} - ${formatTime(classData.timeEnd)}</div>
-                <div><span>Địa điểm:</span> ${classData.location}</div>
-                <div><span>Số học sinh:</span> ${studentCount}</div>
-                <div><span>Trạng thái:</span> <span class="student-status ${attendanceStatusClass}">${attendanceStatus}</span></div>
-            </div>
-            <div class="class-actions">
-                <button class="attendance-btn" data-id="${classData.id}">
-                    ${allAttended ? 'Đã điểm danh đủ' : '<span class="blink">Điểm danh</span>'}
-                </button>
-                <button class="teacher-absent-btn" data-id="${classData.id}">
-                    GV vắng
-                </button>
-            </div>
-        `;
-        
-        attendanceClasses.appendChild(classCard);
     });
     
-    // Thêm sự kiện cho các nút điểm danh
+    // Gắn sự kiện cho các nút
     attachAttendanceButtonEvents();
+    
+    // Hiển thị thông báo nếu không có lớp nào có lịch học vào ngày đã chọn
+    if (classesForSelectedDay === 0) {
+        const noClassMessage = document.createElement('p');
+        noClassMessage.className = 'no-data';
+        noClassMessage.textContent = `Không có lớp nào có lịch học vào ${formatDate(formattedDate)}.`;
+        attendanceClasses.appendChild(noClassMessage);
+    } else if (attendanceClasses.children.length === 0) {
+        // Nếu có lớp học vào ngày đã chọn nhưng không có lớp nào có học sinh
+        const noStudentsMessage = document.createElement('p');
+        noStudentsMessage.className = 'no-data';
+        noStudentsMessage.textContent = `Có ${classesForSelectedDay} lớp học vào ${formatDate(formattedDate)}, nhưng không có lớp nào có học sinh. Vui lòng thêm học sinh vào lớp.`;
+        attendanceClasses.appendChild(noStudentsMessage);
+    }
 }
 
 // Gắn sự kiện cho các nút điểm danh
@@ -176,8 +192,17 @@ function attachAttendanceButtonEvents() {
         if (!button.disabled) {
             button.addEventListener('click', function() {
                 const classId = this.dataset.id;
-                if (confirm('Xác nhận giáo viên vắng mặt? Tất cả học sinh sẽ được chuyển sang trạng thái GV nghỉ.')) {
-                    markTeacherAbsent(classId);
+                
+                // Lấy ngày từ bộ chọn ngày
+                const dateSelector = document.getElementById('attendance-date-selector');
+                let selectedDate = new Date().toISOString().split('T')[0]; // Mặc định là hôm nay
+                
+                if (dateSelector && dateSelector.value) {
+                    selectedDate = dateSelector.value;
+                }
+                
+                if (confirm(`Xác nhận giáo viên vắng mặt vào ngày ${formatDate(selectedDate)}? Tất cả học sinh sẽ được chuyển sang trạng thái GV nghỉ.`)) {
+                    markTeacherAbsent(classId, selectedDate);
                 }
             });
         }
@@ -185,9 +210,11 @@ function attachAttendanceButtonEvents() {
 }
 
 // Đánh dấu giáo viên vắng mặt
-function markTeacherAbsent(classId) {
-    // Lấy ngày hiện tại
-    const today = new Date().toISOString().split('T')[0];
+function markTeacherAbsent(classId, selectedDate) {
+    // Nếu không có ngày được chọn, sử dụng ngày hiện tại
+    if (!selectedDate) {
+        selectedDate = new Date().toISOString().split('T')[0];
+    }
     
     // Lấy danh sách học sinh của lớp
     const students = getStudents().filter(student => student.classId === classId);
@@ -200,9 +227,9 @@ function markTeacherAbsent(classId) {
     // Lấy danh sách điểm danh hiện tại
     const attendance = getAttendance();
     
-    // Kiểm tra xem đã có bản ghi điểm danh cho ngày hôm nay chưa
-    let todayAttendance = attendance.find(record => 
-        record.date === today && record.classId === classId
+    // Kiểm tra xem đã có bản ghi điểm danh cho ngày đã chọn chưa
+    let dayAttendance = attendance.find(record => 
+        record.date === selectedDate && record.classId === classId
     );
     
     // Tạo danh sách học sinh với trạng thái "GV nghỉ"
@@ -211,26 +238,28 @@ function markTeacherAbsent(classId) {
         status: 'teacher-absent'
     }));
     
-    if (todayAttendance) {
+    if (dayAttendance) {
         // Cập nhật bản ghi hiện có
-        todayAttendance.students = attendanceStudents;
+        dayAttendance.students = attendanceStudents;
+        dayAttendance.teacherAbsent = true;
         
         // Đánh dấu là lớp cần học bù
-        if (!todayAttendance.needMakeup) {
-            todayAttendance.needMakeup = true;
-            todayAttendance.makeupDate = null;
+        if (!dayAttendance.needMakeup) {
+            dayAttendance.needMakeup = true;
+            dayAttendance.makeupDate = null;
         }
     } else {
         // Tạo bản ghi mới
-        todayAttendance = {
+        dayAttendance = {
             id: generateId('attendance', 5),
             classId: classId,
-            date: today,
+            date: selectedDate,
             students: attendanceStudents,
+            teacherAbsent: true,
             needMakeup: true,
             makeupDate: null
         };
-        attendance.push(todayAttendance);
+        attendance.push(dayAttendance);
     }
     
     // Lưu vào localStorage
@@ -243,7 +272,7 @@ function markTeacherAbsent(classId) {
     displayMakeupClasses();
     
     // Hiển thị thông báo thành công
-    showNotification('Đã đánh dấu giáo viên vắng mặt cho lớp này', 'success');
+    showNotification(`Đã đánh dấu giáo viên vắng mặt cho lớp này vào ngày ${formatDate(selectedDate)}`, 'success');
 }
 
 // Mở modal điểm danh
@@ -264,12 +293,17 @@ function openAttendanceModal(classId) {
         return;
     }
     
+    // Lấy ngày từ bộ chọn ngày
+    const dateSelector = document.getElementById('attendance-date-selector');
+    let selectedDate = new Date();
+    let formattedDate = selectedDate.toISOString().split('T')[0];
+    
+    if (dateSelector && dateSelector.value) {
+        formattedDate = dateSelector.value;
+    }
+    
     // Điền thông tin lớp vào modal
     document.getElementById('attendance-class-name').textContent = classData.name;
-    
-    // Lấy ngày hiện tại
-    const today = new Date();
-    const formattedDate = today.toISOString().split('T')[0];
     document.getElementById('attendance-date').textContent = formatDate(formattedDate);
     
     // Ghi log debug
@@ -282,7 +316,7 @@ function openAttendanceModal(classId) {
     const attendanceList = document.getElementById('attendance-list');
     attendanceList.innerHTML = '';
     
-    // Kiểm tra xem lớp đã được điểm danh hôm nay chưa
+    // Kiểm tra xem lớp đã được điểm danh cho ngày đã chọn chưa
     const attendance = getAttendance();
     
     // Hiển thị dữ liệu điểm danh để debug
@@ -291,11 +325,10 @@ function openAttendanceModal(classId) {
         console.log(`Bản ghi: Lớp=${record.classId}, Ngày=${record.date}, Học sinh=${record.students ? record.students.length : 0}`);
     });
     
-    const todayAttendance = attendance.find(record => 
+    const dateAttendance = attendance.find(record => 
         record.date === formattedDate && record.classId === classId
     );
-    console.log(`Đã tìm thấy bản ghi điểm danh cho hôm nay: ${todayAttendance ? 'Có' : 'Không'}`);
-    
+    console.log(`Đã tìm thấy bản ghi điểm danh cho ngày đã chọn: ${dateAttendance ? 'Có' : 'Không'}`);
     
     students.forEach(student => {
         const attendanceItem = document.createElement('div');
@@ -304,8 +337,8 @@ function openAttendanceModal(classId) {
         let studentStatus = 'present'; // Mặc định là có mặt
         let isPresent = true;
         
-        if (todayAttendance) {
-            const studentRecord = todayAttendance.students.find(s => s.id === student.id);
+        if (dateAttendance) {
+            const studentRecord = dateAttendance.students.find(s => s.id === student.id);
             if (studentRecord) {
                 studentStatus = studentRecord.status;
                 isPresent = studentStatus === 'present';
@@ -421,149 +454,86 @@ function displayMakeupClasses() {
     // Hiển thị các lớp cần học bù
     needMakeupRecords.forEach(record => {
         const classData = getClassById(record.classId);
-        if (!classData) return;
+        if (!classData || classData.locked) return; // Bỏ qua lớp đã khóa
         
         const makeupCard = document.createElement('div');
-        makeupCard.className = 'class-card';
+        makeupCard.className = 'class-card makeup-card';
         
-        // Định dạng ngày
-        const absentDate = formatDate(record.date);
+        // Lấy thông tin lớp và danh sách học sinh
+        const students = getStudents().filter(student => student.classId === record.classId);
         
-        // Định dạng ngày học bù (nếu có)
-        const makeupDate = record.makeupDate ? formatDate(record.makeupDate) : 'Chưa đặt lịch';
+        // Tính số học sinh có trạng thái "GV nghỉ"
+        const teacherAbsentCount = record.students ? record.students.filter(student => student.status === 'teacher-absent').length : 0;
         
         makeupCard.innerHTML = `
-            <h3>${classData.name}</h3>
+            <h3>${classData.name} - Ngày nghỉ: ${formatDate(record.date)}</h3>
             <div class="class-details">
-                <div><span>Ngày nghỉ:</span> ${absentDate}</div>
-                <div><span>Lịch học bù:</span> ${record.makeupDate ? makeupDate : '<span class="status-unpaid">Chưa đặt lịch</span>'}</div>
-                <div><span>Thời gian:</span> ${formatTime(classData.timeStart)} - ${formatTime(classData.timeEnd)}</div>
-                <div><span>Địa điểm:</span> ${classData.location}</div>
+                <div><span>Ngày nghỉ:</span> ${formatDate(record.date)}</div>
+                <div><span>Số học sinh:</span> ${students.length}</div>
+                <div><span>Số HS nhận "GV nghỉ":</span> ${teacherAbsentCount}</div>
+                ${record.makeupDate ? 
+                  `<div><span>Ngày học bù:</span> ${formatDate(record.makeupDate)}</div>` : 
+                  '<div><span>Trạng thái:</span> <span class="status-unpaid">Chưa học bù</span></div>'}
             </div>
             <div class="class-actions">
-                ${!record.makeupDate ? 
-                  `<button class="schedule-makeup-btn" data-id="${record.id}" data-class-id="${classData.id}" data-date="${record.date}">Đặt lịch học bù</button>` : 
-                  `<button class="change-makeup-btn" data-id="${record.id}" data-class-id="${classData.id}" data-date="${record.date}">Thay đổi lịch học bù</button>`}
+                ${record.makeupDate ? 
+                  `<button class="view-makeup-btn" data-id="${record.id}">Xem chi tiết</button>` :
+                  `<button class="schedule-makeup-btn" data-id="${record.id}" data-class-id="${record.classId}" data-absent-date="${record.date}">Lên lịch học bù</button>`}
             </div>
         `;
         
         makeupClassesContainer.appendChild(makeupCard);
     });
     
-    // Thêm sự kiện cho nút đặt lịch học bù
-    document.querySelectorAll('.schedule-makeup-btn, .change-makeup-btn').forEach(button => {
+    // Gắn sự kiện cho các nút
+    const scheduleMakeupButtons = document.querySelectorAll('.schedule-makeup-btn');
+    scheduleMakeupButtons.forEach(button => {
         button.addEventListener('click', function() {
             const recordId = this.dataset.id;
             const classId = this.dataset.classId;
-            const absentDate = this.dataset.date;
-            
-            // Mở modal đặt lịch học bù
+            const absentDate = this.dataset.absentDate;
             openScheduleMakeupModal(recordId, classId, absentDate);
         });
     });
 }
 
-// Mở modal đặt lịch học bù
+// Mở modal lên lịch học bù
 function openScheduleMakeupModal(recordId, classId, absentDate) {
-    // Hiển thị modal thông thường
-    const modal = document.createElement('div');
-    modal.className = 'modal';
-    modal.id = 'schedule-makeup-modal';
+    const modal = document.getElementById('schedule-makeup-modal');
+    if (!modal) return;
     
+    // Lấy thông tin lớp học
     const classData = getClassById(classId);
     if (!classData) return;
     
-    // Lấy bản ghi điểm danh
-    const attendance = getAttendance();
-    const record = attendance.find(r => r.id === recordId);
+    // Điền thông tin vào modal
+    document.getElementById('makeup-class-name').textContent = classData.name;
+    document.getElementById('makeup-absent-date').textContent = formatDate(absentDate);
     
-    if (!record) return;
-    
-    // Tính toán ngày học bù mặc định (1 tuần sau ngày nghỉ)
+    // Thiết lập ngày tối thiểu cho bộ chọn ngày (ngày sau ngày vắng)
     const absentDateObj = new Date(absentDate);
-    const suggestedDate = new Date(absentDateObj);
-    suggestedDate.setDate(suggestedDate.getDate() + 7);
+    absentDateObj.setDate(absentDateObj.getDate() + 1);
+    const minDate = absentDateObj.toISOString().split('T')[0];
+    document.getElementById('makeup-date').min = minDate;
     
-    // Format để dùng trong input date
-    const suggestedDateFormatted = suggestedDate.toISOString().split('T')[0];
-    const currentMakeupDate = record.makeupDate || suggestedDateFormatted;
+    // Reset giá trị
+    document.getElementById('makeup-date').value = '';
     
-    // Tạo nội dung modal
-    modal.innerHTML = `
-        <div class="modal-content">
-            <span class="close-btn" onclick="document.getElementById('schedule-makeup-modal').remove()">&times;</span>
-            <h2>Đặt lịch học bù cho lớp ${classData.name}</h2>
-            <form id="schedule-makeup-form">
-                <input type="hidden" name="record-id" value="${recordId}">
-                <div class="form-group">
-                    <label>Ngày nghỉ:</label>
-                    <input type="text" value="${formatDate(absentDate)}" disabled>
-                </div>
-                <div class="form-group">
-                    <label>Ngày học bù:</label>
-                    <input type="date" name="makeup-date" id="makeup-date" value="${currentMakeupDate}" min="${new Date().toISOString().split('T')[0]}" required>
-                </div>
-                <div id="date-conflict-warning" class="warning" style="display: none; color: red; margin-top: 10px;">
-                    Cảnh báo: Ngày đã chọn trùng với lịch học hiện tại của lớp.
-                </div>
-                <div class="form-actions">
-                    <button type="submit" class="submit-btn">Lưu lịch học bù</button>
-                    <button type="button" class="cancel-btn" onclick="document.getElementById('schedule-makeup-modal').remove()">Hủy</button>
-                </div>
-            </form>
-        </div>
-    `;
-    
-    document.body.appendChild(modal);
-    
-    // Hiển thị modal
-    setTimeout(() => {
-        modal.style.opacity = '1';
-    }, 10);
-    
-    // Xử lý thay đổi ngày để kiểm tra xung đột
-    const makeupDateInput = document.getElementById('makeup-date');
-    const dateConflictWarning = document.getElementById('date-conflict-warning');
-    
-    makeupDateInput.addEventListener('change', function() {
-        const selectedDate = new Date(this.value);
-        const dayOfWeek = selectedDate.getDay(); // 0: CN, 1: T2, ..., 6: T7
-        
-        // Chuyển đổi thứ trong tuần sang định dạng "Thứ X" hoặc "Chủ nhật"
-        let dayInVietnamese;
-        if (dayOfWeek === 0) {
-            dayInVietnamese = "Chủ nhật";
-        } else {
-            dayInVietnamese = `Thứ ${dayOfWeek + 1}`;
+    // Gán sự kiện cho nút lưu
+    const saveBtn = document.getElementById('save-makeup-btn');
+    saveBtn.onclick = function() {
+        const makeupDate = document.getElementById('makeup-date').value;
+        if (!makeupDate) {
+            alert('Vui lòng chọn ngày học bù.');
+            return;
         }
         
-        // Kiểm tra xem ngày được chọn có trùng với lịch học của lớp không
-        const hasScheduleConflict = classData.schedule.includes(dayInVietnamese);
-        
-        // Hiển thị cảnh báo nếu có xung đột
-        dateConflictWarning.style.display = hasScheduleConflict ? 'block' : 'none';
-    });
+        saveScheduleMakeup(recordId, makeupDate);
+        modal.classList.add('hidden');
+    };
     
-    // Kích hoạt sự kiện change để kiểm tra ngày mặc định
-    const event = new Event('change');
-    makeupDateInput.dispatchEvent(event);
-    
-    // Xử lý form đặt lịch học bù
-    const scheduleMakeupForm = document.getElementById('schedule-makeup-form');
-    if (scheduleMakeupForm) {
-        scheduleMakeupForm.addEventListener('submit', function(event) {
-            event.preventDefault();
-            
-            const recordId = this.elements['record-id'].value;
-            const makeupDate = this.elements['makeup-date'].value;
-            
-            // Lưu lịch học bù
-            saveScheduleMakeup(recordId, makeupDate);
-            
-            // Đóng modal
-            document.getElementById('schedule-makeup-modal').remove();
-        });
-    }
+    // Hiển thị modal
+    modal.classList.remove('hidden');
 }
 
 // Lưu lịch học bù
@@ -572,62 +542,83 @@ function saveScheduleMakeup(recordId, makeupDate) {
     const attendance = getAttendance();
     
     // Tìm bản ghi cần cập nhật
-    const record = attendance.find(r => r.id === recordId);
+    const recordIndex = attendance.findIndex(record => record.id === recordId);
     
-    if (!record) return;
+    if (recordIndex === -1) {
+        alert('Không tìm thấy bản ghi điểm danh này.');
+        return;
+    }
     
     // Cập nhật ngày học bù
-    record.makeupDate = makeupDate;
+    attendance[recordIndex].makeupDate = makeupDate;
     
     // Lưu vào localStorage
     localStorage.setItem('attendance', JSON.stringify(attendance));
     
-    // Cập nhật danh sách lớp học bù
+    // Hiển thị lại danh sách lớp học bù
     displayMakeupClasses();
     
     // Hiển thị thông báo thành công
-    showNotification('Đã đặt lịch học bù thành công', 'success');
+    showNotification('Đã lên lịch học bù thành công', 'success');
 }
 
-// Xử lý lưu điểm danh
+// Xử lý điểm danh
 function handleAttendance(event) {
     event.preventDefault();
     
-    // Lấy classId và date từ form
+    // Lấy classId từ form
     const classId = document.querySelector('input[name="class-id"]').value;
-    const date = document.querySelector('input[name="attendance-date"]').value;
     
-    // Lấy tất cả các học sinh từ form
-    const studentIds = Array.from(document.querySelectorAll('input[name="student-id"]')).map(input => input.value);
+    // Lấy ngày điểm danh từ form
+    const attendanceDate = document.querySelector('input[name="attendance-date"]').value;
     
-    // Tạo mảng dữ liệu học sinh với trạng thái điểm danh
-    const studentsAttendance = studentIds.map(studentId => {
+    // Lấy danh sách học sinh và trạng thái
+    const studentIds = document.querySelectorAll('input[name="student-id"]');
+    const students = [];
+    
+    studentIds.forEach(input => {
+        const studentId = input.value;
         const status = document.querySelector(`input[name="status-${studentId}"]:checked`).value;
-        return {
+        
+        students.push({
             id: studentId,
             status: status
-        };
+        });
     });
     
-    // Lấy dữ liệu điểm danh hiện tại
-    let attendance = getAttendance();
+    // Kiểm tra xem tất cả học sinh đều có trạng thái "GV nghỉ" không
+    const allTeacherAbsent = students.every(student => student.status === 'teacher-absent');
     
-    // Kiểm tra xem đã có bản ghi điểm danh cho ngày và lớp này chưa
-    const existingRecordIndex = attendance.findIndex(record => 
-        record.date === date && record.classId === classId
+    // Lấy danh sách điểm danh hiện tại
+    const attendance = getAttendance();
+    
+    // Kiểm tra xem đã có bản ghi điểm danh cho ngày đã chọn chưa
+    let existingRecord = attendance.find(record => 
+        record.date === attendanceDate && record.classId === classId
     );
     
-    if (existingRecordIndex !== -1) {
-        // Cập nhật bản ghi điểm danh hiện tại
-        attendance[existingRecordIndex].students = studentsAttendance;
+    if (existingRecord) {
+        // Cập nhật bản ghi hiện có
+        existingRecord.students = students;
+        existingRecord.teacherAbsent = allTeacherAbsent;
+        
+        // Nếu tất cả học sinh là "GV nghỉ", đánh dấu là cần học bù
+        if (allTeacherAbsent && !existingRecord.needMakeup) {
+            existingRecord.needMakeup = true;
+            existingRecord.makeupDate = null;
+        }
     } else {
-        // Tạo bản ghi điểm danh mới
-        attendance.push({
+        // Tạo bản ghi mới
+        const newRecord = {
             id: generateId('attendance', 5),
-            date: date,
             classId: classId,
-            students: studentsAttendance
-        });
+            date: attendanceDate,
+            students: students,
+            teacherAbsent: allTeacherAbsent,
+            needMakeup: allTeacherAbsent
+        };
+        
+        attendance.push(newRecord);
     }
     
     // Lưu vào localStorage
@@ -636,58 +627,58 @@ function handleAttendance(event) {
     // Đóng modal
     document.getElementById('attendance-modal').classList.add('hidden');
     
-    // Hiển thị lại danh sách lớp điểm danh
+    // Hiển thị lại danh sách lớp
     displayAttendanceClasses();
     
+    // Nếu tất cả học sinh đều có trạng thái "GV nghỉ", cập nhật danh sách lớp học bù
+    if (allTeacherAbsent) {
+        displayMakeupClasses();
+    }
+    
     // Hiển thị thông báo thành công
-    alert('Đã lưu điểm danh thành công!');
+    showNotification('Đã cập nhật điểm danh thành công', 'success');
 }
 
-// Lấy lịch sử điểm danh của một học sinh
+// Lấy thông tin điểm danh của học sinh
 function getStudentAttendance(studentId) {
     const attendance = getAttendance();
     
-    // Lọc các bản ghi có học sinh này
-    const studentAttendance = [];
-    
-    attendance.forEach(record => {
-        const studentRecord = record.students.find(student => student.id === studentId);
-        if (studentRecord) {
-            studentAttendance.push({
-                date: record.date,
-                classId: record.classId,
-                status: studentRecord.status
-            });
-        }
+    // Lọc các bản ghi có chứa studentId
+    return attendance.filter(record => {
+        if (!record.students) return false;
+        return record.students.some(student => student.id === studentId);
     });
-    
-    return studentAttendance;
 }
 
-// Tính toán tổng số buổi học, số buổi có mặt, vắng mặt và giáo viên vắng của một học sinh
+// Tính tổng kết điểm danh của học sinh
 function calculateAttendanceSummary(studentId) {
     const studentAttendance = getStudentAttendance(studentId);
     
-    const summary = {
-        total: studentAttendance.length,
-        present: 0,
-        absent: 0,
-        teacherAbsent: 0
-    };
+    // Tính số buổi có mặt, vắng mặt và GV nghỉ
+    let present = 0;
+    let absent = 0;
+    let teacherAbsent = 0;
     
     studentAttendance.forEach(record => {
-        switch(record.status) {
-            case 'present':
-                summary.present++;
-                break;
-            case 'absent':
-                summary.absent++;
-                break;
-            case 'teacher-absent':
-                summary.teacherAbsent++;
-                break;
+        const studentRecord = record.students.find(student => student.id === studentId);
+        if (studentRecord) {
+            if (studentRecord.status === 'present') present++;
+            else if (studentRecord.status === 'absent') absent++;
+            else if (studentRecord.status === 'teacher-absent') teacherAbsent++;
         }
     });
     
-    return summary;
+    // Tính tổng số buổi học
+    const total = present + absent + teacherAbsent;
+    
+    // Tính tỷ lệ điểm danh
+    const attendanceRate = total > 0 ? Math.round((present / total) * 100) : 0;
+    
+    return {
+        present,
+        absent,
+        teacherAbsent,
+        total,
+        attendanceRate
+    };
 }
