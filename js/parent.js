@@ -220,6 +220,7 @@ function displayStudentPaymentHistory(studentId) {
                 <th>Số tiền</th>
                 <th>Chu kỳ thanh toán</th>
                 <th>Hình thức</th>
+                <th>Thanh toán tiếp theo</th>
             </tr>
         </thead>
         <tbody></tbody>
@@ -229,12 +230,30 @@ function displayStudentPaymentHistory(studentId) {
     
     payments.forEach(payment => {
         const row = document.createElement('tr');
+        
+        // Tính hoặc lấy ngày thanh toán tiếp theo
+        let nextPaymentDate = 'N/A';
+        if (payment.nextPaymentDate) {
+            nextPaymentDate = formatDate(payment.nextPaymentDate);
+        } else {
+            // Tính ngày thanh toán tiếp theo dựa trên lịch học
+            const student = getStudentById(payment.studentId);
+            if (student) {
+                const flexibleSessions = payment.details && payment.details.flexibleSessions ? payment.details.flexibleSessions : 0;
+                const nextDate = calculateNextPaymentDate(payment.date, payment.cycle, payment.studentId, flexibleSessions);
+                if (nextDate) {
+                    nextPaymentDate = formatDate(nextDate);
+                }
+            }
+        }
+        
         row.innerHTML = `
             <td>${payment.receiptNumber || 'N/A'}</td>
             <td>${formatDate(payment.date)}</td>
             <td>${formatCurrency(payment.amount)} VND</td>
             <td>${payment.cycle || 'N/A'}</td>
             <td>${payment.method || 'N/A'}</td>
+            <td>${nextPaymentDate}</td>
         `;
         
         tbody.appendChild(row);
@@ -409,6 +428,39 @@ function calculateAttendanceSummary(studentId) {
     });
     
     return summary;
+}
+
+// Tính ngày thanh toán tiếp theo dựa trên chu kỳ và lịch học
+function calculateNextPaymentDate(currentDate, cycle, studentId, extraSessions = 0) {
+    // Nếu hàm từ utils.js đã được tải
+    if (typeof window.calculateNextPaymentDate === 'function') {
+        return window.calculateNextPaymentDate(currentDate, cycle, studentId, extraSessions);
+    }
+    
+    // Nếu không có hàm từ utils.js, dùng tính toán đơn giản
+    const date = new Date(currentDate);
+    
+    switch(cycle) {
+        case '1 tháng':
+            date.setMonth(date.getMonth() + 1);
+            break;
+        case '8 buổi':
+            date.setDate(date.getDate() + 28); // Giả định 8 buổi = 4 tuần
+            break;
+        case '10 buổi':
+            date.setDate(date.getDate() + 35); // Giả định 10 buổi = 5 tuần
+            break;
+        case 'Theo ngày':
+            date.setDate(date.getDate() + 7); // Mặc định thêm 1 tuần
+            break;
+    }
+    
+    // Nếu có buổi bổ sung, thêm 3 ngày cho mỗi buổi (ước lượng đơn giản)
+    if (extraSessions > 0) {
+        date.setDate(date.getDate() + (extraSessions * 3));
+    }
+    
+    return date.toISOString().split('T')[0];
 }
 
 function formatDate(dateString) {
