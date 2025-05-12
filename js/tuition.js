@@ -435,9 +435,7 @@ function attachPaymentButtonEvents() {
     deleteButtons.forEach(button => {
         button.addEventListener('click', function() {
             const paymentId = this.dataset.id;
-            if (confirm('Bạn có chắc chắn muốn xóa thanh toán này không?')) {
-                deletePayment(paymentId);
-            }
+            deletePayment(paymentId);
         });
     });
     
@@ -1102,19 +1100,37 @@ function clearPaymentFilters() {
 
 // Mở modal biên nhận
 function openReceiptModal(paymentId) {
+    console.log("Mở biên nhận cho thanh toán ID:", paymentId);
+    
     const modal = document.getElementById('receipt-modal');
-    if (!modal) return;
+    if (!modal) {
+        console.error("Không tìm thấy modal biên nhận (#receipt-modal)");
+        alert("Không thể hiển thị biên nhận. Vui lòng liên hệ hỗ trợ kỹ thuật.");
+        return;
+    }
     
     const payments = getPayments();
     const payment = payments.find(p => p.id === paymentId);
     
-    if (!payment) return;
+    if (!payment) {
+        console.error("Không tìm thấy thông tin thanh toán với ID:", paymentId);
+        alert("Không tìm thấy thông tin biên nhận.");
+        return;
+    }
     
     const student = getStudentById(payment.studentId);
-    if (!student) return;
+    if (!student) {
+        console.error("Không tìm thấy thông tin học sinh:", payment.studentId);
+        alert("Không tìm thấy thông tin học sinh.");
+        return;
+    }
     
     const classData = getClassById(student.classId);
-    if (!classData) return;
+    if (!classData) {
+        console.error("Không tìm thấy thông tin lớp học:", student.classId);
+        alert("Không tìm thấy thông tin lớp học.");
+        return;
+    }
     
     // Điền thông tin cơ bản vào biên nhận
     document.getElementById('receipt-no').textContent = payment.receiptNumber;
@@ -1256,6 +1272,7 @@ function openReceiptModal(paymentId) {
     
     // Hiển thị modal
     modal.classList.remove('hidden');
+    console.log("Modal biên nhận đã được hiển thị cho thanh toán ID:", paymentId);
 }
 
 // Hiển thị thống kê điểm danh
