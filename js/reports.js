@@ -15,8 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Thiết lập sự kiện cho các thẻ thống kê
     setupReportCardEvents();
     
-    // Thiết lập bộ lọc lịch sử điểm danh
-    setupAttendanceHistoryFilters();
+    // Bỏ qua setupAttendanceHistoryFilters() vì đã có chức năng nâng cao thay thế
 });
 
 // Thiết lập các tab báo cáo
@@ -43,7 +42,8 @@ function setupReportTabs() {
                 
                 // Nếu là tab lịch sử điểm danh, cập nhật dữ liệu
                 if (targetTab === 'attendance-history') {
-                    displayAttendanceHistory();
+                    // Sử dụng phiên bản nâng cao thay vì phiên bản cũ
+                    displayEnhancedAttendanceHistory();
                 }
             }
         });
