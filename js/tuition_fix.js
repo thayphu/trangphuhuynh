@@ -51,7 +51,42 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Cập nhật lớp của bộ lọc
-    updatePaymentClassFilter();
+    // Thêm định nghĩa cho updatePaymentClassFilter nếu không tồn tại
+    if (typeof updatePaymentClassFilter !== 'function') {
+        window.updatePaymentClassFilter = function() {
+            // Lấy tất cả các lớp học hiện có
+            const classes = getClasses();
+            if (!classes || classes.length === 0) return;
+            
+            // Tìm select filter cho lớp học
+            const classFilter = document.getElementById('payment-class-filter');
+            if (!classFilter) {
+                console.error("Không tìm thấy bộ lọc lớp học (payment-class-filter)");
+                return;
+            }
+            
+            // Xóa các option hiện tại ngoại trừ option mặc định
+            while (classFilter.options.length > 1) {
+                classFilter.remove(1);
+            }
+            
+            // Thêm danh sách lớp vào select
+            classes.forEach(cls => {
+                const option = document.createElement('option');
+                option.value = cls.id;
+                option.textContent = cls.name;
+                classFilter.appendChild(option);
+            });
+            
+            console.log(`Đã cập nhật ${classes.length} lớp học vào bộ lọc thanh toán`);
+        };
+    }
+    
+    try {
+        updatePaymentClassFilter();
+    } catch (error) {
+        console.error("Lỗi khi cập nhật bộ lọc lớp học:", error);
+    }
     
     // Thêm event listeners cho các nút trong danh sách thanh toán
     document.addEventListener('click', function(event) {
@@ -107,6 +142,70 @@ function setupTuitionTabs() {
     
     // Hiển thị tab học sinh chưa thanh toán mặc định
     displayUnpaidStudents();
+}
+
+// Định nghĩa hàm hiển thị thanh toán
+function displayPayments(filteredPayments = null) {
+    // Chuyển hướng sang hàm mới
+    displayPaymentHistory(filteredPayments);
+    return;
+}
+
+// Định nghĩa hàm xóa bộ lọc thanh toán
+function clearPaymentFilters() {
+    const searchInput = document.getElementById('payment-search');
+    if (searchInput) searchInput.value = '';
+    
+    const classFilter = document.getElementById('payment-class-filter');
+    if (classFilter) classFilter.value = '';
+    
+    const dateFilter = document.getElementById('payment-date-filter');
+    if (dateFilter) dateFilter.value = '';
+    
+    // Hiển thị lại tất cả thanh toán
+    displayPaymentHistory();
+}
+
+// Định nghĩa hàm lọc thanh toán
+function filterPayments() {
+    const searchTerm = document.getElementById('payment-search')?.value.toLowerCase() || '';
+    const classFilter = document.getElementById('payment-class-filter')?.value || '';
+    const dateFilter = document.getElementById('payment-date-filter')?.value || '';
+    
+    // Lấy tất cả các thanh toán
+    let filteredPayments = getPayments();
+    
+    // Lọc theo tìm kiếm
+    if (searchTerm) {
+        filteredPayments = filteredPayments.filter(payment => {
+            const student = getStudentById(payment.studentId);
+            if (!student) return false;
+            
+            return student.name.toLowerCase().includes(searchTerm) ||
+                   payment.studentId.toLowerCase().includes(searchTerm) ||
+                   (payment.receiptNumber && payment.receiptNumber.toLowerCase().includes(searchTerm));
+        });
+    }
+    
+    // Lọc theo lớp
+    if (classFilter) {
+        filteredPayments = filteredPayments.filter(payment => {
+            const student = getStudentById(payment.studentId);
+            if (!student) return false;
+            
+            return student.classId === classFilter;
+        });
+    }
+    
+    // Lọc theo ngày
+    if (dateFilter) {
+        filteredPayments = filteredPayments.filter(payment => {
+            return payment.date === dateFilter;
+        });
+    }
+    
+    // Hiển thị các thanh toán đã lọc
+    displayPaymentHistory(filteredPayments);
 }
 
 // Hiển thị danh sách học sinh chưa thanh toán
@@ -390,17 +489,73 @@ function updateStudentPaymentInfo(studentId) {
         return;
     }
     
+    console.log(`Cập nhật thông tin học sinh với ID: ${studentId}`);
+    
     const student = getStudentById(studentId);
     if (!student) {
         console.error(`Không tìm thấy học sinh với ID: ${studentId}`);
         return;
     }
     
-    // Cập nhật ID học sinh trong form
+    const classData = getClassById(student.classId);
+    if (!classData) {
+        console.error(`Không tìm thấy lớp học với ID: ${student.classId}`);
+        return;
+    }
+    
+    // Cập nhật các trường trong form
     document.getElementById('payment-student-id').value = studentId;
     
-    // Cập nhật thông tin chi tiết học sinh
-    updateStudentDetails(studentId);
+    // Cập nhật select học sinh nếu có
+    const studentSelect = document.querySelector('#payment-form select[name="student"]');
+    if (studentSelect) {
+        for (let i = 0; i < studentSelect.options.length; i++) {
+            if (studentSelect.options[i].value === studentId) {
+                studentSelect.selectedIndex = i;
+                break;
+            }
+        }
+    }
+    
+    // Cập nhật hiển thị tên học sinh
+    const studentNameElement = document.getElementById('payment-student-name');
+    if (studentNameElement) {
+        studentNameElement.textContent = student.name;
+    }
+    
+    // Cập nhật hiển thị lớp học
+    const classNameElement = document.getElementById('payment-class-name');
+    if (classNameElement) {
+        classNameElement.textContent = classData.name;
+    }
+    
+    // Cập nhật trường lớp
+    const classInput = document.querySelector('#payment-form input[name="class"]');
+    if (classInput) {
+        classInput.value = classData.name;
+    }
+    
+    // Cập nhật học phí cơ bản
+    const baseAmountInput = document.getElementById('payment-base-amount');
+    if (baseAmountInput) {
+        baseAmountInput.value = classData.fee || 0;
+    }
+    
+    // Cập nhật chu kỳ thanh toán
+    const cycleSelect = document.getElementById('payment-cycle');
+    if (cycleSelect && classData.cycle) {
+        for (let i = 0; i < cycleSelect.options.length; i++) {
+            if (cycleSelect.options[i].value === classData.cycle) {
+                cycleSelect.selectedIndex = i;
+                break;
+            }
+        }
+    }
+    
+    // Tính toán lại tổng thanh toán
+    calculateTotalPayment();
+    
+    console.log("Đã cập nhật thông tin học sinh trong form thanh toán");
 }
 
 // Cập nhật chi tiết học sinh trong form thanh toán
@@ -427,6 +582,12 @@ function updateStudentDetails(studentId) {
         // Hiển thị tên lớp
         const classNameDisplay = document.getElementById('payment-class-name');
         if (classNameDisplay) classNameDisplay.textContent = classData.name;
+        
+        // Cập nhật trường lớp
+        const classInput = document.querySelector('#add-payment-form input[name="class"]');
+        if (classInput) {
+            classInput.value = classData.name;
+        }
         
         // Hiển thị học phí cơ bản
         const baseAmountInput = document.getElementById('payment-base-amount');
