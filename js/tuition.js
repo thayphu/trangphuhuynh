@@ -532,13 +532,19 @@ function openAddPaymentModal(studentId = null) {
                     baseAmount = classData.fee;
                 }
                 
-                const totalElement = document.querySelector('.total-amount');
-                if (totalElement) {
-                    totalElement.textContent = baseAmount.toLocaleString('vi-VN');
-                }
-                
                 // Cập nhật trường dữ liệu ẩn
                 document.getElementById('payment-amount').value = baseAmount;
+                
+                // Cập nhật hiển thị TỔNG CỘNG trong form
+                const tongCongElement = document.querySelector('.payment-form .tong-cong');
+                if (tongCongElement) {
+                    tongCongElement.innerHTML = `<strong>TỔNG CỘNG:</strong> <span class="total-amount">${formatCurrency(baseAmount)} VND</span>`;
+                } else {
+                    console.error("Không tìm thấy phần tử hiển thị tổng cộng trong form");
+                }
+                
+                // Tính lại tổng thanh toán để cập nhật các trường liên quan
+                setTimeout(() => calculateTotalPayment(), 100);
             }
         }
     }, 200);
@@ -830,13 +836,15 @@ function calculateTotalPayment() {
     // Tính tổng cộng = Học phí cơ bản + Chi phí bổ sung + Học phí linh hoạt - Khấu trừ
     const totalAmount = baseAmount + additionalFee + flexibleAmount - discount;
     
-    // Cập nhật tổng số tiền hiển thị trong form và trong phần hiển thị tổng cộng
+    // Cập nhật tổng số tiền trong trường ẩn
     document.getElementById('payment-amount').value = totalAmount;
     
     // Cập nhật hiển thị tổng cộng với định dạng tiền tệ
-    const totalDisplay = document.querySelector('.payment-form .tong-cong');
-    if (totalDisplay) {
-        totalDisplay.innerHTML = `<strong>TỔNG CỘNG:</strong> <span class="total-amount">${formatCurrency(totalAmount)} VND</span>`;
+    const totalElement = document.querySelector('.total-amount');
+    if (totalElement) {
+        totalElement.textContent = formatCurrency(totalAmount);
+    } else {
+        console.error("Không tìm thấy phần tử .total-amount để hiển thị tổng tiền");
     }
     
     return totalAmount;
