@@ -1345,10 +1345,57 @@ function displayAttendanceHistory(studentId) {
         return;
     }
     
-    console.log("Hiển thị lịch sử điểm danh trong biên nhận cho học sinh:", studentId);
+    console.log("Đang hiển thị lịch sử điểm danh");
     
-    // Lấy danh sách điểm danh theo cách mới
-    const studentAttendance = getStudentAttendance(studentId);
+    // Lấy tất cả bản ghi điểm danh
+    const allAttendance = getAttendance();
+    console.log("Tổng số bản ghi điểm danh:", allAttendance.length);
+    
+    // Tạo mảng chứa thông tin điểm danh của học sinh
+    const studentAttendance = [];
+    
+    // Duyệt qua từng bản ghi điểm danh
+    allAttendance.forEach(record => {
+        console.log(`Bản ghi điểm danh: Lớp=${record.classId}, Ngày=${record.date}`);
+        
+        // Nếu là điểm danh thông thường (không phải GV vắng)
+        if (record.students && Array.isArray(record.students)) {
+            console.log("Số học sinh trong bản ghi:", record.students.length);
+            
+            // Tìm thông tin điểm danh của học sinh cụ thể
+            const studentRecord = record.students.find(s => s.id === studentId);
+            
+            if (studentRecord) {
+                console.log(`Thông tin điểm danh: id=${studentRecord.id}, status=${studentRecord.status}`);
+                
+                // Lấy thông tin học sinh để hiển thị tên
+                const student = getStudentById(studentRecord.id);
+                if (student) {
+                    console.log("Tìm thấy học sinh:", student.name);
+                    
+                    // Thêm vào danh sách điểm danh của học sinh
+                    studentAttendance.push({
+                        date: record.date,
+                        status: studentRecord.status,
+                        className: getClassName(record.classId)
+                    });
+                }
+            }
+        }
+        
+        // Nếu là giáo viên vắng
+        if (record.type === 'teacher-absent') {
+            // Kiểm tra xem học sinh có thuộc lớp này không
+            const student = getStudentById(studentId);
+            if (student && student.classId === record.classId) {
+                studentAttendance.push({
+                    date: record.date,
+                    status: 'teacher-absent',
+                    className: getClassName(record.classId)
+                });
+            }
+        }
+    });
     
     // Hiển thị lịch sử điểm danh
     if (studentAttendance.length === 0) {
