@@ -26,11 +26,27 @@ function formatSchedule(scheduleArray) {
 
 // Hàm chuyển đổi số thành chữ tiếng Việt
 function numberToWords(number) {
+    // Xử lý trường hợp không phải số hoặc không hợp lệ
+    if (number === undefined || number === null || isNaN(number)) {
+        console.error("numberToWords: Số không hợp lệ", number);
+        return "không đồng";
+    }
+    
+    // Đảm bảo chuyển thành số nguyên
+    number = Math.floor(Number(number));
+    
     const units = ['', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'];
     const teens = ['mười', 'mười một', 'mười hai', 'mười ba', 'mười bốn', 'mười lăm', 'mười sáu', 'mười bảy', 'mười tám', 'mười chín'];
     const tens = ['', 'mười', 'hai mươi', 'ba mươi', 'bốn mươi', 'năm mươi', 'sáu mươi', 'bảy mươi', 'tám mươi', 'chín mươi'];
     
     function readHundreds(num) {
+        // Đảm bảo số hợp lệ
+        if (num === 0) return '';
+        if (isNaN(num) || num < 0 || num > 999) {
+            console.error("readHundreds: Số không hợp lệ", num);
+            return '';
+        }
+        
         let result = '';
         const hundred = Math.floor(num / 100);
         const remainder = num % 100;
@@ -45,7 +61,7 @@ function numberToWords(number) {
         if (remainder > 0) {
             if (remainder < 10 && hundred > 0) {
                 result += 'lẻ ' + units[remainder];
-            } else if (remainder < 20) {
+            } else if (remainder < 20 && remainder >= 10) {
                 result += teens[remainder - 10];
             } else {
                 const ten = Math.floor(remainder / 10);
@@ -60,7 +76,7 @@ function numberToWords(number) {
         return result;
     }
     
-    if (number === 0) return 'không';
+    if (number === 0) return 'không đồng';
     
     const billion = Math.floor(number / 1000000000);
     number %= 1000000000;
@@ -96,7 +112,7 @@ function numberToWords(number) {
         result += readHundreds(remainder);
     }
     
-    return result;
+    return result + ' đồng';
 }
 
 // Hàm định dạng ngày

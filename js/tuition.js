@@ -842,8 +842,23 @@ function handleAddPayment(event) {
     
     // Lấy thông tin cơ bản từ form
     const studentId = document.getElementById('payment-student').value;
+    if (!studentId) {
+        alert('Vui lòng chọn học sinh!');
+        return;
+    }
+    
     const amount = parseInt(document.getElementById('payment-amount').value);
+    if (!amount || isNaN(amount) || amount <= 0) {
+        alert('Vui lòng nhập số tiền hợp lệ!');
+        return;
+    }
+    
     const date = document.getElementById('payment-date').value;
+    if (!date) {
+        alert('Vui lòng chọn ngày thanh toán!');
+        return;
+    }
+    
     const cycle = document.getElementById('payment-cycle').value;
     let method = document.getElementById('payment-method').value;
     
@@ -872,8 +887,18 @@ function handleAddPayment(event) {
     // Kiểm tra tab nào đang active
     const isAdditionalFeeActive = document.getElementById('additional-fee').classList.contains('active');
     
+    // Chắc chắn StudentId tồn tại
+    const student = getStudentById(studentId);
+    if (!student) {
+        alert('Không tìm thấy thông tin học sinh!');
+        return;
+    }
+    
     // Tính ngày thanh toán tiếp theo dựa vào chu kỳ và lịch học của học sinh
+    // Ghi log để theo dõi
+    console.log(`Tính ngày thanh toán tiếp theo cho học sinh ${studentId} với chu kỳ ${cycle}`);
     const nextPaymentDate = calculateNextPaymentDate(date, cycle, studentId, flexibleSessions);
+    console.log(`Ngày thanh toán tiếp theo đã tính: ${nextPaymentDate}`);
     
     // Tạo đối tượng thanh toán mới
     const newPayment = {
