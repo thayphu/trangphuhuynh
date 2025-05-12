@@ -1332,7 +1332,8 @@ footer {
 .search-container {
     position: relative;
     flex: 1;
-    min-width: 200px;
+    min-width: 180px; /* Đồng bộ kích thước với các bộ lọc */
+    max-width: 250px; /* Giới hạn chiều rộng tối đa */
 }
 
 .search-input {
