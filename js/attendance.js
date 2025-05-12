@@ -117,19 +117,19 @@ function displayAttendanceClasses() {
             console.log(`Có lịch học vào ngày đã chọn: ${hasClassOnSelectedDay}`);
             console.log(`Ngày đã chọn: ${formattedDate}`);
         
-        const todayAttendance = attendance.find(record => 
-            record.date === today && record.classId === classData.id
+        const classAttendance = attendance.find(record => 
+            record.date === formattedDate && record.classId === classData.id
         );
         
         // Đếm số học sinh đã điểm danh
         let attendedCount = 0;
-        if (todayAttendance && todayAttendance.students) {
-            attendedCount = todayAttendance.students.length;
+        if (classAttendance && classAttendance.students) {
+            attendedCount = classAttendance.students.length;
         }
         
-        const allAttended = todayAttendance && attendedCount === studentCount;
-        const attendanceStatus = todayAttendance ? `Đã điểm danh (${attendedCount}/${studentCount})` : 'Chưa điểm danh';
-        const attendanceStatusClass = todayAttendance ? 'status-paid' : 'status-unpaid';
+        const allAttended = classAttendance && attendedCount === studentCount;
+        const attendanceStatus = classAttendance ? `Đã điểm danh (${attendedCount}/${studentCount})` : 'Chưa điểm danh';
+        const attendanceStatusClass = classAttendance ? 'status-paid' : 'status-unpaid';
         
         classCard.innerHTML = `
             <h3>${classData.name}</h3>
@@ -141,12 +141,10 @@ function displayAttendanceClasses() {
                 <div><span>Trạng thái:</span> <span class="student-status ${attendanceStatusClass}">${attendanceStatus}</span></div>
             </div>
             <div class="class-actions">
-                <button class="attendance-btn" data-id="${classData.id}" ${!isTodayClass || allAttended ? 'disabled' : ''}>
-                    ${!isTodayClass ? 'Không có lịch học hôm nay' : 
-                      allAttended ? 'Đã điểm danh đủ' : 
-                      '<span class="blink">Điểm danh</span>'}
+                <button class="attendance-btn" data-id="${classData.id}">
+                    ${allAttended ? 'Đã điểm danh đủ' : '<span class="blink">Điểm danh</span>'}
                 </button>
-                <button class="teacher-absent-btn" data-id="${classData.id}" ${!isTodayClass ? 'disabled' : ''}>
+                <button class="teacher-absent-btn" data-id="${classData.id}">
                     GV vắng
                 </button>
             </div>
