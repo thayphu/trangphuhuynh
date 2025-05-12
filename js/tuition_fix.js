@@ -953,6 +953,10 @@ function handleAddPayment(event) {
     
     // Mở modal biên nhận
     openReceiptModal(newPayment.id);
+    } catch (error) {
+        console.error("Lỗi khi xử lý thanh toán:", error);
+        alert('Đã xảy ra lỗi khi xử lý thanh toán: ' + error.message);
+    }
 }
 
 // Mở modal thêm thanh toán
@@ -1187,21 +1191,36 @@ function openReceiptModal(paymentId) {
         console.error("Lỗi khi chuyển đổi số thành chữ:", error);
         document.getElementById('receipt-amount-text').textContent = "Số tiền bằng chữ";
     }
-    document.getElementById('receipt-student-name').textContent = student.name;
-    document.getElementById('receipt-student-id').textContent = student.id;
+    const studentNameElement = document.getElementById('receipt-student-name');
+    if (studentNameElement) studentNameElement.textContent = student.name;
+    
+    const studentIdElement = document.getElementById('receipt-student-id');
+    if (studentIdElement) studentIdElement.textContent = student.id;
     
     // Kiểm tra nếu lớp đã khóa
-    if (classData.locked) {
-        document.getElementById('receipt-class').innerHTML = `<span class="status-unpaid">${classData.name} (Lớp đã đóng)</span>`;
-    } else {
-        document.getElementById('receipt-class').textContent = classData.name;
+    const receiptClassElement = document.getElementById('receipt-class');
+    if (receiptClassElement) {
+        if (classData.locked) {
+            receiptClassElement.innerHTML = `<span class="status-unpaid">${classData.name} (Lớp đã đóng)</span>`;
+        } else {
+            receiptClassElement.textContent = classData.name;
+        }
     }
     
-    document.getElementById('receipt-phone').textContent = student.phone || 'Chưa cập nhật';
-    document.getElementById('receipt-date').textContent = formatDate(payment.date);
-    document.getElementById('receipt-cycle').textContent = payment.cycle;
-    document.getElementById('receipt-method').textContent = payment.method;
-    document.getElementById('receipt-registration-date').textContent = formatDate(student.registerDate);
+    const receiptPhoneElement = document.getElementById('receipt-phone');
+    if (receiptPhoneElement) receiptPhoneElement.textContent = student.phone || 'Chưa cập nhật';
+    
+    const receiptDateElement = document.getElementById('receipt-date');
+    if (receiptDateElement) receiptDateElement.textContent = formatDate(payment.date);
+    
+    const receiptCycleElement = document.getElementById('receipt-cycle');
+    if (receiptCycleElement) receiptCycleElement.textContent = payment.cycle;
+    
+    const receiptMethodElement = document.getElementById('receipt-method');
+    if (receiptMethodElement) receiptMethodElement.textContent = payment.method;
+    
+    const receiptRegDateElement = document.getElementById('receipt-registration-date');
+    if (receiptRegDateElement) receiptRegDateElement.textContent = formatDate(student.registerDate);
     
     // Hiển thị lịch học
     if (classData.schedule && classData.schedule.length > 0) {
