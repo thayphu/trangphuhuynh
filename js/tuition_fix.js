@@ -1347,10 +1347,18 @@ function openReceiptModal(paymentId) {
     const day = today.getDate();
     const month = today.getMonth() + 1;
     const year = today.getFullYear();
-    document.getElementById('receipt-signature-date').textContent = `${day}/${month}/${year}`;
+    
+    const signatureDateElement = document.getElementById('receipt-signature-date');
+    if (signatureDateElement) {
+        signatureDateElement.textContent = `${day}/${month}/${year}`;
+    }
     
     // Hiển thị modal
     modal.classList.remove('hidden');
+    } catch (error) {
+        console.error("Lỗi khi mở modal biên nhận:", error);
+        alert("Không thể hiển thị biên nhận: " + error.message);
+    }
 }
 
 // Lưu biên nhận thành hình ảnh
