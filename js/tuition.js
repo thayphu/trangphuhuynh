@@ -829,11 +829,17 @@ function calculateTotalPayment() {
     // Học phí linh hoạt
     const flexibleAmount = parseInt(document.getElementById('payment-flexible-amount').value) || 0;
     
-    // Tính tổng cộng = Học phí cơ bản + Chi phí bổ sung - Khấu trừ
-    const totalAmount = baseAmount + additionalFee - discount;
+    // Tính tổng cộng = Học phí cơ bản + Chi phí bổ sung + Học phí linh hoạt - Khấu trừ
+    const totalAmount = baseAmount + additionalFee + flexibleAmount - discount;
     
-    // Cập nhật tổng số tiền
+    // Cập nhật tổng số tiền hiển thị trong form và trong phần hiển thị tổng cộng
     document.getElementById('payment-amount').value = totalAmount;
+    
+    // Cập nhật hiển thị tổng cộng với định dạng tiền tệ
+    const totalDisplay = document.querySelector('.payment-form .tong-cong');
+    if (totalDisplay) {
+        totalDisplay.innerHTML = `<strong>TỔNG CỘNG:</strong> <span class="total-amount">${formatCurrency(totalAmount)} VND</span>`;
+    }
     
     return totalAmount;
 }
@@ -962,17 +968,42 @@ function handleAddPayment(event) {
 
 // Xóa thanh toán
 function deletePayment(paymentId) {
-    // Lấy danh sách thanh toán hiện tại
-    let payments = getPayments();
+    // Lấy thông tin thanh toán để hiển thị trong hộp thoại xác nhận
+    const payments = getPayments();
+    const payment = payments.find(p => p.id === paymentId);
     
-    // Lọc bỏ thanh toán cần xóa
-    payments = payments.filter(payment => payment.id !== paymentId);
+    if (!payment) {
+        showNotification('Không tìm thấy biên nhận', 'error');
+        return;
+    }
     
-    // Lưu vào localStorage
-    localStorage.setItem('payments', JSON.stringify(payments));
+    // Lấy thông tin học sinh để hiển thị trong xác nhận
+    const student = getStudentById(payment.studentId);
+    if (!student) {
+        showNotification('Không tìm thấy thông tin học sinh', 'error');
+        return;
+    }
     
-    // Hiển thị lại danh sách thanh toán
-    displayPayments();
+    // Hiển thị hộp thoại xác nhận
+    const confirmMessage = `Bạn có chắc chắn muốn xóa biên nhận ${payment.receiptNumber} của học sinh ${student.name}?\nSố tiền: ${formatCurrency(payment.amount)} VND\nNgày: ${formatDate(payment.date)}`;
+    
+    if (confirm(confirmMessage)) {
+        // Người dùng đã xác nhận xóa
+        // Lấy danh sách thanh toán hiện tại
+        let updatedPayments = getPayments();
+        
+        // Lọc bỏ thanh toán cần xóa
+        updatedPayments = updatedPayments.filter(p => p.id !== paymentId);
+        
+        // Lưu vào localStorage
+        localStorage.setItem('payments', JSON.stringify(updatedPayments));
+        
+        // Hiển thị lại danh sách thanh toán
+        displayPayments();
+        
+        // Hiển thị thông báo xóa thành công
+        showNotification('Đã xóa biên nhận thành công', 'success');
+    }
 }
 
 // Lọc thanh toán theo tìm kiếm và bộ lọc
