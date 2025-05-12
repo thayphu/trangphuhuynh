@@ -3,6 +3,12 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Hiển thị năm hiện tại trong footer
+    const currentYearElement = document.getElementById('current-year');
+    if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+    }
+    
     // Xử lý form tìm kiếm
     const searchForm = document.getElementById('parent-search-form');
     if (searchForm) {
@@ -64,7 +70,17 @@ function displayStudentInfo(studentId) {
     // Hiển thị thông tin cơ bản
     document.getElementById('student-name').textContent = student.name;
     document.getElementById('student-id').textContent = student.id;
-    document.getElementById('student-class').textContent = classData ? classData.name : 'Không xác định';
+    
+    // Hiển thị lớp và lịch học
+    if (classData) {
+        const scheduleFormat = classData.schedule && classData.schedule.length > 0 
+            ? ` (${formatSchedule(classData.schedule)})` 
+            : '';
+        document.getElementById('student-class').textContent = `${classData.name}${scheduleFormat}`;
+    } else {
+        document.getElementById('student-class').textContent = 'Không xác định';
+    }
+    
     document.getElementById('student-register-date').textContent = formatDate(student.registerDate);
     document.getElementById('student-payment-cycle').textContent = student.paymentCycle;
     
@@ -308,31 +324,49 @@ function displayPaymentInfo(student, classData) {
     
     // Lấy số tiền cần thanh toán dựa vào chu kỳ
     let amount = 0;
+    let perSessionFee = 0;
+    let totalBaseFee = 0;
     console.log("Thông tin lớp:", classData);
     
     if (classData) {
         // Sử dụng fee thay vì tuition nếu chưa có thuộc tính tuition
         const tuition = classData.tuition || classData.fee || 500000; // Mặc định là 500,000 VND nếu không có dữ liệu
+        perSessionFee = classData.fee || Math.round(tuition / 8);
         
         console.log(`Lớp ${classData.id} (${classData.name}), học phí: ${tuition}, chu kỳ: ${student.paymentCycle}`);
         
         if (student.paymentCycle === '8 buổi') {
             // Nếu chu kỳ là 8 buổi
-            const sessionFee = Math.round(tuition / 8); // Giả sử 8 buổi = 1 tháng
-            amount = sessionFee * 8;
+            totalBaseFee = perSessionFee * 8;
+            amount = totalBaseFee;
         } else if (student.paymentCycle === '10 buổi') {
             // Nếu chu kỳ là 10 buổi
-            const sessionFee = Math.round(tuition / 8); // Giả sử 8 buổi = 1 tháng
-            amount = sessionFee * 10;
+            totalBaseFee = perSessionFee * 10;
+            amount = totalBaseFee;
         } else if (student.paymentCycle === '1 tháng') {
             // Nếu chu kỳ là 1 tháng
-            amount = tuition;
+            totalBaseFee = tuition;
+            amount = totalBaseFee;
         } else if (student.paymentCycle === 'Theo ngày') {
             // Nếu chu kỳ là theo ngày, lấy học phí theo buổi
-            amount = Math.round(tuition / 8);
+            totalBaseFee = perSessionFee;
+            amount = totalBaseFee;
         } else {
             // Trường hợp mặc định, sử dụng học phí 1 tháng
-            amount = tuition;
+            totalBaseFee = tuition;
+            amount = totalBaseFee;
+        }
+        
+        // Hiển thị học phí tính theo buổi và tổng học phí cơ bản nếu phần tử tồn tại
+        const perSessionFeeElement = document.getElementById('per-session-fee');
+        const totalBaseFeeElement = document.getElementById('total-base-fee');
+        
+        if (perSessionFeeElement) {
+            perSessionFeeElement.textContent = formatCurrency(perSessionFee);
+        }
+        
+        if (totalBaseFeeElement) {
+            totalBaseFeeElement.textContent = formatCurrency(totalBaseFee);
         }
     } else {
         // Nếu không có thông tin lớp, đặt giá trị mặc định
