@@ -1340,15 +1340,15 @@ function displayMakeupClasses(studentId) {
 // Hiển thị lịch sử điểm danh trong biên nhận
 function displayAttendanceHistory(studentId) {
     const attendanceHistoryContainer = document.getElementById('receipt-attendance-history');
-    if (!attendanceHistoryContainer) return;
+    if (!attendanceHistoryContainer) {
+        console.error("Không tìm thấy phần tử receipt-attendance-history");
+        return;
+    }
     
-    // Lấy dữ liệu điểm danh
-    const attendance = getAttendance();
+    console.log("Hiển thị lịch sử điểm danh trong biên nhận cho học sinh:", studentId);
     
-    // Lọc theo học sinh và sắp xếp theo ngày, mới nhất lên đầu
-    const studentAttendance = attendance
-        .filter(record => record.students.some(student => student.id === studentId))
-        .sort((a, b) => new Date(b.date) - new Date(a.date));
+    // Lấy danh sách điểm danh theo cách mới
+    const studentAttendance = getStudentAttendance(studentId);
     
     // Hiển thị lịch sử điểm danh
     if (studentAttendance.length === 0) {
@@ -1356,35 +1356,48 @@ function displayAttendanceHistory(studentId) {
         return;
     }
     
+    // Sắp xếp theo ngày, mới nhất lên đầu
+    studentAttendance.sort((a, b) => new Date(b.date) - new Date(a.date));
+    
     const attendanceGrid = document.createElement('div');
     attendanceGrid.className = 'attendance-grid';
     
-    // Giới hạn hiển thị 10 bản ghi gần nhất
-    const recentAttendance = studentAttendance.slice(0, 10);
+    // Giới hạn hiển thị 5 bản ghi gần nhất
+    const recentAttendance = studentAttendance.slice(0, 5);
+    console.log("Số bản ghi điểm danh hiển thị:", recentAttendance.length);
     
     recentAttendance.forEach(record => {
-        const studentRecord = record.students.find(student => student.id === studentId);
-        if (!studentRecord) return;
-        
         const attendanceItem = document.createElement('div');
-        attendanceItem.className = `attendance-item-receipt ${studentRecord.status}`;
+        attendanceItem.className = 'attendance-card-small';
         
         let statusText;
-        switch(studentRecord.status) {
+        let cardClass;
+        
+        switch(record.status) {
             case 'present':
                 statusText = 'Có mặt';
+                cardClass = 'attendance-card-present';
                 break;
             case 'absent':
                 statusText = 'Vắng mặt';
+                cardClass = 'attendance-card-absent';
                 break;
             case 'teacher-absent':
                 statusText = 'GV nghỉ';
+                cardClass = 'attendance-card-teacher-absent';
                 break;
             default:
                 statusText = 'Không xác định';
+                cardClass = '';
         }
         
-        attendanceItem.textContent = `${formatDate(record.date)}: ${statusText}`;
+        attendanceItem.classList.add(cardClass);
+        
+        attendanceItem.innerHTML = `
+            <span class="attendance-date">${formatDate(record.date)}</span> - 
+            <span class="attendance-status">${statusText}</span>
+        `;
+        
         attendanceGrid.appendChild(attendanceItem);
     });
     
@@ -1395,33 +1408,41 @@ function displayAttendanceHistory(studentId) {
 // Hiển thị lịch sử thanh toán trong biên nhận
 function displayPaymentHistory(studentId, currentPaymentId) {
     const paymentHistoryContainer = document.getElementById('receipt-payment-history');
-    if (!paymentHistoryContainer) return;
+    if (!paymentHistoryContainer) {
+        console.error("Không tìm thấy phần tử receipt-payment-history");
+        return;
+    }
+    
+    console.log("Hiển thị lịch sử thanh toán trong biên nhận cho học sinh:", studentId);
     
     // Lấy dữ liệu thanh toán
     const payments = getPayments();
+    console.log("Tổng số thanh toán:", payments.length);
     
-    // Lọc theo học sinh và sắp xếp theo ngày, mới nhất lên đầu
+    // Lọc theo học sinh và loại trừ thanh toán hiện tại
     const studentPayments = payments
         .filter(payment => payment.studentId === studentId && payment.id !== currentPaymentId)
         .sort((a, b) => new Date(b.date) - new Date(a.date));
     
+    console.log("Số thanh toán của học sinh (loại trừ hiện tại):", studentPayments.length);
+    
     // Hiển thị lịch sử thanh toán
     if (studentPayments.length === 0) {
-        paymentHistoryContainer.innerHTML = '<p class="no-history">Chưa có lịch sử thanh toán</p>';
+        paymentHistoryContainer.innerHTML = '<p class="no-history">Chưa có lịch sử thanh toán trước đây</p>';
         return;
     }
     
+    // Tạo bảng nhỏ gọn cho biên nhận
     const table = document.createElement('table');
-    table.className = 'payment-history-table';
+    table.className = 'receipt-payment-history-table';
     
     table.innerHTML = `
         <thead>
             <tr>
                 <th>STT</th>
-                <th>Mã Biên nhận</th>
-                <th>Ngày thanh toán</th>
+                <th>Biên nhận</th>
+                <th>Ngày</th>
                 <th>Số tiền</th>
-                <th>Hình thức thanh toán</th>
             </tr>
         </thead>
         <tbody></tbody>
@@ -1429,8 +1450,8 @@ function displayPaymentHistory(studentId, currentPaymentId) {
     
     const tbody = table.querySelector('tbody');
     
-    // Giới hạn hiển thị 5 bản ghi gần nhất
-    const recentPayments = studentPayments.slice(0, 5);
+    // Giới hạn hiển thị 3 bản ghi gần nhất
+    const recentPayments = studentPayments.slice(0, 3);
     
     recentPayments.forEach((payment, index) => {
         const row = document.createElement('tr');
@@ -1439,7 +1460,6 @@ function displayPaymentHistory(studentId, currentPaymentId) {
             <td>${payment.receiptNumber || ''}</td>
             <td>${formatDate(payment.date)}</td>
             <td>${formatCurrency(payment.amount)}</td>
-            <td>${payment.method || 'Tiền mặt'}</td>
         `;
         tbody.appendChild(row);
     });
