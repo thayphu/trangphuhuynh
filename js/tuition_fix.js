@@ -52,6 +52,29 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Cập nhật lớp của bộ lọc
     updatePaymentClassFilter();
+    
+    // Thêm event listeners cho các nút trong danh sách thanh toán
+    document.addEventListener('click', function(event) {
+        // Nút xem biên nhận
+        if (event.target.closest('.view-receipt-btn')) {
+            const paymentId = event.target.closest('.view-receipt-btn').getAttribute('data-id');
+            openReceiptModal(paymentId);
+        }
+        
+        // Nút sửa biên nhận
+        if (event.target.closest('.edit-receipt-btn')) {
+            const paymentId = event.target.closest('.edit-receipt-btn').getAttribute('data-id');
+            openEditPaymentModal(paymentId);
+        }
+        
+        // Nút xóa biên nhận
+        if (event.target.closest('.delete-payment-btn')) {
+            const paymentId = event.target.closest('.delete-payment-btn').getAttribute('data-id');
+            if (confirm('Bạn có chắc chắn muốn xóa biên nhận này không?')) {
+                deletePayment(paymentId);
+            }
+        }
+    });
 });
 
 // Thiết lập các tab thanh toán
@@ -309,6 +332,271 @@ function displayPaymentHistory(filteredPayments = null) {
     } catch (error) {
         console.error("Lỗi khi hiển thị lịch sử thanh toán:", error);
     }
+}
+
+// Thiết lập các trường bổ sung trong form thanh toán
+function setupAdditionalFields() {
+    try {
+        // Lý do chi phí bổ sung
+        const additionalReason = document.getElementById('payment-additional-reason');
+        if (additionalReason) {
+            additionalReason.addEventListener('change', function() {
+                const otherContainer = document.getElementById('payment-additional-other-container');
+                if (this.value === 'Khác') {
+                    otherContainer.style.display = 'block';
+                } else {
+                    otherContainer.style.display = 'none';
+                }
+            });
+        }
+        
+        // Lý do giảm giá
+        const discountReason = document.getElementById('payment-discount-reason');
+        if (discountReason) {
+            discountReason.addEventListener('change', function() {
+                const otherContainer = document.getElementById('payment-discount-other-container');
+                if (this.value === 'Khác') {
+                    otherContainer.style.display = 'block';
+                } else {
+                    otherContainer.style.display = 'none';
+                }
+            });
+        }
+        
+        // Cập nhật tổng thanh toán khi thay đổi các trường
+        const updateFields = [
+            'payment-base-amount',
+            'payment-additional-fee',
+            'payment-discount',
+            'payment-flexible-amount',
+            'payment-flexible-sessions'
+        ];
+        
+        updateFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.addEventListener('input', calculateTotalPayment);
+            }
+        });
+    } catch (error) {
+        console.error("Lỗi khi thiết lập các trường bổ sung:", error);
+    }
+}
+
+// Cập nhật thông tin học sinh trong form thanh toán
+function updateStudentPaymentInfo(studentId) {
+    if (!studentId) {
+        console.error("Không có ID học sinh được cung cấp");
+        return;
+    }
+    
+    const student = getStudentById(studentId);
+    if (!student) {
+        console.error(`Không tìm thấy học sinh với ID: ${studentId}`);
+        return;
+    }
+    
+    // Cập nhật ID học sinh trong form
+    document.getElementById('payment-student-id').value = studentId;
+    
+    // Cập nhật thông tin chi tiết học sinh
+    updateStudentDetails(studentId);
+}
+
+// Cập nhật chi tiết học sinh trong form thanh toán
+function updateStudentDetails(studentId) {
+    try {
+        if (!studentId) return;
+        
+        const student = getStudentById(studentId);
+        if (!student) {
+            console.error(`Không tìm thấy học sinh với ID: ${studentId}`);
+            return;
+        }
+        
+        const classData = getClassById(student.classId);
+        if (!classData) {
+            console.error(`Không tìm thấy lớp học với ID: ${student.classId}`);
+            return;
+        }
+        
+        // Hiển thị tên học sinh
+        const studentNameDisplay = document.getElementById('payment-student-name');
+        if (studentNameDisplay) studentNameDisplay.textContent = student.name;
+        
+        // Hiển thị tên lớp
+        const classNameDisplay = document.getElementById('payment-class-name');
+        if (classNameDisplay) classNameDisplay.textContent = classData.name;
+        
+        // Hiển thị học phí cơ bản
+        const baseAmountInput = document.getElementById('payment-base-amount');
+        if (baseAmountInput) baseAmountInput.value = classData.fee || 0;
+        
+        // Cập nhật chu kỳ thanh toán
+        const cycleSelect = document.getElementById('payment-cycle');
+        if (cycleSelect && classData.cycle) {
+            // Tìm option có value tương ứng với chu kỳ của lớp
+            for (let i = 0; i < cycleSelect.options.length; i++) {
+                if (cycleSelect.options[i].value === classData.cycle) {
+                    cycleSelect.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+        
+        // Tính toán lại tổng thanh toán
+        calculateTotalPayment();
+    } catch (error) {
+        console.error("Lỗi khi cập nhật thông tin học sinh:", error);
+    }
+}
+
+// Tính toán học phí cơ bản
+function calculateBaseAmount() {
+    const baseAmountInput = document.getElementById('payment-base-amount');
+    return baseAmountInput ? parseFloat(baseAmountInput.value) || 0 : 0;
+}
+
+// Tính toán số buổi linh hoạt
+function calculateFlexibleSessions() {
+    const flexibleSessionsInput = document.getElementById('payment-flexible-sessions');
+    return flexibleSessionsInput ? parseInt(flexibleSessionsInput.value) || 0 : 0;
+}
+
+// Tính toán tổng thanh toán
+function calculateTotalPayment() {
+    try {
+        // Lấy các giá trị từ form
+        const baseAmount = calculateBaseAmount();
+        
+        // Chi phí bổ sung
+        const additionalFeeInput = document.getElementById('payment-additional-fee');
+        const additionalFee = additionalFeeInput ? parseFloat(additionalFeeInput.value) || 0 : 0;
+        
+        // Khấu trừ
+        const discountInput = document.getElementById('payment-discount');
+        const discount = discountInput ? parseFloat(discountInput.value) || 0 : 0;
+        
+        // Học phí linh hoạt
+        const flexibleAmountInput = document.getElementById('payment-flexible-amount');
+        const flexibleAmount = flexibleAmountInput ? parseFloat(flexibleAmountInput.value) || 0 : 0;
+        
+        // Tính tổng tiền
+        let totalAmount = baseAmount + additionalFee - discount + flexibleAmount;
+        
+        // Kiểm tra nếu tổng tiền âm
+        if (totalAmount < 0) totalAmount = 0;
+        
+        // Hiển thị tổng tiền
+        const totalDisplay = document.getElementById('payment-total');
+        if (totalDisplay) totalDisplay.textContent = formatCurrency(totalAmount);
+        
+        return totalAmount;
+    } catch (error) {
+        console.error("Lỗi khi tính tổng thanh toán:", error);
+        return 0;
+    }
+}
+
+// Xử lý thêm thanh toán
+function handleAddPayment(event) {
+    event.preventDefault();
+    
+    // Lấy giá trị từ form
+    const form = event.target;
+    const mode = form.dataset.mode || 'add';
+    
+    const paymentId = document.getElementById('payment-id').value || 'payment' + Math.floor(Math.random() * 100000);
+    const studentId = document.getElementById('payment-student-id').value;
+    const date = document.getElementById('payment-date').value;
+    const cycle = document.getElementById('payment-cycle').value;
+    const method = document.getElementById('payment-method').value;
+    
+    // Kiểm tra dữ liệu
+    if (!studentId || !date || !cycle || !method) {
+        alert('Vui lòng điền đầy đủ thông tin thanh toán');
+        return;
+    }
+    
+    // Tính toán tổng tiền
+    const amount = calculateTotalPayment();
+    if (amount <= 0) {
+        alert('Số tiền thanh toán phải lớn hơn 0');
+        return;
+    }
+    
+    // Lấy chi tiết bổ sung (nếu có)
+    const baseAmount = calculateBaseAmount();
+    const additionalFee = parseFloat(document.getElementById('payment-additional-fee').value) || 0;
+    const additionalReason = document.getElementById('payment-additional-reason').value;
+    const additionalOther = document.getElementById('payment-additional-other').value;
+    const discount = parseFloat(document.getElementById('payment-discount').value) || 0;
+    const discountReason = document.getElementById('payment-discount-reason').value;
+    const discountOther = document.getElementById('payment-discount-other').value;
+    const flexibleAmount = parseFloat(document.getElementById('payment-flexible-amount').value) || 0;
+    const flexibleSessions = calculateFlexibleSessions();
+    
+    // Tạo hoặc cập nhật bản ghi thanh toán
+    let receiptNumber = document.getElementById('payment-receipt-number').value;
+    if (!receiptNumber) {
+        // Tạo số biên nhận mới nếu không có
+        const year = new Date().getFullYear();
+        const payments = getPayments();
+        const count = payments.length + 1;
+        receiptNumber = `${year}${count.toString().padStart(3, '0')}`;
+    }
+    
+    // Tạo đối tượng thanh toán mới
+    const newPayment = {
+        id: paymentId,
+        receiptNumber,
+        studentId,
+        amount,
+        date,
+        cycle,
+        method,
+        details: {
+            baseAmount,
+            additionalFee,
+            additionalReason: additionalReason === 'Khác' ? additionalOther : additionalReason,
+            discount,
+            discountReason: discountReason === 'Khác' ? discountOther : discountReason,
+            flexibleAmount,
+            flexibleSessions
+        }
+    };
+    
+    // Lấy danh sách thanh toán hiện tại và thêm thanh toán mới
+    const payments = getPayments();
+    
+    if (mode === 'edit') {
+        // Tìm và cập nhật thanh toán hiện có
+        const index = payments.findIndex(p => p.id === paymentId);
+        if (index !== -1) {
+            payments[index] = newPayment;
+        } else {
+            // Nếu không tìm thấy, thêm mới
+            payments.push(newPayment);
+        }
+    } else {
+        // Thêm mới
+        payments.push(newPayment);
+    }
+    
+    // Lưu vào localStorage
+    localStorage.setItem('payments', JSON.stringify(payments));
+    
+    // Đóng modal
+    document.getElementById('add-payment-modal').classList.add('hidden');
+    
+    // Hiển thị lại danh sách thanh toán
+    displayPaymentHistory();
+    
+    // Hiển thị thông báo thành công
+    showNotification('Thanh toán học phí thành công', 'success');
+    
+    // Mở modal biên nhận
+    openReceiptModal(newPayment.id);
 }
 
 // Mở modal thêm thanh toán
