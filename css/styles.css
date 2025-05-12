@@ -231,6 +231,27 @@ button:hover {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.date-selector {
+    display: flex;
+    align-items: center;
+    margin-right: 15px;
+}
+
+.date-selector label {
+    margin-right: 8px;
+    font-weight: 500;
+    color: var(--primary-color);
+}
+
+.date-selector input[type="date"] {
+    padding: 6px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: white;
+    font-family: inherit;
 }
 
 .section-subheader {
@@ -321,6 +342,12 @@ button:hover {
 
 .today-class {
     border-top: 4px solid var(--accent-color);
+}
+
+.locked-class {
+    border-top: 4px solid var(--danger-color);
+    opacity: 0.85;
+    background-color: #f9f9f9;
 }
 
 /* Table Styles */
