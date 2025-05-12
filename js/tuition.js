@@ -525,8 +525,10 @@ function openAddPaymentModal(studentId = null) {
                 let baseAmount = 0;
                 
                 if (student.paymentCycle === '8 buổi') {
+                    // Với chu kỳ 8 buổi, học phí/buổi × 8
                     baseAmount = classData.fee * 8;
                 } else if (student.paymentCycle === '10 buổi') {
+                    // Với chu kỳ 10 buổi, học phí/buổi × 10
                     baseAmount = classData.fee * 10;
                 } else if (student.paymentCycle === '1 tháng' || student.paymentCycle === 'Theo ngày') {
                     baseAmount = classData.fee;
