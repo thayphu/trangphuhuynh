@@ -528,6 +528,19 @@ function setupAdditionalFields() {
                 field.addEventListener('input', calculateTotalPayment);
             }
         });
+        
+        // Thêm sự kiện cho nút xác nhận thanh toán
+        const confirmButton = document.querySelector('#add-payment-modal .confirm-payment, #add-payment-modal button[type="submit"]');
+        if (confirmButton) {
+            console.log("Đã tìm thấy nút xác nhận thanh toán:", confirmButton);
+            confirmButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log("Đã nhấp vào nút xác nhận thanh toán");
+                handleAddPayment(new Event('submit'));
+            });
+        } else {
+            console.error("Không tìm thấy nút xác nhận thanh toán");
+        }
     } catch (error) {
         console.error("Lỗi khi thiết lập các trường bổ sung:", error);
     }
@@ -725,18 +738,93 @@ function calculateTotalPayment() {
             paymentTotalElement.textContent = formatCurrency(totalAmount) + " VND";
         }
         
-        // Cập nhật TỔNG CỘNG ở cuối form
-        const totalSummaryElements = document.querySelectorAll('#add-payment-modal .total-summary, #add-payment-modal .payment-summary');
-        totalSummaryElements.forEach(el => {
-            if (el.querySelector('.amount')) {
-                el.querySelector('.amount').textContent = formatCurrency(totalAmount) + " VND";
-            } else {
-                const amountSpan = el.querySelector('span:last-child');
-                if (amountSpan) {
-                    amountSpan.textContent = formatCurrency(totalAmount) + " VND";
+        // Tìm phần tử hiển thị tổng cộng ở cuối form
+        const paymentTotalSummary = document.querySelector('#add-payment-modal .payment-total-container');
+        if (paymentTotalSummary) {
+            // Xóa nội dung hiện tại
+            paymentTotalSummary.innerHTML = '';
+            
+            // Tạo phần tử hiển thị "TỔNG CỘNG:" với định dạng đặc biệt
+            paymentTotalSummary.style.backgroundColor = '#ffffe0'; // Màu nền vàng nhạt
+            paymentTotalSummary.style.padding = '10px';
+            paymentTotalSummary.style.marginTop = '15px';
+            paymentTotalSummary.style.marginBottom = '15px';
+            paymentTotalSummary.style.borderRadius = '4px';
+            
+            // Tạo div chứa "TỔNG CỘNG" với nền đỏ
+            const totalLabel = document.createElement('div');
+            totalLabel.style.display = 'flex';
+            totalLabel.style.justifyContent = 'space-between';
+            totalLabel.style.alignItems = 'center';
+            
+            // Tạo phần tử hiển thị chữ "TỔNG CỘNG:"
+            const labelSpan = document.createElement('span');
+            labelSpan.textContent = 'TỔNG CỘNG:';
+            labelSpan.style.fontWeight = 'bold';
+            labelSpan.style.fontSize = '16px';
+            labelSpan.style.color = '#d9534f';
+            
+            // Tạo phần tử hiển thị số tiền
+            const amountContainer = document.createElement('div');
+            amountContainer.style.backgroundColor = '#d9534f'; // Màu nền đỏ
+            amountContainer.style.color = 'white'; // Chữ màu trắng
+            amountContainer.style.padding = '8px 15px';
+            amountContainer.style.borderRadius = '20px';
+            amountContainer.style.fontWeight = 'bold';
+            amountContainer.style.fontSize = '16px';
+            amountContainer.textContent = formatCurrency(totalAmount) + ' VND';
+            
+            totalLabel.appendChild(labelSpan);
+            totalLabel.appendChild(amountContainer);
+            paymentTotalSummary.appendChild(totalLabel);
+        } else {
+            // Nếu không tìm thấy container, tạo mới
+            const paymentForm = document.querySelector('#add-payment-modal .modal-body');
+            if (paymentForm) {
+                const newTotalContainer = document.createElement('div');
+                newTotalContainer.className = 'payment-total-container';
+                newTotalContainer.style.backgroundColor = '#ffffe0'; // Màu nền vàng nhạt
+                newTotalContainer.style.padding = '10px';
+                newTotalContainer.style.marginTop = '15px';
+                newTotalContainer.style.marginBottom = '15px';
+                newTotalContainer.style.borderRadius = '4px';
+                
+                // Tạo div chứa "TỔNG CỘNG" với nền đỏ
+                const totalLabel = document.createElement('div');
+                totalLabel.style.display = 'flex';
+                totalLabel.style.justifyContent = 'space-between';
+                totalLabel.style.alignItems = 'center';
+                
+                // Tạo phần tử hiển thị chữ "TỔNG CỘNG:"
+                const labelSpan = document.createElement('span');
+                labelSpan.textContent = 'TỔNG CỘNG:';
+                labelSpan.style.fontWeight = 'bold';
+                labelSpan.style.fontSize = '16px';
+                labelSpan.style.color = '#d9534f';
+                
+                // Tạo phần tử hiển thị số tiền
+                const amountContainer = document.createElement('div');
+                amountContainer.style.backgroundColor = '#d9534f'; // Màu nền đỏ
+                amountContainer.style.color = 'white'; // Chữ màu trắng
+                amountContainer.style.padding = '8px 15px';
+                amountContainer.style.borderRadius = '20px';
+                amountContainer.style.fontWeight = 'bold';
+                amountContainer.style.fontSize = '16px';
+                amountContainer.textContent = formatCurrency(totalAmount) + ' VND';
+                
+                totalLabel.appendChild(labelSpan);
+                totalLabel.appendChild(amountContainer);
+                newTotalContainer.appendChild(totalLabel);
+                
+                // Chèn trước nút xác nhận thanh toán
+                const submitButton = document.querySelector('#add-payment-modal .modal-footer');
+                if (submitButton) {
+                    paymentForm.insertBefore(newTotalContainer, submitButton);
+                } else {
+                    paymentForm.appendChild(newTotalContainer);
                 }
             }
-        });
+        }
         
         return totalAmount;
     } catch (error) {
@@ -748,16 +836,32 @@ function calculateTotalPayment() {
 // Xử lý thêm thanh toán
 function handleAddPayment(event) {
     event.preventDefault();
+    console.log("Xử lý thanh toán...");
     
     // Lấy giá trị từ form
     const form = event.target;
     const mode = form.dataset.mode || 'add';
+    console.log("Mode:", mode);
     
-    const paymentId = document.getElementById('payment-id').value || 'payment' + Math.floor(Math.random() * 100000);
-    const studentId = document.getElementById('payment-student-id').value;
-    const date = document.getElementById('payment-date').value;
-    const cycle = document.getElementById('payment-cycle').value;
-    const method = document.getElementById('payment-method').value;
+    const paymentIdElement = document.getElementById('payment-id');
+    const paymentId = paymentIdElement ? paymentIdElement.value : 'payment' + Math.floor(Math.random() * 100000);
+    console.log("Payment ID:", paymentId);
+    
+    const studentIdElement = document.getElementById('payment-student-id');
+    const studentId = studentIdElement ? studentIdElement.value : null;
+    console.log("Student ID:", studentId);
+    
+    const dateElement = document.getElementById('payment-date');
+    const date = dateElement ? dateElement.value : null;
+    console.log("Date:", date);
+    
+    const cycleElement = document.getElementById('payment-cycle');
+    const cycle = cycleElement ? cycleElement.value : null;
+    console.log("Cycle:", cycle);
+    
+    const methodElement = document.getElementById('payment-method');
+    const method = methodElement ? methodElement.value : null;
+    console.log("Method:", method);
     
     // Kiểm tra dữ liệu
     if (!studentId || !date || !cycle || !method) {
