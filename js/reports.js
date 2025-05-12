@@ -829,6 +829,10 @@ function displayAttendanceHistory(useFilters = false) {
     const students = getStudents();
     const classes = getClasses();
     const attendance = getAttendance();
+
+    // Ghi log dữ liệu
+    console.log("Đang hiển thị lịch sử điểm danh");
+    console.log("Tổng số bản ghi điểm danh:", attendance.length);
     
     // Lấy giá trị bộ lọc
     let classFilterValue = '';
@@ -845,7 +849,11 @@ function displayAttendanceHistory(useFilters = false) {
     // Tạo danh sách lịch sử điểm danh
     const attendanceHistory = [];
     
+    // Lặp qua từng bản ghi điểm danh
     attendance.forEach(record => {
+        // Log thông tin bản ghi để debug
+        console.log(`Bản ghi điểm danh: Lớp=${record.classId}, Ngày=${record.date}`);
+        
         const classData = classes.find(c => c.id === record.classId);
         // Bỏ qua nếu không tìm thấy lớp hoặc lớp bị lọc
         if (!classData || (classFilterValue && record.classId !== classFilterValue)) {
@@ -854,13 +862,18 @@ function displayAttendanceHistory(useFilters = false) {
         
         // Kiểm tra xem có học sinh nào trong bản ghi không
         if (!record.students || !Array.isArray(record.students)) {
+            console.log("Bỏ qua bản ghi không có thông tin học sinh");
             return;
         }
+        
+        console.log(`Số học sinh trong bản ghi: ${record.students.length}`);
         
         // Biến để kiểm tra xem có học sinh nào có trạng thái 'teacher-absent'
         let hasTeacherAbsent = false;
         
         record.students.forEach(studentAttendance => {
+            console.log(`Thông tin điểm danh: id=${studentAttendance.id}, status=${studentAttendance.status}`);
+            
             // Kiểm tra có phải GV vắng không
             if (studentAttendance.status === 'teacher-absent') {
                 hasTeacherAbsent = true;
@@ -875,6 +888,7 @@ function displayAttendanceHistory(useFilters = false) {
             const student = students.find(s => s.id === studentAttendance.id);
             
             if (student) {
+                console.log(`Tìm thấy học sinh: ${student.name}`);
                 let statusText = '';
                 switch(studentAttendance.status) {
                     case 'present':
@@ -956,6 +970,7 @@ function displayAttendanceHistory(useFilters = false) {
     }
     
     tableBody.innerHTML = '';
+    console.log("Số bản ghi lịch sử điểm danh:", attendanceHistory.length);
     
     if (attendanceHistory.length === 0) {
         const row = document.createElement('tr');
@@ -965,6 +980,7 @@ function displayAttendanceHistory(useFilters = false) {
         attendanceHistory.forEach(record => {
             const row = document.createElement('tr');
             const formattedDate = formatDate(record.date);
+            console.log(`Hiển thị bản ghi: ${record.studentName}, ngày ${formattedDate}, trạng thái: ${record.status}`);
             
             // Thêm class màu sắc dựa trên trạng thái
             row.className = record.statusCode || '';
@@ -974,7 +990,7 @@ function displayAttendanceHistory(useFilters = false) {
                 <td>${record.className}</td>
                 <td>${record.studentName}</td>
                 <td>${record.status}</td>
-                <td>${record.note}</td>
+                <td>${record.note || ''}</td>
             `;
             tableBody.appendChild(row);
         });
