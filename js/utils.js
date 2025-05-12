@@ -479,6 +479,17 @@ function getStudentById(studentId) {
     return students.find(student => student.id === studentId);
 }
 
+// Hàm lấy tên rút gọn (họ + tên) từ tên đầy đủ
+function getShortName(fullName) {
+    if (!fullName) return '';
+    
+    const nameParts = fullName.split(' ');
+    if (nameParts.length <= 1) return fullName;
+    
+    // Lấy từ đầu tiên (họ) và từ cuối cùng (tên)
+    return nameParts[0] + ' ' + nameParts[nameParts.length - 1];
+}
+
 // Hàm chuyển đổi thời gian
 function formatTime(timeString) {
     return timeString.substring(0, 5);

@@ -81,13 +81,8 @@ function displayStudents(filteredStudents = null) {
         const statusText = getPaymentStatusText(paymentStatus);
         const statusClass = `status-${paymentStatus}`;
         
-        // Định dạng họ tên: họ và tên, không có tên đệm (lấy từ đầu và từ cuối)
-        let shortName = student.name;
-        const nameParts = student.name.split(' ');
-        if (nameParts.length > 1) {
-            // Lấy từ đầu tiên (họ) và từ cuối cùng (tên)
-            shortName = nameParts[0] + ' ' + nameParts[nameParts.length - 1];
-        }
+        // Sử dụng hàm getShortName để lấy tên rút gọn (họ + tên)
+        let shortName = getShortName(student.name);
 
         const row = document.createElement('tr');
         row.innerHTML = `
