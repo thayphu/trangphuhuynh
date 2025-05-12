@@ -1417,10 +1417,11 @@ function displayPaymentHistory(studentId, currentPaymentId) {
     table.innerHTML = `
         <thead>
             <tr>
-                <th>Số biên nhận</th>
+                <th>STT</th>
+                <th>Mã Biên nhận</th>
                 <th>Ngày thanh toán</th>
                 <th>Số tiền</th>
-                <th>Hình thức</th>
+                <th>Hình thức thanh toán</th>
             </tr>
         </thead>
         <tbody></tbody>
@@ -1431,13 +1432,14 @@ function displayPaymentHistory(studentId, currentPaymentId) {
     // Giới hạn hiển thị 5 bản ghi gần nhất
     const recentPayments = studentPayments.slice(0, 5);
     
-    recentPayments.forEach(payment => {
+    recentPayments.forEach((payment, index) => {
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td>${payment.receiptNumber}</td>
+            <td>${index + 1}</td>
+            <td>${payment.receiptNumber || ''}</td>
             <td>${formatDate(payment.date)}</td>
-            <td>${formatCurrency(payment.amount)} VND</td>
-            <td>${payment.method}</td>
+            <td>${formatCurrency(payment.amount)}</td>
+            <td>${payment.method || 'Tiền mặt'}</td>
         `;
         tbody.appendChild(row);
     });
