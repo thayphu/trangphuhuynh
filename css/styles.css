@@ -279,6 +279,13 @@ button:hover {
     gap: 5px;
 }
 
+/* Nút hành động trong danh sách học sinh */
+.action-buttons {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+}
+
 /* Grid Container Styles */
 .grid-container {
     display: grid;

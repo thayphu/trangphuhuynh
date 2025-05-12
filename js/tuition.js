@@ -263,16 +263,25 @@ function displayUnpaidStudents() {
         const dueDate = calculateNextPaymentDate(student.registerDate, student.paymentCycle);
         
         const row = document.createElement('tr');
+        // Định dạng họ tên: họ và tên, không có tên đệm
+        let shortName = student.name;
+        const nameParts = student.name.split(' ');
+        if (nameParts.length > 1) {
+            shortName = nameParts[0] + ' ' + nameParts[nameParts.length - 1];
+        }
+        
         row.innerHTML = `
             <td>${student.id}</td>
-            <td>${student.name}</td>
+            <td>${shortName}</td>
             <td>${classData.name}</td>
             <td>${formatDate(student.registerDate)}</td>
             <td><span class="fee-highlight">${formatCurrency(totalFee)} VND</span></td>
             <td>${student.paymentCycle}</td>
             <td>${formatDate(dueDate)}</td>
             <td>
-                <button class="btn primary-btn collect-payment-btn" data-id="${student.id}">Thu học phí</button>
+                <div class="action-buttons">
+                    <button class="icon-btn collect-payment-btn" data-id="${student.id}" title="Thu học phí"><i class="fas fa-money-bill-wave"></i></button>
+                </div>
             </td>
         `;
         

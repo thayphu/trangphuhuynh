@@ -98,8 +98,10 @@ function displayStudents(filteredStudents = null) {
             <td>${student.paymentCycle}</td>
             <td><span class="student-status ${statusClass}">${statusText}</span></td>
             <td>
-                <button class="btn primary-btn edit-student-btn" data-id="${student.id}"><i class="fas fa-edit"></i></button>
-                <button class="btn danger-btn delete-student-btn" data-id="${student.id}"><i class="fas fa-trash-alt"></i></button>
+                <div class="action-buttons">
+                    <button class="icon-btn edit-class-btn edit-student-btn" data-id="${student.id}" title="Chỉnh sửa"><i class="fas fa-edit"></i></button>
+                    <button class="icon-btn delete-class-btn delete-student-btn" data-id="${student.id}" title="Xóa"><i class="fas fa-trash-alt"></i></button>
+                </div>
             </td>
         `;
         
