@@ -148,56 +148,47 @@ function displayStudentAttendanceHistory(studentId) {
     // Sắp xếp theo ngày, mới nhất lên đầu
     studentAttendance.sort((a, b) => new Date(b.date) - new Date(a.date));
     
-    attendanceHistory.innerHTML = '';
+    attendanceHistory.innerHTML = '<h3>Lịch sử điểm danh</h3><div class="attendance-cards"></div>';
+    const attendanceCards = attendanceHistory.querySelector('.attendance-cards');
     
-    const table = document.createElement('table');
-    table.innerHTML = `
-        <thead>
-            <tr>
-                <th>Ngày</th>
-                <th>Lớp</th>
-                <th>Trạng thái</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    `;
-    
-    const tbody = table.querySelector('tbody');
-    
+    // Hiển thị dạng thẻ
     studentAttendance.forEach(record => {
-        const row = document.createElement('tr');
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'attendance-card';
         
         let statusText;
-        let statusClass;
+        let cardClass;
         
         switch(record.status) {
             case 'present':
                 statusText = 'Có mặt';
-                statusClass = 'status-paid';
+                cardClass = 'attendance-card-present';
                 break;
             case 'absent':
                 statusText = 'Vắng mặt';
-                statusClass = 'status-overdue';
+                cardClass = 'attendance-card-absent';
                 break;
             case 'teacher-absent':
                 statusText = 'GV nghỉ';
-                statusClass = 'status-unpaid';
+                cardClass = 'attendance-card-teacher-absent';
                 break;
             default:
                 statusText = 'Không xác định';
-                statusClass = '';
+                cardClass = '';
         }
         
-        row.innerHTML = `
-            <td>${formatDate(record.date)}</td>
-            <td>${getClassName(record.classId)}</td>
-            <td><span class="student-status ${statusClass}">${statusText}</span></td>
+        cardDiv.classList.add(cardClass);
+        
+        const className = getClassName(record.classId);
+        
+        cardDiv.innerHTML = `
+            <div class="attendance-date">${formatDate(record.date)}</div>
+            <div class="attendance-class">${className}</div>
+            <div class="attendance-status">${statusText}</div>
         `;
         
-        tbody.appendChild(row);
+        attendanceCards.appendChild(cardDiv);
     });
-    
-    attendanceHistory.appendChild(table);
 }
 
 // Hiển thị lịch sử thanh toán
@@ -231,12 +222,11 @@ function displayStudentPaymentHistory(studentId) {
     table.innerHTML = `
         <thead>
             <tr>
-                <th>Số hóa đơn</th>
+                <th>STT</th>
+                <th>Mã Biên nhận</th>
                 <th>Ngày thanh toán</th>
                 <th>Số tiền</th>
-                <th>Chu kỳ thanh toán</th>
-                <th>Hình thức</th>
-                <th>Thanh toán tiếp theo</th>
+                <th>Hình thức thanh toán</th>
             </tr>
         </thead>
         <tbody></tbody>

@@ -204,14 +204,14 @@ function fixedDisplayPaymentHistory(filteredPayments = null) {
             <table>
                 <thead>
                     <tr>
-                        <th>Số hóa đơn</th>
+                        <th>STT</th>
+                        <th>Mã Biên nhận</th>
+                        <th>Ngày thanh toán</th>
+                        <th>Số tiền</th>
+                        <th>Hình thức thanh toán</th>
                         <th>Mã HS</th>
                         <th>Họ tên</th>
                         <th>Lớp</th>
-                        <th>Ngày thanh toán</th>
-                        <th>Số tiền</th>
-                        <th>Chu kỳ thanh toán</th>
-                        <th>Hình thức</th>
                         <th>Hành động</th>
                     </tr>
                 </thead>
@@ -251,7 +251,7 @@ function fixedDisplayPaymentHistory(filteredPayments = null) {
     const sortedPayments = [...payments].sort((a, b) => new Date(b.date) - new Date(a.date));
     
     // Hiển thị dữ liệu thanh toán
-    sortedPayments.forEach(payment => {
+    sortedPayments.forEach((payment, index) => {
         const student = getStudentById(payment.studentId);
         
         // Nếu học sinh không còn tồn tại
@@ -266,14 +266,14 @@ function fixedDisplayPaymentHistory(filteredPayments = null) {
         // Tạo hàng dữ liệu
         const row = document.createElement('tr');
         row.innerHTML = `
+            <td>${index + 1}</td>
             <td>${payment.receiptNumber || ''}</td>
+            <td>${formatDate(payment.date)}</td>
+            <td>${formatCurrency(payment.amount)}</td>
+            <td>${payment.method || 'Tiền mặt'}</td>
             <td>${student.id}</td>
             <td>${student.name}</td>
             <td>${className}</td>
-            <td>${formatDate(payment.date)}</td>
-            <td>${formatCurrency(payment.amount)} VND</td>
-            <td>${payment.cycle}</td>
-            <td>${payment.method}</td>
             <td>
                 <button class="btn-icon view-receipt-btn" data-id="${payment.id}" title="Xem biên lai">
                     <i class="fas fa-file-invoice"></i>
