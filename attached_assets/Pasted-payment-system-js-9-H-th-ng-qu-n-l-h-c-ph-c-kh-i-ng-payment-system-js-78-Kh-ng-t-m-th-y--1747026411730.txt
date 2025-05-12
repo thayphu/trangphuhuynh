@@ -1,0 +1,34 @@
+payment_system.js:9 Hệ thống quản lý học phí đã được khởi động
+payment_system.js:78 Không tìm thấy tab thanh toán
+payment_system.js:132 Đang hiển thị học sinh chưa thanh toán...
+payment_system.js:136 Đã tìm thấy 4 học sinh trong dữ liệu
+payment_system.js:141 Học sinh HS001: Nguyễn Văn A, trạng thái: unpaid
+payment_system.js:141 Học sinh HS002: Trần Thị B, trạng thái: unpaid
+payment_system.js:141 Học sinh HS003: Phạm Văn C, trạng thái: unpaid
+payment_system.js:141 Học sinh 2025911: Huynh Vinh, trạng thái: unpaid
+payment_system.js:156 Số học sinh chưa thanh toán: 4
+fixed-tuition.js:9 Phiên bản sửa lỗi - fixed-tuition.js đã được tải
+fixed-tuition.js:14 Đã tìm thấy 4 nút tab thanh toán
+fixed-tuition.js:61 Đang hiển thị học sinh chưa thanh toán (phiên bản sửa lỗi)...
+fixed-tuition.js:105 Đã tìm thấy 4 học sinh trong dữ liệu
+fixed-tuition.js:114 Học sinh HS001: Nguyễn Văn A, trạng thái: unpaid
+fixed-tuition.js:114 Học sinh HS002: Trần Thị B, trạng thái: unpaid
+fixed-tuition.js:114 Học sinh HS003: Phạm Văn C, trạng thái: unpaid
+fixed-tuition.js:114 Học sinh 2025911: Huynh Vinh, trạng thái: unpaid
+fixed-tuition.js:118 Số học sinh chưa thanh toán: 4
+text-formatter.js:7 Khởi tạo công cụ định dạng văn bản tự động...
+text-formatter.js:21 Bỏ qua định dạng form đăng nhập
+text-formatter.js:86 Đã áp dụng bộ định dạng văn bản cho tất cả trường dữ liệu
+payment_system.js:593 Mở modal thanh toán cho học sinh: HS001
+payment_system.js:637 Cập nhật thông tin học sinh: HS001
+payment_system.js:704 Đã cập nhật mã học sinh: HS001
+payment_system.js:730 Đã cập nhật lớp học: Lớp 1
+payment_system.js:757 Đã cập nhật chu kỳ thanh toán: 1 tháng
+payment_system.js:770 Học phí cơ bản của lớp Lớp 1: 500000
+payment_system.js:782 Tổng học phí theo chu kỳ 1 tháng: 500000
+payment_system.js:804 Đã cập nhật tổng học phí: 500,000
+payment_system.js:928  Lỗi khi mở modal thanh toán: TypeError: Cannot read properties of null (reading 'children')
+    at openAddPaymentModal (payment_system.js:828:55)
+    at HTMLButtonElement.<anonymous> (fixed-tuition.js:173:13)
+openAddPaymentModal @ payment_system.js:928
+(anonymous) @ fixed-tuition.js:173

@@ -735,9 +735,12 @@ function openAddPaymentModal(studentId = null) {
             // Cập nhật chu kỳ thanh toán - thử nhiều cách tìm phần tử
             let cycleSelect = document.querySelector('select[placeholder="Chu kỳ thanh toán"]');
             if (!cycleSelect) {
-                cycleSelect = document.querySelector('select'); // Lấy select đầu tiên
-                
-                // Kiểm tra các select có label liên quan đến chu kỳ
+                // Tìm bằng id cụ thể
+                cycleSelect = document.getElementById('payment-cycle');
+            }
+            
+            if (!cycleSelect) {
+                // Tìm tất cả select và kiểm tra label tương ứng
                 const selects = document.querySelectorAll('select');
                 for (const select of selects) {
                     const parentElement = select.parentElement;
@@ -746,6 +749,18 @@ function openAddPaymentModal(studentId = null) {
                         cycleSelect = select;
                         break;
                     }
+                }
+            }
+            
+            // Trực tiếp tìm kiếm phần tử select dựa trên vị trí trong DOM
+            if (!cycleSelect) {
+                // Tìm tất cả select trong modal
+                const modalSelects = modal.querySelectorAll('select');
+                if (modalSelects.length > 1) {
+                    // Chu kỳ thanh toán thường là select thứ hai (sau học sinh)
+                    cycleSelect = modalSelects[1];
+                } else if (modalSelects.length > 0) {
+                    cycleSelect = modalSelects[0];
                 }
             }
             
@@ -786,6 +801,12 @@ function openAddPaymentModal(studentId = null) {
             
             // Cập nhật tổng học phí - thử nhiều cách tìm phần tử
             let totalFeeField = document.querySelector('input[placeholder="Tổng học phí"]');
+            
+            if (!totalFeeField) {
+                // Tìm bằng id cụ thể
+                totalFeeField = document.getElementById('payment-amount');
+            }
+            
             if (!totalFeeField) {
                 // Tìm tất cả input và kiểm tra label tương ứng
                 const inputs = document.querySelectorAll('input');
@@ -797,6 +818,25 @@ function openAddPaymentModal(studentId = null) {
                         break;
                     }
                 }
+            }
+            
+            // Thử một cách tiếp cận khác - xác định vị trí trong form
+            if (!totalFeeField) {
+                // Tìm tất cả input trong modal
+                const allInputs = modal.querySelectorAll('input[type="text"]');
+                // Tổng học phí thường là input text thứ 3 hoặc 4 trong form
+                if (allInputs.length >= 4) {
+                    totalFeeField = allInputs[3]; // Thử input thứ 4
+                } else if (allInputs.length >= 3) {
+                    totalFeeField = allInputs[2]; // Thử input thứ 3
+                }
+            }
+            
+            // Thêm phương pháp tìm dựa vào thuộc tính HTML
+            if (!totalFeeField) {
+                totalFeeField = document.querySelector('input[name="tuition-fee"]') || 
+                                document.querySelector('input[name="amount"]') ||
+                                document.querySelector('input[name="fee"]');
             }
             
             if (totalFeeField) {
