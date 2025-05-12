@@ -131,27 +131,180 @@ function generateReceiptNumber() {
     return `${currentYear}${String(count).padStart(3, '0')}`;
 }
 
-// Hàm tính ngày thanh toán tiếp theo dựa vào chu kỳ
-function calculateNextPaymentDate(currentDate, cycle) {
-    const date = new Date(currentDate);
+// Hàm tính ngày thanh toán tiếp theo dựa vào chu kỳ và lịch học
+function calculateNextPaymentDate(currentDate, cycle, studentId, extraSessions = 0) {
+    console.log(`Tính ngày thanh toán tiếp theo cho học sinh ${studentId} từ ngày ${currentDate}, chu kỳ ${cycle}, buổi bổ sung: ${extraSessions}`);
+    
+    // Lấy thông tin học sinh và lớp
+    const students = getStudents();
+    const student = students.find(s => s.id === studentId);
+    
+    if (!student) {
+        console.error(`Không tìm thấy học sinh với ID ${studentId}`);
+        return currentDate;
+    }
+    
+    const classes = getClasses();
+    const classData = classes.find(c => c.id === student.classId);
+    
+    if (!classData) {
+        console.error(`Không tìm thấy lớp cho học sinh ${studentId}`);
+        return currentDate;
+    }
+    
+    console.log(`Học sinh ${student.name} (${studentId}) học lớp ${classData.name} (${student.classId})`);
+    console.log(`Lịch học: ${classData.schedule.join(', ')}`);
+    
+    // Lấy danh sách thanh toán của học sinh để xác định đây là thanh toán lần đầu hay không
+    const payments = getPayments();
+    const studentPayments = payments.filter(p => p.studentId === studentId);
+    const isFirstPayment = studentPayments.length <= 1; // Tính cả thanh toán hiện tại
+    
+    // Chuyển lịch học từ chữ sang số ngày trong tuần (0 = Chủ nhật, 1 = Thứ 2, ..., 6 = Thứ 7)
+    const classDays = getClassDaysOfWeek(classData);
+    console.log(`Các ngày học trong tuần (0-6): ${classDays.join(', ')}`);
+    
+    // Chuyển ngày hiện tại thành đối tượng Date
+    const startDate = new Date(currentDate);
+    let nextDate = new Date(startDate);
     
     switch(cycle) {
         case '1 tháng':
-            date.setMonth(date.getMonth() + 1);
+            if (isFirstPayment) {
+                // Trường hợp 1: Thanh toán lần đầu, chu kỳ 1 tháng
+                // Tìm buổi học đầu tiên của tháng tiếp theo
+                nextDate.setMonth(nextDate.getMonth() + 1);
+                nextDate.setDate(1); // Ngày đầu tiên của tháng tiếp theo
+                
+                // Tìm ngày học đầu tiên của tháng tiếp theo
+                let foundFirstDay = false;
+                for (let i = 0; i < 31; i++) { // Kiểm tra tối đa 31 ngày
+                    const currentDayOfWeek = nextDate.getDay();
+                    if (classDays.includes(currentDayOfWeek)) {
+                        foundFirstDay = true;
+                        break;
+                    }
+                    nextDate.setDate(nextDate.getDate() + 1);
+                }
+                
+                if (!foundFirstDay) {
+                    console.warn("Không tìm thấy ngày học trong tháng tiếp theo");
+                    nextDate.setMonth(startDate.getMonth() + 1); // Quay lại cách tính mặc định
+                }
+            } else {
+                // Trường hợp 2: Thanh toán từ lần thứ 2 trở đi, chu kỳ 1 tháng
+                // Tìm buổi học đầu tiên của tháng tiếp theo
+                nextDate.setMonth(nextDate.getMonth() + 1);
+                
+                // Thêm số buổi bổ sung vào ngày thanh toán tiếp theo (nếu có)
+                if (extraSessions > 0) {
+                    // Thêm số buổi học dựa trên lịch học
+                    nextDate = addSessionsToDate(nextDate, extraSessions, classDays);
+                }
+            }
             break;
+            
         case '8 buổi':
         case '10 buổi':
-            // Giả định là 2 buổi mỗi tuần
-            const numberOfWeeks = cycle === '8 buổi' ? 4 : 5;
-            date.setDate(date.getDate() + (numberOfWeeks * 7));
+            const sessionsCount = cycle === '8 buổi' ? 8 : 10;
+            
+            if (isFirstPayment) {
+                // Trường hợp 1: Thanh toán lần đầu, chu kỳ theo buổi
+                // Tính đủ số buổi dựa trên lịch học
+                nextDate = addSessionsToDate(startDate, sessionsCount, classDays);
+            } else {
+                // Trường hợp 2: Thanh toán từ lần thứ 2 trở đi, chu kỳ theo buổi
+                // Tính lần lượt từng buổi học trong chu kỳ
+                let lastSessionDate = addSessionsToDate(startDate, sessionsCount, classDays);
+                
+                // Lấy buổi học tiếp theo sau buổi cuối của chu kỳ hiện tại
+                nextDate = new Date(lastSessionDate);
+                let found = false;
+                for (let i = 1; i <= 7; i++) { // Kiểm tra tối đa 7 ngày tiếp theo
+                    nextDate.setDate(nextDate.getDate() + 1);
+                    const dayOfWeek = nextDate.getDay();
+                    if (classDays.includes(dayOfWeek)) {
+                        found = true;
+                        break;
+                    }
+                }
+                
+                if (!found) {
+                    // Nếu không tìm thấy, quay lại cách tính mặc định
+                    nextDate.setDate(startDate.getDate() + (sessionsCount * 7 / 2)); // Giả định 2 buổi/tuần
+                }
+                
+                // Thêm số buổi bổ sung vào ngày thanh toán tiếp theo (nếu có)
+                if (extraSessions > 0) {
+                    nextDate = addSessionsToDate(nextDate, extraSessions, classDays);
+                }
+            }
             break;
+            
         case 'Theo ngày':
-            // Giả định là 1 ngày
-            date.setDate(date.getDate() + 1);
+            // Thêm 1 ngày cho chu kỳ theo ngày
+            nextDate.setDate(nextDate.getDate() + 1);
+            
+            // Thêm số buổi bổ sung (nếu có)
+            if (extraSessions > 0) {
+                nextDate = addSessionsToDate(nextDate, extraSessions, classDays);
+            }
             break;
     }
     
-    return date.toISOString().split('T')[0];
+    console.log(`Ngày thanh toán tiếp theo: ${nextDate.toISOString().split('T')[0]}`);
+    return nextDate.toISOString().split('T')[0];
+}
+
+// Hàm hỗ trợ để thêm số buổi học vào một ngày
+function addSessionsToDate(startDate, sessions, classDays) {
+    let currentDate = new Date(startDate);
+    let sessionsAdded = 0;
+    
+    while (sessionsAdded < sessions) {
+        currentDate.setDate(currentDate.getDate() + 1);
+        const dayOfWeek = currentDate.getDay();
+        
+        if (classDays.includes(dayOfWeek)) {
+            sessionsAdded++;
+        }
+    }
+    
+    return currentDate;
+}
+
+// Hàm chuyển đổi lịch học từ chữ sang số ngày trong tuần
+function getClassDaysOfWeek(classData) {
+    if (!classData || !classData.schedule || !Array.isArray(classData.schedule)) {
+        return [];
+    }
+    
+    const dayMapping = {
+        'chủ nhật': 0, 'cn': 0, 'chu nhat': 0, 
+        'thứ 2': 1, 'thứ hai': 1, 't.2': 1, 't2': 1,
+        'thứ 3': 2, 'thứ ba': 2, 't.3': 2, 't3': 2,
+        'thứ 4': 3, 'thứ tư': 3, 't.4': 3, 't4': 3,
+        'thứ 5': 4, 'thứ năm': 4, 't.5': 4, 't5': 4,
+        'thứ 6': 5, 'thứ sáu': 5, 't.6': 5, 't6': 5,
+        'thứ 7': 6, 'thứ bảy': 6, 't.7': 6, 't7': 6
+    };
+    
+    const result = [];
+    
+    for (const day of classData.schedule) {
+        const normalizedDay = day.trim().toLowerCase();
+        
+        for (const [key, value] of Object.entries(dayMapping)) {
+            if (normalizedDay.includes(key)) {
+                if (!result.includes(value)) {
+                    result.push(value);
+                }
+                break;
+            }
+        }
+    }
+    
+    return result.sort((a, b) => a - b);
 }
 
 // Hàm kiểm tra trạng thái thanh toán của học sinh
