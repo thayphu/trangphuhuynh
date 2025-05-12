@@ -1167,29 +1167,58 @@ function deletePayment(paymentId) {
 
 // Mở modal biên nhận
 function openReceiptModal(paymentId) {
-    const modal = document.getElementById('receipt-modal');
-    if (!modal) return;
-    
-    const payments = getPayments();
-    const payment = payments.find(p => p.id === paymentId);
-    
-    if (!payment) return;
-    
-    const student = getStudentById(payment.studentId);
-    if (!student) return;
-    
-    const classData = getClassById(student.classId);
-    if (!classData) return;
+    try {
+        console.log("Đang mở modal biên nhận cho thanh toán:", paymentId);
+        
+        const modal = document.getElementById('receipt-modal');
+        if (!modal) {
+            console.error("Không tìm thấy modal biên nhận");
+            return;
+        }
+        
+        const payments = getPayments();
+        const payment = payments.find(p => p.id === paymentId);
+        
+        if (!payment) {
+            console.error("Không tìm thấy thông tin thanh toán:", paymentId);
+            return;
+        }
+        
+        const student = getStudentById(payment.studentId);
+        if (!student) {
+            console.error("Không tìm thấy thông tin học sinh:", payment.studentId);
+            return;
+        }
+        
+        const classData = getClassById(student.classId);
+        if (!classData) {
+            console.error("Không tìm thấy thông tin lớp học:", student.classId);
+            return;
+        }
     
     // Điền thông tin cơ bản vào biên nhận
-    document.getElementById('receipt-no').textContent = payment.receiptNumber;
-    document.getElementById('receipt-amount').textContent = formatCurrency(payment.amount);
+    const receiptNoElement = document.getElementById('receipt-no');
+    if (receiptNoElement) {
+        receiptNoElement.textContent = payment.receiptNumber || 'N/A';
+    }
+    
+    const receiptAmountElement = document.getElementById('receipt-amount');
+    if (receiptAmountElement) {
+        receiptAmountElement.textContent = formatCurrency(payment.amount);
+    }
+    
     // Xử lý hiển thị số tiền bằng chữ với cơ chế bảo vệ lỗi
     try {
-        document.getElementById('receipt-amount-text').textContent = numberToWords(payment.amount);
+        const receiptAmountTextElement = document.getElementById('receipt-amount-text');
+        if (receiptAmountTextElement) {
+            receiptAmountTextElement.textContent = numberToWords(payment.amount);
+        }
     } catch (error) {
         console.error("Lỗi khi chuyển đổi số thành chữ:", error);
-        document.getElementById('receipt-amount-text').textContent = "Số tiền bằng chữ";
+        const receiptAmountTextElement = document.getElementById('receipt-amount-text');
+        if (receiptAmountTextElement) {
+            receiptAmountTextElement.textContent = "Số tiền bằng chữ";
+        }
     }
     const studentNameElement = document.getElementById('receipt-student-name');
     if (studentNameElement) studentNameElement.textContent = student.name;
@@ -1223,11 +1252,14 @@ function openReceiptModal(paymentId) {
     if (receiptRegDateElement) receiptRegDateElement.textContent = formatDate(student.registerDate);
     
     // Hiển thị lịch học
-    if (classData.schedule && classData.schedule.length > 0) {
-        const formattedSchedule = formatSchedule(classData.schedule);
-        document.getElementById('receipt-class-schedule').textContent = formattedSchedule;
-    } else {
-        document.getElementById('receipt-class-schedule').textContent = "Không có dữ liệu";
+    const receiptClassScheduleElement = document.getElementById('receipt-class-schedule');
+    if (receiptClassScheduleElement) {
+        if (classData.schedule && classData.schedule.length > 0) {
+            const formattedSchedule = formatSchedule(classData.schedule);
+            receiptClassScheduleElement.textContent = formattedSchedule;
+        } else {
+            receiptClassScheduleElement.textContent = "Không có dữ liệu";
+        }
     }
     
     // Hiển thị chi phí bổ sung nếu có
