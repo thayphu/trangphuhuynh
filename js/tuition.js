@@ -1087,10 +1087,22 @@ function openReceiptModal(paymentId) {
     
     // Điền thông tin cơ bản vào biên nhận
     document.getElementById('receipt-no').textContent = payment.receiptNumber;
-    document.getElementById('receipt-amount').textContent = formatCurrency(payment.amount);
+    
+    // Tính lại tổng học phí dựa theo chu kỳ
+    let displayAmount = payment.amount;
+    
+    // Nếu là chu kỳ 8 buổi, hiển thị số tiền = học phí một buổi × 8
+    if (payment.cycle === '8 buổi') {
+        displayAmount = classData.fee * 8;
+    } else if (payment.cycle === '10 buổi') {
+        displayAmount = classData.fee * 10;
+    }
+    
+    document.getElementById('receipt-amount').textContent = formatCurrency(displayAmount);
+    
     // Xử lý hiển thị số tiền bằng chữ với cơ chế bảo vệ lỗi
     try {
-        document.getElementById('receipt-amount-text').textContent = numberToWords(payment.amount);
+        document.getElementById('receipt-amount-text').textContent = numberToWords(displayAmount);
     } catch (error) {
         console.error("Lỗi khi chuyển đổi số thành chữ:", error);
         document.getElementById('receipt-amount-text').textContent = "Số tiền bằng chữ";
