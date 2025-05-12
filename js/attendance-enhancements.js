@@ -1,6 +1,15 @@
 /**
  * Các tính năng nâng cao cho điểm danh
  * Bổ sung chức năng tìm kiếm, lọc và chỉnh sửa dữ liệu
+ * 
+ * Version: 1.0.0
+ * Date: 12-05-2025
+ * 
+ * -- Tính năng đã thêm --
+ * 1. Tìm kiếm với gợi ý cho báo cáo điểm danh
+ * 2. Bộ lọc ngày/lớp cho các form trong tab "Báo cáo"
+ * 3. Danh sách học sinh có mặt/vắng mặt trong "Thông kê điểm danh"
+ * 4. Chức năng sửa/xóa lịch sử điểm danh
  */
 
 // Thiết lập sự kiện tìm kiếm gợi ý

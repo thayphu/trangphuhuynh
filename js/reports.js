@@ -44,6 +44,9 @@ function setupReportTabs() {
                 if (targetTab === 'attendance-history') {
                     // Sử dụng phiên bản nâng cao thay vì phiên bản cũ
                     displayEnhancedAttendanceHistory();
+                } else if (targetTab === 'attendance-stats') {
+                    // Cập nhật lại thống kê điểm danh
+                    updateAttendanceStats();
                 }
             }
         });
