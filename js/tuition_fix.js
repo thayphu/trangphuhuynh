@@ -684,28 +684,59 @@ function calculateTotalPayment() {
     try {
         // Lấy các giá trị từ form
         const baseAmount = calculateBaseAmount();
+        console.log("Học phí cơ bản: " + baseAmount);
         
         // Chi phí bổ sung
         const additionalFeeInput = document.getElementById('payment-additional-fee');
         const additionalFee = additionalFeeInput ? parseFloat(additionalFeeInput.value) || 0 : 0;
+        console.log("Chi phí bổ sung: " + additionalFee);
         
         // Khấu trừ
         const discountInput = document.getElementById('payment-discount');
         const discount = discountInput ? parseFloat(discountInput.value) || 0 : 0;
+        console.log("Khấu trừ: " + discount);
         
         // Học phí linh hoạt
         const flexibleAmountInput = document.getElementById('payment-flexible-amount');
         const flexibleAmount = flexibleAmountInput ? parseFloat(flexibleAmountInput.value) || 0 : 0;
+        console.log("Học phí linh hoạt: " + flexibleAmount);
         
         // Tính tổng tiền
         let totalAmount = baseAmount + additionalFee - discount + flexibleAmount;
+        console.log("Tổng thanh toán: " + totalAmount);
         
         // Kiểm tra nếu tổng tiền âm
         if (totalAmount < 0) totalAmount = 0;
         
         // Hiển thị tổng tiền
         const totalDisplay = document.getElementById('payment-total');
-        if (totalDisplay) totalDisplay.textContent = formatCurrency(totalAmount);
+        if (totalDisplay) {
+            totalDisplay.textContent = formatCurrency(totalAmount);
+        }
+        
+        // Cập nhật tổng cộng trong các thẻ có class "total-amount"
+        document.querySelectorAll('.total-amount').forEach(el => {
+            el.textContent = formatCurrency(totalAmount);
+        });
+        
+        // Cập nhật tổng cộng gần nút thanh toán
+        const paymentTotalElement = document.querySelector('#add-payment-modal .payment-total');
+        if (paymentTotalElement) {
+            paymentTotalElement.textContent = formatCurrency(totalAmount) + " VND";
+        }
+        
+        // Cập nhật TỔNG CỘNG ở cuối form
+        const totalSummaryElements = document.querySelectorAll('#add-payment-modal .total-summary, #add-payment-modal .payment-summary');
+        totalSummaryElements.forEach(el => {
+            if (el.querySelector('.amount')) {
+                el.querySelector('.amount').textContent = formatCurrency(totalAmount) + " VND";
+            } else {
+                const amountSpan = el.querySelector('span:last-child');
+                if (amountSpan) {
+                    amountSpan.textContent = formatCurrency(totalAmount) + " VND";
+                }
+            }
+        });
         
         return totalAmount;
     } catch (error) {
