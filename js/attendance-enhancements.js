@@ -336,14 +336,12 @@ function displayEnhancedPresentStudentsModal() {
                 <div id="present-students-suggestions" class="search-suggestions"></div>
             </div>
             <div class="filter-group">
-                <label>Lớp:</label>
                 <select id="present-students-class-filter" onchange="filterPresentStudents()">
-                    <option value="">Tất cả các lớp</option>
-                    ${classes.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+                    <option value="">Lớp: Tất cả các lớp</option>
+                    ${classes.map(c => `<option value="${c.id}">Lớp: ${c.name}</option>`).join('')}
                 </select>
             </div>
             <div class="filter-group">
-                <label>Ngày:</label>
                 <input type="date" id="present-students-date-filter" onchange="filterPresentStudents()" value="${today}">
             </div>
         </div>
@@ -476,14 +474,12 @@ function displayEnhancedAbsentStudentsModal() {
                 <div id="absent-students-suggestions" class="search-suggestions"></div>
             </div>
             <div class="filter-group">
-                <label>Lớp:</label>
                 <select id="absent-students-class-filter" onchange="filterAbsentStudents()">
-                    <option value="">Tất cả các lớp</option>
-                    ${classes.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+                    <option value="">Lớp: Tất cả các lớp</option>
+                    ${classes.map(c => `<option value="${c.id}">Lớp: ${c.name}</option>`).join('')}
                 </select>
             </div>
             <div class="filter-group">
-                <label>Ngày:</label>
                 <input type="date" id="absent-students-date-filter" onchange="filterAbsentStudents()" value="${today}">
             </div>
         </div>
@@ -614,15 +610,13 @@ function displayEnhancedTeacherAbsentClassesModal() {
                 <div id="teacher-absent-suggestions" class="search-suggestions"></div>
             </div>
             <div class="filter-group">
-                <label>Ngày:</label>
                 <input type="date" id="teacher-absent-date-filter" onchange="filterTeacherAbsentClasses()" value="${today}">
             </div>
             <div class="filter-group">
-                <label>Trạng thái:</label>
                 <select id="teacher-absent-status-filter" onchange="filterTeacherAbsentClasses()">
-                    <option value="">Tất cả trạng thái</option>
-                    <option value="Đã lên lịch">Đã lên lịch</option>
-                    <option value="Chưa lên lịch">Chưa lên lịch</option>
+                    <option value="">Trạng thái: Tất cả trạng thái</option>
+                    <option value="Đã lên lịch">Trạng thái: Đã lên lịch</option>
+                    <option value="Chưa lên lịch">Trạng thái: Chưa lên lịch</option>
                 </select>
             </div>
         </div>
@@ -765,23 +759,20 @@ function displayEnhancedAttendanceHistory() {
                 <div id="attendance-history-suggestions" class="search-suggestions"></div>
             </div>
             <div class="filter-group">
-                <label>Lớp:</label>
                 <select id="attendance-history-class-filter" onchange="filterAttendanceHistory()">
-                    <option value="">Tất cả các lớp</option>
-                    ${classes.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+                    <option value="">Lớp: Tất cả các lớp</option>
+                    ${classes.map(c => `<option value="${c.id}">Lớp: ${c.name}</option>`).join('')}
                 </select>
             </div>
             <div class="filter-group">
-                <label>Trạng thái:</label>
                 <select id="attendance-history-status-filter" onchange="filterAttendanceHistory()">
-                    <option value="">Tất cả trạng thái</option>
-                    <option value="present">Có mặt</option>
-                    <option value="absent">Vắng mặt</option>
-                    <option value="teacher-absent">GV vắng</option>
+                    <option value="">Trạng thái: Tất cả trạng thái</option>
+                    <option value="present">Trạng thái: Có mặt</option>
+                    <option value="absent">Trạng thái: Vắng mặt</option>
+                    <option value="teacher-absent">Trạng thái: GV vắng</option>
                 </select>
             </div>
             <div class="filter-group">
-                <label>Ngày:</label>
                 <input type="date" id="attendance-history-date-filter" onchange="filterAttendanceHistory()" value="${today}">
             </div>
         </div>
