@@ -392,6 +392,10 @@ button:hover {
     background-color: var(--danger-color);
 }
 
+.collect-payment-btn {
+    background-color: var(--accent-color);
+}
+
 .today-class {
     border-top: 4px solid var(--accent-color);
 }

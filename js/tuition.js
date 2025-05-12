@@ -395,19 +395,28 @@ function displayPaymentHistory(filteredPayments = null) {
         }
         
         const row = document.createElement('tr');
+        // Định dạng họ tên: họ và tên, không có tên đệm
+        let shortName = student.name;
+        const nameParts = student.name.split(' ');
+        if (nameParts.length > 1) {
+            shortName = nameParts[0] + ' ' + nameParts[nameParts.length - 1];
+        }
+        
         row.innerHTML = `
             <td>${payment.receiptNumber || ''}</td>
             <td>${payment.studentId}</td>
-            <td>${student.name}</td>
+            <td>${shortName}</td>
             <td>${getClassName(student.classId)}</td>
             <td>${formatDate(payment.date)}</td>
             <td><span class="fee-highlight">${formatCurrency(payment.amount)} VND</span></td>
             <td>${payment.cycle}</td>
             <td>${payment.method}</td>
-            <td class="action-buttons">
-                <button class="view-receipt-btn btn-icon" data-id="${payment.id}" title="Xem biên nhận"><i class="fas fa-eye"></i></button>
-                <button class="edit-receipt-btn btn-icon" data-id="${payment.id}" title="Sửa biên nhận"><i class="fas fa-edit"></i></button>
-                <button class="delete-payment-btn btn-icon" data-id="${payment.id}" title="Xóa biên nhận"><i class="fas fa-trash-alt"></i></button>
+            <td>
+                <div class="action-buttons">
+                    <button class="icon-btn edit-class-btn view-receipt-btn" data-id="${payment.id}" title="Xem biên nhận"><i class="fas fa-eye"></i></button>
+                    <button class="icon-btn toggle-lock-class-btn edit-receipt-btn" data-id="${payment.id}" title="Sửa biên nhận"><i class="fas fa-edit"></i></button>
+                    <button class="icon-btn delete-class-btn delete-payment-btn" data-id="${payment.id}" title="Xóa biên nhận"><i class="fas fa-trash-alt"></i></button>
+                </div>
             </td>
         `;
         
