@@ -584,10 +584,11 @@ function updateStudentPaymentInfo(studentId) {
     }
     
     // Cập nhật trường lớp
-    const classInput = document.querySelector('#payment-form input[name="class"]');
-    if (classInput) {
-        classInput.value = classData.name;
-    }
+    // Tìm tất cả các trường input có name="class" hoặc placeholder="Lớp" trong form
+    const classInputs = document.querySelectorAll('#add-payment-modal input[name="class"], #add-payment-modal input[placeholder="Lớp"], #add-payment-modal input#payment-class');
+    classInputs.forEach(input => {
+        input.value = classData.name;
+    });
     
     // Cập nhật học phí cơ bản
     const baseAmountInput = document.getElementById('payment-base-amount');
