@@ -658,6 +658,28 @@ function openAddPaymentModal(studentId = null) {
             
             // Tìm và cập nhật các trường thông tin bằng nhiều cách khác nhau
             
+            // Đặc biệt: Lấy ID học sinh từ dropdown và hiển thị vào trường mã học sinh
+            
+            // Trích xuất ID học sinh từ dropdown
+            const studentDropdown = document.querySelector('select');
+            let studentIdValue = "";
+            
+            if (studentDropdown) {
+                const selectedOption = studentDropdown.options[studentDropdown.selectedIndex];
+                const optionText = selectedOption.text;
+                
+                // Tìm ID trong text (định dạng: "Tên (ID - Lớp)")
+                const idMatch = optionText.match(/\(([^-]+)/);
+                if (idMatch && idMatch[1]) {
+                    studentIdValue = idMatch[1].trim();
+                    console.log(`Đã lấy được ID học sinh từ dropdown: ${studentIdValue}`);
+                } else {
+                    studentIdValue = student.id; // Sử dụng ID từ dữ liệu
+                }
+            } else {
+                studentIdValue = student.id; // Sử dụng ID từ dữ liệu
+            }
+            
             // Cập nhật mã học sinh - thử nhiều cách tìm phần tử
             let studentIdField = document.querySelector('input[placeholder="Mã học sinh"]');
             if (!studentIdField) {
@@ -678,8 +700,8 @@ function openAddPaymentModal(studentId = null) {
             }
             
             if (studentIdField) {
-                studentIdField.value = student.id;
-                console.log(`Đã cập nhật mã học sinh: ${student.id}`);
+                studentIdField.value = studentIdValue;
+                console.log(`Đã cập nhật mã học sinh: ${studentIdValue}`);
             } else {
                 console.warn("Không tìm thấy trường mã học sinh");
             }
@@ -740,16 +762,26 @@ function openAddPaymentModal(studentId = null) {
                 console.warn("Không tìm thấy trường chu kỳ thanh toán");
             }
             
-            // Tính và hiển thị học phí
+            // Tính học phí dựa trên dữ liệu lớp học và chu kỳ thanh toán
             let baseAmount = 0;
-            if (student.paymentCycle === '8 buổi') {
-                baseAmount = classData.fee * 8;
-            } else if (student.paymentCycle === '10 buổi') {
-                baseAmount = classData.fee * 10;
-            } else if (student.paymentCycle === '1 tháng') {
-                baseAmount = classData.fee;
-            } else if (student.paymentCycle === 'Theo ngày') {
-                baseAmount = classData.fee;
+            
+            // Lấy học phí lớp từ dữ liệu lớp học
+            if (classData && classData.fee) {
+                console.log(`Học phí cơ bản của lớp ${classData.name}: ${classData.fee}`);
+                
+                if (student.paymentCycle === '8 buổi') {
+                    baseAmount = classData.fee * 8;
+                } else if (student.paymentCycle === '10 buổi') {
+                    baseAmount = classData.fee * 10;
+                } else if (student.paymentCycle === '1 tháng') {
+                    baseAmount = classData.fee;
+                } else if (student.paymentCycle === 'Theo ngày') {
+                    baseAmount = classData.fee;
+                }
+                
+                console.log(`Tổng học phí theo chu kỳ ${student.paymentCycle}: ${baseAmount}`);
+            } else {
+                console.warn("Không tìm thấy thông tin học phí của lớp học");
             }
             
             // Cập nhật tổng học phí - thử nhiều cách tìm phần tử
