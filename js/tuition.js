@@ -1098,6 +1098,20 @@ function openReceiptModal(paymentId) {
     document.getElementById('receipt-class').textContent = classData.name;
     document.getElementById('receipt-payment-cycle').textContent = payment.cycle;
     
+    // Thêm ngày đăng ký và lịch học
+    if (student.registerDate) {
+        document.getElementById('receipt-register-date').textContent = formatDate(student.registerDate);
+    } else {
+        document.getElementById('receipt-register-date').textContent = "Không có thông tin";
+    }
+    
+    // Hiển thị lịch học
+    if (classData.schedule && classData.schedule.length > 0) {
+        document.getElementById('receipt-schedule').textContent = formatSchedule(classData.schedule);
+    } else {
+        document.getElementById('receipt-schedule').textContent = "Không có thông tin";
+    }
+    
     // Xử lý hiển thị ngày thanh toán tiếp theo hoặc thông báo lớp đã khóa
     const nextPaymentElement = document.getElementById('receipt-next-payment');
 
@@ -1185,11 +1199,11 @@ function openReceiptModal(paymentId) {
     // Hiển thị thống kê điểm danh
     displayAttendanceSummary(student.id);
     
-    // Kiểm tra và hiển thị lịch học bù nếu có
-    displayMakeupClasses(student.id);
-    
     // Hiển thị lịch sử điểm danh
     displayAttendanceHistory(student.id);
+    
+    // Hiển thị lịch học bù nếu có
+    displayMakeupClasses(student.id);
     
     // Hiển thị lịch sử thanh toán
     displayPaymentHistory(student.id, payment.id);
