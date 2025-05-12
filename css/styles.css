@@ -16,6 +16,8 @@
     --paid-color: #4caf50;
     --unpaid-color: #ff9800;
     --overdue-color: #f44336;
+    --locked-class-bg: #dc3545;
+    --locked-class-text: #ffffff;
 }
 
 * {
@@ -1386,5 +1388,16 @@ footer {
 .delete-btn {
     background-color: var(--danger-color);
     color: white;
+}
+
+/* Thẻ hiển thị lớp đã khóa */
+.locked-class-badge {
+    background-color: var(--locked-class-bg);
+    color: var(--locked-class-text);
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-weight: bold;
+    white-space: nowrap;
+    display: inline-block;
 }
 

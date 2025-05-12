@@ -282,6 +282,30 @@ function displayPaymentInfo(student, classData) {
     paymentInfo.classList.remove('hidden');
     console.log("Hiển thị thông tin thanh toán cho học sinh:", student.id, student.name);
     
+    // Kiểm tra lớp có bị khóa không
+    const isClassLocked = classData && classData.locked;
+    
+    // Lấy phần tử hiển thị thông tin chu kỳ và thanh toán tiếp theo
+    const nextPaymentInfo = document.getElementById('next-payment-date');
+    const paymentCycleInfo = document.getElementById('payment-cycle-info');
+    
+    // Xử lý hiển thị nếu lớp đã khóa
+    if (isClassLocked) {
+        console.log("Lớp học đã bị khóa, hiển thị thông báo đặc biệt");
+        if (nextPaymentInfo) {
+            nextPaymentInfo.innerHTML = '<span class="locked-class-badge">Lớp đã đóng</span>';
+        }
+        if (paymentCycleInfo) {
+            paymentCycleInfo.innerHTML = '<span class="locked-class-badge">Lớp đã đóng</span>';
+        }
+        
+        // Vẫn hiển thị thông tin QR, nhưng chỉ để tham khảo
+        const qrInfoTitle = document.getElementById('qr-info-title');
+        if (qrInfoTitle) {
+            qrInfoTitle.textContent = "Thông tin tham khảo (Lớp đã đóng)";
+        }
+    }
+    
     // Lấy số tiền cần thanh toán dựa vào chu kỳ
     let amount = 0;
     console.log("Thông tin lớp:", classData);
