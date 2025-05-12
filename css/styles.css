@@ -1401,3 +1401,12 @@ footer {
     display: inline-block;
 }
 
+.locked-label {
+    background-color: var(--locked-class-bg);
+    color: var(--locked-class-text);
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    margin-left: 10px;
+}
+

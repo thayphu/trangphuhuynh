@@ -109,7 +109,7 @@ function displayClasses() {
                     <span>Học phí/buổi:</span> ${formatCurrency(sessionFee)} VND
                 </div>
                 <div>
-                    <span>Trạng thái:</span> <span class="${isLocked ? 'status-unpaid' : 'status-paid'}">${isLocked ? 'Lớp này đã đóng' : 'Đang hoạt động'}</span>
+                    <span>Trạng thái:</span> ${isLocked ? '<span class="locked-label">Lớp đã đóng</span>' : '<span class="status-paid">Đang hoạt động</span>'}
                 </div>
             </div>
             <div class="class-actions">
