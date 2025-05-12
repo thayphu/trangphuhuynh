@@ -338,7 +338,7 @@ function displayLockedClasses() {
         classCard.className = 'class-card locked-class';
         
         classCard.innerHTML = `
-            <h3>${classData.name} <span class="status-unpaid">(Đã khóa)</span></h3>
+            <h3>${classData.name} <span class="locked-label">Lớp đã đóng</span></h3>
             <div class="class-details">
                 <div>
                     <span>Lịch học:</span> ${formatSchedule(classData.schedule)}
@@ -363,8 +363,8 @@ function displayLockedClasses() {
                 </div>
             </div>
             <div class="class-actions">
-                <button class="toggle-lock-class-btn" data-id="${classData.id}" data-locked="true">
-                    Mở khóa lớp
+                <button class="btn success-btn toggle-lock-class-btn" data-id="${classData.id}" data-locked="true">
+                    <i class="fas fa-unlock"></i> Mở khóa lớp
                 </button>
             </div>
         `;
