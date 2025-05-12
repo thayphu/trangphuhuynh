@@ -872,6 +872,9 @@ function handleAddPayment(event) {
     // Kiểm tra tab nào đang active
     const isAdditionalFeeActive = document.getElementById('additional-fee').classList.contains('active');
     
+    // Tính ngày thanh toán tiếp theo dựa vào chu kỳ và lịch học của học sinh
+    const nextPaymentDate = calculateNextPaymentDate(date, cycle, studentId, flexibleSessions);
+    
     // Tạo đối tượng thanh toán mới
     const newPayment = {
         id: generateId('payment', 5),
@@ -881,6 +884,7 @@ function handleAddPayment(event) {
         date,
         cycle,
         method,
+        nextPaymentDate,  // Thêm ngày thanh toán tiếp theo
         details: {
             baseAmount,
             additionalFee,
@@ -1045,7 +1049,17 @@ function openReceiptModal(paymentId) {
     document.getElementById('receipt-student-id').textContent = student.id;
     document.getElementById('receipt-class').textContent = classData.name;
     document.getElementById('receipt-payment-cycle').textContent = payment.cycle;
-    document.getElementById('receipt-next-payment').textContent = formatDate(calculateNextPaymentDate(payment.date, payment.cycle));
+    
+    // Sử dụng ngày thanh toán tiếp theo đã được tính trước nếu có, hoặc tính lại nếu không có
+    if (payment.nextPaymentDate) {
+        document.getElementById('receipt-next-payment').textContent = formatDate(payment.nextPaymentDate);
+    } else {
+        // Tính lại ngày thanh toán tiếp theo dựa trên lịch học của học sinh
+        const nextPaymentDate = calculateNextPaymentDate(payment.date, payment.cycle, payment.studentId, 
+            payment.details && payment.details.flexibleSessions ? payment.details.flexibleSessions : 0);
+        document.getElementById('receipt-next-payment').textContent = formatDate(nextPaymentDate);
+    }
+    
     document.getElementById('receipt-payment-method').textContent = payment.method;
     document.getElementById('receipt-date').textContent = formatDate(payment.date);
     
