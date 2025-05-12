@@ -895,10 +895,27 @@ function handleAddPayment(event) {
     }
     
     // Tính ngày thanh toán tiếp theo dựa vào chu kỳ và lịch học của học sinh
-    // Ghi log để theo dõi
-    console.log(`Tính ngày thanh toán tiếp theo cho học sinh ${studentId} với chu kỳ ${cycle}`);
-    const nextPaymentDate = calculateNextPaymentDate(date, cycle, studentId, flexibleSessions);
-    console.log(`Ngày thanh toán tiếp theo đã tính: ${nextPaymentDate}`);
+    let nextPaymentDate;
+    try {
+        console.log(`Tính ngày thanh toán tiếp theo cho học sinh ${studentId} với chu kỳ ${cycle}`);
+        // Sử dụng hàm từ utils.js để tính ngày thanh toán tiếp theo
+        nextPaymentDate = calculateNextPaymentDate(date, cycle, studentId, flexibleSessions);
+        console.log(`Ngày thanh toán tiếp theo đã tính: ${nextPaymentDate}`);
+    } catch (error) {
+        console.error("Lỗi khi tính ngày thanh toán tiếp theo:", error);
+        // Tính toán mặc định nếu có lỗi
+        const defaultDate = new Date(date);
+        if (cycle === '1 tháng') {
+            defaultDate.setMonth(defaultDate.getMonth() + 1);
+        } else if (cycle === '8 buổi') {
+            defaultDate.setDate(defaultDate.getDate() + 28); // Ước tính 4 tuần
+        } else if (cycle === '10 buổi') {
+            defaultDate.setDate(defaultDate.getDate() + 35); // Ước tính 5 tuần
+        } else {
+            defaultDate.setDate(defaultDate.getDate() + 7); // Mặc định 1 tuần
+        }
+        nextPaymentDate = defaultDate.toISOString().split('T')[0];
+    }
     
     // Tạo đối tượng thanh toán mới
     const newPayment = {
@@ -1069,23 +1086,49 @@ function openReceiptModal(paymentId) {
     // Điền thông tin cơ bản vào biên nhận
     document.getElementById('receipt-no').textContent = payment.receiptNumber;
     document.getElementById('receipt-amount').textContent = formatCurrency(payment.amount);
-    document.getElementById('receipt-amount-text').textContent = numberToWords(payment.amount);
+    // Xử lý hiển thị số tiền bằng chữ với cơ chế bảo vệ lỗi
+    try {
+        document.getElementById('receipt-amount-text').textContent = numberToWords(payment.amount);
+    } catch (error) {
+        console.error("Lỗi khi chuyển đổi số thành chữ:", error);
+        document.getElementById('receipt-amount-text').textContent = "Số tiền bằng chữ";
+    }
     document.getElementById('receipt-student-name').textContent = student.name;
     document.getElementById('receipt-student-id').textContent = student.id;
     document.getElementById('receipt-class').textContent = classData.name;
     document.getElementById('receipt-payment-cycle').textContent = payment.cycle;
     
-    // Sử dụng ngày thanh toán tiếp theo đã được tính trước nếu có, hoặc tính lại nếu không có
-    if (payment.nextPaymentDate) {
-        document.getElementById('receipt-next-payment').textContent = formatDate(payment.nextPaymentDate);
-    } else {
-        // Tính lại ngày thanh toán tiếp theo dựa trên lịch học của học sinh
-        const nextPaymentDate = calculateNextPaymentDate(payment.date, payment.cycle, payment.studentId, 
-            payment.details && payment.details.flexibleSessions ? payment.details.flexibleSessions : 0);
-        document.getElementById('receipt-next-payment').textContent = formatDate(nextPaymentDate);
+    // Xử lý hiển thị ngày thanh toán tiếp theo với cơ chế bảo vệ lỗi
+    try {
+        // Sử dụng ngày thanh toán tiếp theo đã được tính trước
+        if (payment.nextPaymentDate) {
+            console.log(`Ngày thanh toán tiếp theo (từ dữ liệu): ${payment.nextPaymentDate}`);
+            document.getElementById('receipt-next-payment').textContent = formatDate(payment.nextPaymentDate);
+        } else {
+            // Nếu không có sẵn, tính lại ngày thanh toán tiếp theo
+            console.log("Tính lại ngày thanh toán tiếp theo");
+            const extraSessions = payment.details && payment.details.flexibleSessions ? payment.details.flexibleSessions : 0;
+            const nextPaymentDate = calculateNextPaymentDate(payment.date, payment.cycle, payment.studentId, extraSessions);
+            console.log(`Ngày thanh toán tiếp theo (đã tính): ${nextPaymentDate}`);
+            document.getElementById('receipt-next-payment').textContent = formatDate(nextPaymentDate);
+        }
+    } catch (error) {
+        console.error("Lỗi khi tính ngày thanh toán tiếp theo:", error);
+        // Nếu có lỗi, hiển thị mặc định
+        const defaultDate = new Date(payment.date);
+        if (payment.cycle === '1 tháng') {
+            defaultDate.setMonth(defaultDate.getMonth() + 1);
+        } else if (payment.cycle === '8 buổi') {
+            defaultDate.setDate(defaultDate.getDate() + 28);
+        } else if (payment.cycle === '10 buổi') {
+            defaultDate.setDate(defaultDate.getDate() + 35);
+        } else {
+            defaultDate.setDate(defaultDate.getDate() + 14);
+        }
+        document.getElementById('receipt-next-payment').textContent = formatDate(defaultDate);
     }
     
-    document.getElementById('receipt-payment-method').textContent = payment.method;
+    document.getElementById('receipt-payment-method').textContent = payment.method || "Tiền mặt";
     document.getElementById('receipt-date').textContent = formatDate(payment.date);
     
     // Hiển thị chi phí bổ sung nếu có
