@@ -128,7 +128,7 @@ function displayClasses() {
     attachClassButtonEvents();
 }
 
-// Gắn sự kiện cho các nút chỉnh sửa và xóa lớp
+// Gắn sự kiện cho các nút chỉnh sửa, xóa và khóa/mở khóa lớp
 function attachClassButtonEvents() {
     // Gắn sự kiện cho nút chỉnh sửa
     const editButtons = document.querySelectorAll('.edit-class-btn');
@@ -146,6 +146,23 @@ function attachClassButtonEvents() {
             const classId = this.dataset.id;
             if (confirm('Bạn có chắc chắn muốn xóa lớp học này không?')) {
                 deleteClass(classId);
+            }
+        });
+    });
+    
+    // Gắn sự kiện cho nút khóa/mở khóa lớp
+    const toggleLockButtons = document.querySelectorAll('.toggle-lock-class-btn');
+    toggleLockButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const classId = this.dataset.id;
+            const isLocked = this.dataset.locked === 'true';
+            
+            const confirmMessage = isLocked 
+                ? 'Bạn có chắc chắn muốn mở khóa lớp học này? Lớp học sẽ hoạt động trở lại và có thể được thêm học sinh mới.'
+                : 'Bạn có chắc chắn muốn khóa lớp học này? Các học sinh trong lớp sẽ không được tính chu kỳ thanh toán và lớp sẽ không hiển thị trong tab điểm danh.';
+                
+            if (confirm(confirmMessage)) {
+                toggleClassLock(classId, !isLocked);
             }
         });
     });
