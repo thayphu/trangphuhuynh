@@ -1462,6 +1462,11 @@ function displayPaymentHistory(studentId, currentPaymentId) {
     
     console.log("Hiển thị lịch sử thanh toán trong biên nhận cho học sinh:", studentId);
     
+    if (!studentId) {
+        paymentHistoryContainer.innerHTML = '<p class="no-history">Không tìm thấy thông tin học sinh</p>';
+        return;
+    }
+    
     // Lấy dữ liệu thanh toán
     const payments = getPayments();
     console.log("Tổng số thanh toán:", payments.length);
@@ -1483,34 +1488,50 @@ function displayPaymentHistory(studentId, currentPaymentId) {
     const table = document.createElement('table');
     table.className = 'receipt-payment-history-table';
     
-    table.innerHTML = `
-        <thead>
-            <tr>
-                <th>STT</th>
-                <th>Biên nhận</th>
-                <th>Ngày</th>
-                <th>Số tiền</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
+    // Thêm tiêu đề bảng
+    const thead = document.createElement('thead');
+    thead.innerHTML = `
+        <tr>
+            <th>STT</th>
+            <th>Biên nhận</th>
+            <th>Ngày</th>
+            <th>Số tiền</th>
+        </tr>
     `;
+    table.appendChild(thead);
     
-    const tbody = table.querySelector('tbody');
+    // Thêm phần thân bảng
+    const tbody = document.createElement('tbody');
     
     // Giới hạn hiển thị 3 bản ghi gần nhất
     const recentPayments = studentPayments.slice(0, 3);
     
     recentPayments.forEach((payment, index) => {
         const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${index + 1}</td>
-            <td>${payment.receiptNumber || ''}</td>
-            <td>${formatDate(payment.date)}</td>
-            <td>${formatCurrency(payment.amount)}</td>
-        `;
+        
+        const indexCell = document.createElement('td');
+        indexCell.textContent = index + 1;
+        
+        const receiptCell = document.createElement('td');
+        receiptCell.textContent = payment.receiptNumber || '';
+        
+        const dateCell = document.createElement('td');
+        dateCell.textContent = formatDate(payment.date);
+        
+        const amountCell = document.createElement('td');
+        amountCell.textContent = formatCurrency(payment.amount);
+        
+        row.appendChild(indexCell);
+        row.appendChild(receiptCell);
+        row.appendChild(dateCell);
+        row.appendChild(amountCell);
+        
         tbody.appendChild(row);
     });
     
+    table.appendChild(tbody);
+    
+    // Xóa nội dung cũ và thêm bảng mới
     paymentHistoryContainer.innerHTML = '';
     paymentHistoryContainer.appendChild(table);
 }
