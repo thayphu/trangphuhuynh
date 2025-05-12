@@ -113,11 +113,11 @@ function displayClasses() {
                 </div>
             </div>
             <div class="class-actions">
-                <button class="edit-class-btn" data-id="${classData.id}" ${isLocked ? 'disabled' : ''}>Chỉnh sửa</button>
-                <button class="delete-class-btn" data-id="${classData.id}" ${isLocked ? 'disabled' : ''}>Xóa</button>
-                <button class="toggle-lock-class-btn" data-id="${classData.id}" data-locked="${isLocked}">
-                    ${isLocked ? 'Mở khóa lớp' : 'Khóa lớp'}
+                <button class="btn primary-btn edit-class-btn" data-id="${classData.id}" ${isLocked ? 'disabled' : ''}><i class="fas fa-edit"></i></button>
+                <button class="btn warning-btn toggle-lock-class-btn" data-id="${classData.id}" data-locked="${isLocked}">
+                    ${isLocked ? '<i class="fas fa-unlock"></i>' : '<i class="fas fa-lock"></i>'}
                 </button>
+                <button class="btn danger-btn delete-class-btn" data-id="${classData.id}" ${isLocked ? 'disabled' : ''}><i class="fas fa-trash-alt"></i></button>
             </div>
         `;
         
