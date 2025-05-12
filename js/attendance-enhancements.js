@@ -273,6 +273,472 @@ function deleteAttendanceRecord(recordId, studentId, date) {
 }
 
 // Hiển thị lịch sử điểm danh với bộ lọc và tìm kiếm nâng cao
+// Hiển thị modal học sinh có mặt với tính năng tìm kiếm và lọc nâng cao
+function displayEnhancedPresentStudentsModal() {
+    const students = getStudents();
+    const classes = getClasses();
+    const attendance = getAttendance();
+    
+    // Lấy ngày hiện tại cho bộ lọc
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Tìm phần tử modal
+    const modal = document.getElementById('present-students-modal');
+    if (!modal) {
+        console.error("Không tìm thấy phần tử #present-students-modal");
+        return;
+    }
+    
+    // Tìm phần tử body của modal
+    const modalBody = modal.querySelector('.modal-body');
+    if (!modalBody) {
+        console.error("Không tìm thấy phần tử .modal-body trong #present-students-modal");
+        return;
+    }
+    
+    // Tạo danh sách học sinh có mặt
+    const presentStudents = [];
+    
+    attendance.forEach(record => {
+        const classData = classes.find(c => c.id === record.classId);
+        
+        // Kiểm tra cấu trúc dữ liệu attendance
+        if (!record.students || !Array.isArray(record.students)) {
+            return;
+        }
+        
+        record.students.forEach(studentAttendance => {
+            if (studentAttendance.status === 'present') {
+                // Lưu ý: Kiểm tra cả id và studentId vì một số bản ghi có thể sử dụng id thay vì studentId
+                const studentId = studentAttendance.studentId || studentAttendance.id;
+                const student = students.find(s => s.id === studentId);
+                
+                if (student) {
+                    presentStudents.push({
+                        id: student.id,
+                        name: student.name,
+                        classId: classData ? classData.id : '',
+                        className: classData ? classData.name : 'Không xác định',
+                        date: record.date,
+                        formattedDate: formatDate(record.date),
+                        note: studentAttendance.note || ''
+                    });
+                }
+            }
+        });
+    });
+    
+    // Tạo HTML cho tìm kiếm và bộ lọc
+    let filterHtml = `
+        <div class="filters-container">
+            <div class="search-container">
+                <input type="text" id="present-students-search" class="search-input" placeholder="Tìm kiếm học sinh..." oninput="filterPresentStudents()">
+                <div id="present-students-suggestions" class="search-suggestions"></div>
+            </div>
+            <div class="filter-group">
+                <label>Lớp:</label>
+                <select id="present-students-class-filter" onchange="filterPresentStudents()">
+                    <option value="">Tất cả các lớp</option>
+                    ${classes.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Ngày:</label>
+                <input type="date" id="present-students-date-filter" onchange="filterPresentStudents()" value="${today}">
+            </div>
+        </div>
+    `;
+    
+    // Tạo bảng
+    let tableHtml = `
+        <table class="attendance-table">
+            <thead>
+                <tr>
+                    <th>Mã số</th>
+                    <th>Họ tên</th>
+                    <th>Lớp</th>
+                    <th>Ngày</th>
+                    <th>Ghi chú</th>
+                </tr>
+            </thead>
+            <tbody id="present-students-table-body">
+    `;
+    
+    // Lưu dữ liệu vào localStorage để sử dụng cho tìm kiếm và lọc
+    localStorage.setItem('presentStudentsData', JSON.stringify(presentStudents));
+    
+    // Tạo rows cho bảng
+    if (presentStudents.length === 0) {
+        tableHtml += `<tr><td colspan="5" class="text-center">Không có dữ liệu học sinh có mặt.</td></tr>`;
+    } else {
+        // Sắp xếp theo ngày gần nhất
+        presentStudents.sort((a, b) => {
+            try {
+                const dateA = new Date(a.date);
+                const dateB = new Date(b.date);
+                
+                if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
+                    return 0; // Giữ nguyên thứ tự nếu ngày không hợp lệ
+                }
+                
+                return dateB - dateA;
+            } catch (e) {
+                console.error("Lỗi khi so sánh ngày:", e);
+                return 0;
+            }
+        });
+        
+        presentStudents.forEach(record => {
+            tableHtml += `
+                <tr data-student-name="${record.name.toLowerCase()}" data-class-id="${record.classId}" data-date="${record.date}">
+                    <td>${record.id}</td>
+                    <td>${record.name}</td>
+                    <td>${record.className}</td>
+                    <td>${record.formattedDate}</td>
+                    <td>${record.note}</td>
+                </tr>
+            `;
+        });
+    }
+    
+    tableHtml += `</tbody></table>`;
+    
+    // Hiển thị dữ liệu
+    modalBody.innerHTML = filterHtml + tableHtml;
+    
+    // Hiển thị modal
+    modal.classList.remove('hidden');
+    
+    // Thiết lập sự kiện tìm kiếm gợi ý
+    setupSearchSuggestions('present-students-search', 'present-students-suggestions', presentStudents.map(item => item.name));
+}
+
+// Hiển thị modal học sinh vắng mặt với tính năng tìm kiếm và lọc nâng cao
+function displayEnhancedAbsentStudentsModal() {
+    const students = getStudents();
+    const classes = getClasses();
+    const attendance = getAttendance();
+    
+    // Lấy ngày hiện tại cho bộ lọc
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Tìm phần tử modal
+    const modal = document.getElementById('absent-students-modal');
+    if (!modal) {
+        console.error("Không tìm thấy phần tử #absent-students-modal");
+        return;
+    }
+    
+    // Tìm phần tử body của modal
+    const modalBody = modal.querySelector('.modal-body');
+    if (!modalBody) {
+        console.error("Không tìm thấy phần tử .modal-body trong #absent-students-modal");
+        return;
+    }
+    
+    // Tạo danh sách học sinh vắng mặt
+    const absentStudents = [];
+    
+    attendance.forEach(record => {
+        const classData = classes.find(c => c.id === record.classId);
+        
+        // Kiểm tra cấu trúc dữ liệu attendance
+        if (!record.students || !Array.isArray(record.students)) {
+            return;
+        }
+        
+        record.students.forEach(studentAttendance => {
+            if (studentAttendance.status === 'absent') {
+                // Lưu ý: Kiểm tra cả id và studentId vì một số bản ghi có thể sử dụng id thay vì studentId
+                const studentId = studentAttendance.studentId || studentAttendance.id;
+                const student = students.find(s => s.id === studentId);
+                
+                if (student) {
+                    absentStudents.push({
+                        id: student.id,
+                        name: student.name,
+                        classId: classData ? classData.id : '',
+                        className: classData ? classData.name : 'Không xác định',
+                        date: record.date,
+                        formattedDate: formatDate(record.date),
+                        note: studentAttendance.note || ''
+                    });
+                }
+            }
+        });
+    });
+    
+    // Tạo HTML cho tìm kiếm và bộ lọc
+    let filterHtml = `
+        <div class="filters-container">
+            <div class="search-container">
+                <input type="text" id="absent-students-search" class="search-input" placeholder="Tìm kiếm học sinh..." oninput="filterAbsentStudents()">
+                <div id="absent-students-suggestions" class="search-suggestions"></div>
+            </div>
+            <div class="filter-group">
+                <label>Lớp:</label>
+                <select id="absent-students-class-filter" onchange="filterAbsentStudents()">
+                    <option value="">Tất cả các lớp</option>
+                    ${classes.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Ngày:</label>
+                <input type="date" id="absent-students-date-filter" onchange="filterAbsentStudents()" value="${today}">
+            </div>
+        </div>
+    `;
+    
+    // Tạo bảng
+    let tableHtml = `
+        <table class="attendance-table">
+            <thead>
+                <tr>
+                    <th>Mã số</th>
+                    <th>Họ tên</th>
+                    <th>Lớp</th>
+                    <th>Ngày</th>
+                    <th>Ghi chú</th>
+                </tr>
+            </thead>
+            <tbody id="absent-students-table-body">
+    `;
+    
+    // Lưu dữ liệu vào localStorage để sử dụng cho tìm kiếm và lọc
+    localStorage.setItem('absentStudentsData', JSON.stringify(absentStudents));
+    
+    // Tạo rows cho bảng
+    if (absentStudents.length === 0) {
+        tableHtml += `<tr><td colspan="5" class="text-center">Không có dữ liệu học sinh vắng mặt.</td></tr>`;
+    } else {
+        // Sắp xếp theo ngày gần nhất
+        absentStudents.sort((a, b) => {
+            try {
+                const dateA = new Date(a.date);
+                const dateB = new Date(b.date);
+                
+                if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
+                    return 0; // Giữ nguyên thứ tự nếu ngày không hợp lệ
+                }
+                
+                return dateB - dateA;
+            } catch (e) {
+                console.error("Lỗi khi so sánh ngày:", e);
+                return 0;
+            }
+        });
+        
+        absentStudents.forEach(record => {
+            tableHtml += `
+                <tr data-student-name="${record.name.toLowerCase()}" data-class-id="${record.classId}" data-date="${record.date}">
+                    <td>${record.id}</td>
+                    <td>${record.name}</td>
+                    <td>${record.className}</td>
+                    <td>${record.formattedDate}</td>
+                    <td>${record.note}</td>
+                </tr>
+            `;
+        });
+    }
+    
+    tableHtml += `</tbody></table>`;
+    
+    // Hiển thị dữ liệu
+    modalBody.innerHTML = filterHtml + tableHtml;
+    
+    // Hiển thị modal
+    modal.classList.remove('hidden');
+    
+    // Thiết lập sự kiện tìm kiếm gợi ý
+    setupSearchSuggestions('absent-students-search', 'absent-students-suggestions', absentStudents.map(item => item.name));
+}
+
+// Hiển thị modal lớp GV vắng với tính năng tìm kiếm và lọc nâng cao
+function displayEnhancedTeacherAbsentClassesModal() {
+    const classes = getClasses();
+    const attendance = getAttendance();
+    
+    // Lấy ngày hiện tại cho bộ lọc
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Tìm phần tử modal
+    const modal = document.getElementById('teacher-absent-classes-modal');
+    if (!modal) {
+        console.error("Không tìm thấy phần tử #teacher-absent-classes-modal");
+        return;
+    }
+    
+    // Tìm phần tử body của modal
+    const modalBody = modal.querySelector('.modal-body');
+    if (!modalBody) {
+        console.error("Không tìm thấy phần tử .modal-body trong #teacher-absent-classes-modal");
+        return;
+    }
+    
+    // Tạo danh sách lớp giáo viên vắng
+    const teacherAbsentClasses = [];
+    
+    attendance.forEach(record => {
+        // Kiểm tra cấu trúc dữ liệu attendance
+        if (!record.students || !Array.isArray(record.students)) {
+            return;
+        }
+        
+        // Kiểm tra xem lớp này có giáo viên vắng không
+        const hasTeacherAbsent = record.students.some(student => student.status === 'teacher-absent');
+        
+        if (hasTeacherAbsent) {
+            const classData = classes.find(c => c.id === record.classId);
+            
+            // Tìm lịch học bù (nếu có)
+            const makeupSchedule = record.makeupDate || '';
+            const makeupStatus = record.makeupDate ? 'Đã lên lịch' : 'Chưa lên lịch';
+            
+            teacherAbsentClasses.push({
+                classId: record.classId,
+                className: classData ? classData.name : 'Không xác định',
+                date: record.date,
+                formattedDate: formatDate(record.date),
+                makeupDate: makeupSchedule,
+                formattedMakeupDate: makeupSchedule ? formatDate(makeupSchedule) : '',
+                status: makeupStatus
+            });
+        }
+    });
+    
+    // Tạo HTML cho tìm kiếm và bộ lọc
+    let filterHtml = `
+        <div class="filters-container">
+            <div class="search-container">
+                <input type="text" id="teacher-absent-search" class="search-input" placeholder="Tìm kiếm lớp..." oninput="filterTeacherAbsentClasses()">
+                <div id="teacher-absent-suggestions" class="search-suggestions"></div>
+            </div>
+            <div class="filter-group">
+                <label>Ngày:</label>
+                <input type="date" id="teacher-absent-date-filter" onchange="filterTeacherAbsentClasses()" value="${today}">
+            </div>
+            <div class="filter-group">
+                <label>Trạng thái:</label>
+                <select id="teacher-absent-status-filter" onchange="filterTeacherAbsentClasses()">
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="Đã lên lịch">Đã lên lịch</option>
+                    <option value="Chưa lên lịch">Chưa lên lịch</option>
+                </select>
+            </div>
+        </div>
+    `;
+    
+    // Tạo bảng
+    let tableHtml = `
+        <table class="attendance-table">
+            <thead>
+                <tr>
+                    <th>Lớp</th>
+                    <th>Ngày GV vắng</th>
+                    <th>Lịch học bù</th>
+                    <th>Trạng thái</th>
+                </tr>
+            </thead>
+            <tbody id="teacher-absent-classes-table-body">
+    `;
+    
+    // Lưu dữ liệu vào localStorage để sử dụng cho tìm kiếm và lọc
+    localStorage.setItem('teacherAbsentClassesData', JSON.stringify(teacherAbsentClasses));
+    
+    // Tạo rows cho bảng
+    if (teacherAbsentClasses.length === 0) {
+        tableHtml += `<tr><td colspan="4" class="text-center">Không có dữ liệu lớp giáo viên vắng.</td></tr>`;
+    } else {
+        // Sắp xếp theo ngày gần nhất
+        teacherAbsentClasses.sort((a, b) => {
+            try {
+                const dateA = new Date(a.date);
+                const dateB = new Date(b.date);
+                
+                if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
+                    return 0; // Giữ nguyên thứ tự nếu ngày không hợp lệ
+                }
+                
+                return dateB - dateA;
+            } catch (e) {
+                console.error("Lỗi khi so sánh ngày:", e);
+                return 0;
+            }
+        });
+        
+        teacherAbsentClasses.forEach(record => {
+            tableHtml += `
+                <tr data-class-id="${record.classId}" data-date="${record.date}" data-class-name="${record.className.toLowerCase()}" data-status="${record.status}">
+                    <td>${record.className}</td>
+                    <td>${record.formattedDate}</td>
+                    <td>${record.formattedMakeupDate}</td>
+                    <td>${record.status}</td>
+                </tr>
+            `;
+        });
+    }
+    
+    tableHtml += `</tbody></table>`;
+    
+    // Hiển thị dữ liệu
+    modalBody.innerHTML = filterHtml + tableHtml;
+    
+    // Hiển thị modal
+    modal.classList.remove('hidden');
+    
+    // Thiết lập sự kiện tìm kiếm gợi ý
+    setupSearchSuggestions('teacher-absent-search', 'teacher-absent-suggestions', teacherAbsentClasses.map(item => item.className));
+}
+
+// Hàm lọc lớp giáo viên vắng
+function filterTeacherAbsentClasses() {
+    const searchInput = document.getElementById('teacher-absent-search');
+    const dateFilter = document.getElementById('teacher-absent-date-filter');
+    const statusFilter = document.getElementById('teacher-absent-status-filter');
+    const tableBody = document.getElementById('teacher-absent-classes-table-body');
+    
+    if (!tableBody) {
+        console.error("Không tìm thấy phần tử #teacher-absent-classes-table-body");
+        return;
+    }
+    
+    const searchValue = searchInput ? searchInput.value.toLowerCase() : '';
+    const dateValue = dateFilter ? dateFilter.value : '';
+    const statusValue = statusFilter ? statusFilter.value : '';
+    
+    // Lấy dữ liệu từ localStorage
+    const teacherAbsentClassesData = JSON.parse(localStorage.getItem('teacherAbsentClassesData') || '[]');
+    
+    // Lọc dữ liệu
+    const filteredData = teacherAbsentClassesData.filter(item => {
+        const matchesSearch = !searchValue || item.className.toLowerCase().includes(searchValue);
+        const matchesDate = !dateValue || item.date === dateValue;
+        const matchesStatus = !statusValue || item.status === statusValue;
+        
+        return matchesSearch && matchesDate && matchesStatus;
+    });
+    
+    // Cập nhật bảng
+    tableBody.innerHTML = '';
+    
+    if (filteredData.length === 0) {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td colspan="4" class="text-center">Không có dữ liệu phù hợp.</td>`;
+        tableBody.appendChild(row);
+    } else {
+        filteredData.forEach(record => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${record.className}</td>
+                <td>${record.formattedDate}</td>
+                <td>${record.formattedMakeupDate}</td>
+                <td>${record.status}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+}
+
 function displayEnhancedAttendanceHistory() {
     const students = getStudents();
     const classes = getClasses();

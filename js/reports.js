@@ -83,7 +83,12 @@ function setupReportCardEvents() {
     const presentStudentsCard = document.getElementById('present-students-card');
     if (presentStudentsCard) {
         presentStudentsCard.addEventListener('click', () => {
-            displayPresentStudentsModal();
+            // Ưu tiên dùng phiên bản nâng cao nếu có
+            if (typeof displayEnhancedPresentStudentsModal === 'function') {
+                displayEnhancedPresentStudentsModal();
+            } else {
+                displayPresentStudentsModal();
+            }
         });
     }
     
@@ -91,7 +96,12 @@ function setupReportCardEvents() {
     const absentStudentsCard = document.getElementById('absent-students-card');
     if (absentStudentsCard) {
         absentStudentsCard.addEventListener('click', () => {
-            displayAbsentStudentsModal();
+            // Ưu tiên dùng phiên bản nâng cao nếu có
+            if (typeof displayEnhancedAbsentStudentsModal === 'function') {
+                displayEnhancedAbsentStudentsModal();
+            } else {
+                displayAbsentStudentsModal();
+            }
         });
     }
     
@@ -99,7 +109,12 @@ function setupReportCardEvents() {
     const teacherAbsentCard = document.getElementById('teacher-absent-card');
     if (teacherAbsentCard) {
         teacherAbsentCard.addEventListener('click', () => {
-            displayTeacherAbsentClassesModal();
+            // Ưu tiên dùng phiên bản nâng cao nếu có
+            if (typeof displayEnhancedTeacherAbsentClassesModal === 'function') {
+                displayEnhancedTeacherAbsentClassesModal();
+            } else {
+                displayTeacherAbsentClassesModal();
+            }
         });
     }
 }
