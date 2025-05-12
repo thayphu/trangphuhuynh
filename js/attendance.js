@@ -14,6 +14,17 @@ function updateAttendanceItemStatus(radioButton) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Thiết lập ngày mặc định cho bộ chọn ngày điểm danh
+    const today = new Date();
+    const formattedDate = today.toISOString().split('T')[0];
+    const dateSelector = document.getElementById('attendance-date-selector');
+    if (dateSelector) {
+        dateSelector.value = formattedDate;
+        dateSelector.addEventListener('change', function() {
+            displayAttendanceClasses();
+        });
+    }
+    
     // Hiển thị danh sách lớp để điểm danh
     displayAttendanceClasses();
     
@@ -44,42 +55,67 @@ function displayAttendanceClasses() {
     
     attendanceClasses.innerHTML = '';
     
-    const classes = getClasses();
+    // Lấy ngày từ bộ chọn ngày hoặc sử dụng ngày hiện tại
+    const dateSelector = document.getElementById('attendance-date-selector');
+    let selectedDate;
+    let formattedDate;
+    
+    if (dateSelector && dateSelector.value) {
+        selectedDate = new Date(dateSelector.value);
+        formattedDate = dateSelector.value;
+    } else {
+        selectedDate = new Date();
+        formattedDate = selectedDate.toISOString().split('T')[0];
+    }
+    
+    // Xác định thứ trong tuần của ngày đã chọn
+    const dayOfWeek = selectedDate.getDay(); // 0 = Chủ nhật, 1 = Thứ 2, ...
+    
+    // Lấy danh sách lớp (chỉ lấy các lớp chưa bị khóa)
+    const classes = getClasses().filter(cls => !cls.locked);
     
     if (classes.length === 0) {
-        attendanceClasses.innerHTML = '<p class="no-data">Chưa có lớp học nào. Vui lòng thêm lớp học trước.</p>';
+        attendanceClasses.innerHTML = '<p class="no-data">Chưa có lớp học đang hoạt động nào. Vui lòng thêm lớp học hoặc mở khóa lớp đã khóa.</p>';
         return;
     }
     
-    // Sắp xếp lớp có lịch học hôm nay lên đầu
+    // Số lớp học có lịch vào ngày đã chọn
+    let classesForSelectedDay = 0;
+    
+    // Sắp xếp lớp có lịch học vào ngày đã chọn lên đầu
     classes.sort((a, b) => {
-        const aTodayClass = isClassToday(a);
-        const bTodayClass = isClassToday(b);
+        const aHasClass = isClassOnDay(a, dayOfWeek);
+        const bHasClass = isClassOnDay(b, dayOfWeek);
         
-        if (aTodayClass && !bTodayClass) return -1;
-        if (!aTodayClass && bTodayClass) return 1;
+        if (aHasClass && !bHasClass) return -1;
+        if (!aHasClass && bHasClass) return 1;
         return 0;
     });
     
     classes.forEach(classData => {
-        const isTodayClass = isClassToday(classData);
+        const hasClassOnSelectedDay = isClassOnDay(classData, dayOfWeek);
         
-        const classCard = document.createElement('div');
-        classCard.className = `class-card ${isTodayClass ? 'today-class' : ''}`;
+        // Kiểm tra nếu lớp có lịch học vào ngày đã chọn
+        if (hasClassOnSelectedDay) {
+            classesForSelectedDay++;
+        }
         
-        // Đếm số học sinh trong lớp
+        // Chỉ hiển thị lớp có lịch học vào ngày đã chọn và có học sinh
         const students = getStudents().filter(student => student.classId === classData.id);
         const studentCount = students.length;
         
-        // Kiểm tra xem lớp đã được điểm danh hôm nay chưa
-        const today = new Date().toISOString().split('T')[0];
-        const attendance = getAttendance();
-        
-        // Log để debug
-        console.log(`Kiểm tra điểm danh lớp ${classData.name} - ID: ${classData.id}`);
-        console.log(`Lịch học lớp: ${classData.schedule.join(', ')}`);
-        console.log(`isTodayClass: ${isTodayClass}`);
-        console.log(`Ngày hôm nay: ${today}`);
+        if (hasClassOnSelectedDay && studentCount > 0) {
+            const classCard = document.createElement('div');
+            classCard.className = `class-card ${hasClassOnSelectedDay ? 'today-class' : ''}`;
+            
+            // Kiểm tra xem lớp đã được điểm danh cho ngày đã chọn chưa
+            const attendance = getAttendance();
+            
+            // Log để debug
+            console.log(`Kiểm tra điểm danh lớp ${classData.name} - ID: ${classData.id}`);
+            console.log(`Lịch học lớp: ${classData.schedule.join(', ')}`);
+            console.log(`Có lịch học vào ngày đã chọn: ${hasClassOnSelectedDay}`);
+            console.log(`Ngày đã chọn: ${formattedDate}`);
         
         const todayAttendance = attendance.find(record => 
             record.date === today && record.classId === classData.id

@@ -241,14 +241,11 @@ function getAttendance() {
     return JSON.parse(localStorage.getItem('attendance')) || [];
 }
 
-// Hàm kiểm tra xem lớp có lịch học vào hôm nay không
-function isClassToday(classData) {
+// Hàm kiểm tra xem lớp có lịch học vào một ngày cụ thể không
+function isClassOnDay(classData, dayOfWeek) {
     if (!classData || !classData.schedule || !Array.isArray(classData.schedule)) {
         return false;
     }
-    
-    const today = new Date();
-    const dayOfWeek = today.getDay(); // 0: CN, 1: T2, ..., 6: T7
     
     // Tạo tất cả các biến thể có thể có cho thứ trong tuần
     let dayVariants = [];
@@ -282,6 +279,16 @@ function isClassToday(classData) {
     }
     
     return false;
+}
+
+// Hàm kiểm tra xem lớp có lịch học vào hôm nay không
+function isClassToday(classData) {
+    if (!classData) return false;
+    
+    const today = new Date();
+    const dayOfWeek = today.getDay(); // 0: CN, 1: T2, ..., 6: T7
+    
+    return isClassOnDay(classData, dayOfWeek);
 }
 
 // Hàm lấy tên lớp từ ID lớp

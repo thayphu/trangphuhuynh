@@ -188,39 +188,28 @@ function openEditClassModal(classId) {
     const classes = getClasses();
     const classData = classes.find(cls => cls.id === classId);
     
-    if (!classData) {
-        alert('Không tìm thấy thông tin lớp học.');
-        return;
+    if (classData) {
+        // Điền thông tin lớp vào form
+        document.getElementById('edit-class-id').value = classData.id;
+        document.getElementById('edit-class-name').value = classData.name;
+        document.getElementById('edit-class-time-start').value = classData.timeStart;
+        document.getElementById('edit-class-time-end').value = classData.timeEnd;
+        document.getElementById('edit-class-location').value = classData.location;
+        document.getElementById('edit-class-fee').value = classData.fee;
+        document.getElementById('edit-class-payment-cycle').value = classData.paymentCycle;
+        
+        // Đánh dấu các ngày trong lịch học
+        const scheduleCheckboxes = document.querySelectorAll('input[name="edit-schedule"]');
+        scheduleCheckboxes.forEach(checkbox => {
+            checkbox.checked = classData.schedule.includes(checkbox.value);
+        });
+        
+        // Hiển thị modal
+        modal.classList.remove('hidden');
     }
-    
-    // Điền thông tin lớp vào form
-    document.getElementById('edit-class-id').value = classData.id;
-    document.getElementById('edit-class-name').value = classData.name;
-    document.getElementById('edit-class-location').value = classData.location;
-    document.getElementById('edit-class-time-start').value = classData.timeStart;
-    document.getElementById('edit-class-time-end').value = classData.timeEnd;
-    document.getElementById('edit-class-fee').value = classData.fee;
-    document.getElementById('edit-class-payment-cycle').value = classData.paymentCycle;
-    
-    // Bỏ chọn tất cả các checkbox
-    const scheduleCheckboxes = document.querySelectorAll('input[name="edit-schedule"]');
-    scheduleCheckboxes.forEach(checkbox => {
-        checkbox.checked = false;
-    });
-    
-    // Chọn các ngày trong lịch học
-    classData.schedule.forEach(day => {
-        const checkbox = document.querySelector(`input[name="edit-schedule"][value="${day}"]`);
-        if (checkbox) {
-            checkbox.checked = true;
-        }
-    });
-    
-    // Hiển thị modal
-    modal.classList.remove('hidden');
 }
 
-// Xử lý thêm lớp
+// Xử lý thêm lớp mới
 function handleAddClass(event) {
     event.preventDefault();
     
@@ -232,16 +221,21 @@ function handleAddClass(event) {
     const fee = parseInt(document.getElementById('class-fee').value);
     const paymentCycle = document.getElementById('class-payment-cycle').value;
     
-    // Lấy lịch học từ các checkbox
+    // Áp dụng định dạng viết hoa
+    if (window.TextFormatter) {
+        name = window.TextFormatter.toTitleCase(name);
+        location = window.TextFormatter.toTitleCase(location);
+    } else {
+        // Định dạng cơ bản nếu không có TextFormatter
+        name = name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+        location = location.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+    }
+    
+    // Lấy lịch học được chọn
     const scheduleCheckboxes = document.querySelectorAll('input[name="schedule"]:checked');
     const schedule = Array.from(scheduleCheckboxes).map(checkbox => checkbox.value);
     
-    if (schedule.length === 0) {
-        alert('Vui lòng chọn ít nhất một ngày trong tuần cho lịch học.');
-        return;
-    }
-    
-    // Tạo lớp mới
+    // Tạo đối tượng lớp học mới
     const newClass = {
         id: generateId('class', 3),
         name,
@@ -250,8 +244,7 @@ function handleAddClass(event) {
         timeEnd,
         location,
         fee,
-        paymentCycle,
-        locked: false  // Lớp mới mặc định không bị khóa
+        paymentCycle
     };
     
     // Lấy danh sách lớp hiện tại và thêm lớp mới
@@ -270,8 +263,8 @@ function handleAddClass(event) {
     // Cập nhật danh sách lớp trong các select box
     updateClassSelectOptions();
     
-    // Hiển thị thông báo thành công
-    showNotification('Đã thêm lớp học mới thành công', 'success');
+    // Thông báo dữ liệu đã thay đổi
+    document.dispatchEvent(new Event('dataChanged'));
 }
 
 // Xử lý chỉnh sửa lớp
@@ -287,44 +280,40 @@ function handleEditClass(event) {
     const fee = parseInt(document.getElementById('edit-class-fee').value);
     const paymentCycle = document.getElementById('edit-class-payment-cycle').value;
     
-    // Lấy lịch học từ các checkbox
+    // Áp dụng định dạng viết hoa
+    if (window.TextFormatter) {
+        name = window.TextFormatter.toTitleCase(name);
+        location = window.TextFormatter.toTitleCase(location);
+    } else {
+        // Định dạng cơ bản nếu không có TextFormatter
+        name = name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+        location = location.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+    }
+    
+    // Lấy lịch học được chọn
     const scheduleCheckboxes = document.querySelectorAll('input[name="edit-schedule"]:checked');
     const schedule = Array.from(scheduleCheckboxes).map(checkbox => checkbox.value);
     
-    if (schedule.length === 0) {
-        alert('Vui lòng chọn ít nhất một ngày trong tuần cho lịch học.');
-        return;
-    }
-    
     // Lấy danh sách lớp hiện tại
-    const classes = getClasses();
+    let classes = getClasses();
     
-    // Tìm lớp cần cập nhật
-    const classIndex = classes.findIndex(cls => cls.id === id);
-    
-    if (classIndex === -1) {
-        alert('Không tìm thấy lớp học cần cập nhật.');
-        return;
+    // Tìm và cập nhật lớp học
+    const index = classes.findIndex(cls => cls.id === id);
+    if (index !== -1) {
+        classes[index] = {
+            id,
+            name,
+            schedule,
+            timeStart,
+            timeEnd,
+            location,
+            fee,
+            paymentCycle
+        };
+        
+        // Lưu vào localStorage
+        localStorage.setItem('classes', JSON.stringify(classes));
     }
-    
-    // Lưu trạng thái khóa hiện tại
-    const lockedStatus = classes[classIndex].locked || false;
-    
-    // Cập nhật thông tin lớp
-    classes[classIndex] = {
-        id,
-        name,
-        schedule,
-        timeStart,
-        timeEnd,
-        location,
-        fee,
-        paymentCycle,
-        locked: lockedStatus // Giữ nguyên trạng thái khóa
-    };
-    
-    // Lưu vào localStorage
-    localStorage.setItem('classes', JSON.stringify(classes));
     
     // Đóng modal
     document.getElementById('edit-class-modal').classList.add('hidden');
@@ -335,32 +324,29 @@ function handleEditClass(event) {
     // Cập nhật danh sách lớp trong các select box
     updateClassSelectOptions();
     
-    // Hiển thị thông báo thành công
-    showNotification('Đã cập nhật lớp học thành công', 'success');
+    // Thông báo dữ liệu đã thay đổi
+    document.dispatchEvent(new Event('dataChanged'));
 }
 
-// Xóa lớp
+// Xóa lớp học
 function deleteClass(classId) {
-    // Lấy danh sách lớp
-    const classes = getClasses();
-    
     // Kiểm tra xem có học sinh nào đang học lớp này không
     const students = getStudents();
-    const classStudents = students.filter(student => student.classId === classId);
+    const hasStudents = students.some(student => student.classId === classId);
     
-    if (classStudents.length > 0) {
-        alert(`Không thể xóa lớp này vì có ${classStudents.length} học sinh đang theo học. Vui lòng chuyển các học sinh sang lớp khác trước khi xóa.`);
+    if (hasStudents) {
+        alert('Không thể xóa lớp này vì có học sinh đang học. Vui lòng chuyển học sinh sang lớp khác trước khi xóa.');
         return;
     }
     
     // Lấy danh sách lớp hiện tại
-    let classesList = getClasses();
+    let classes = getClasses();
     
     // Lọc bỏ lớp cần xóa
-    classesList = classesList.filter(cls => cls.id !== classId);
+    classes = classes.filter(cls => cls.id !== classId);
     
     // Lưu vào localStorage
-    localStorage.setItem('classes', JSON.stringify(classesList));
+    localStorage.setItem('classes', JSON.stringify(classes));
     
     // Hiển thị lại danh sách lớp
     displayClasses();
@@ -368,20 +354,19 @@ function deleteClass(classId) {
     // Cập nhật danh sách lớp trong các select box
     updateClassSelectOptions();
     
-    // Hiển thị thông báo thành công
-    showNotification('Đã xóa lớp học thành công', 'success');
+    // Thông báo dữ liệu đã thay đổi
+    document.dispatchEvent(new Event('dataChanged'));
 }
 
 // Cập nhật các select box chứa danh sách lớp
 function updateClassSelectOptions() {
     const classes = getClasses();
-    const unlockedClasses = classes.filter(cls => !cls.locked);
     
     // Cập nhật select box lớp học trong form thêm học sinh
     const studentClassSelect = document.getElementById('student-class');
     if (studentClassSelect) {
         studentClassSelect.innerHTML = '';
-        unlockedClasses.forEach(cls => {
+        classes.forEach(cls => {
             const option = document.createElement('option');
             option.value = cls.id;
             option.textContent = cls.name;
@@ -393,11 +378,23 @@ function updateClassSelectOptions() {
     const editStudentClassSelect = document.getElementById('edit-student-class');
     if (editStudentClassSelect) {
         editStudentClassSelect.innerHTML = '';
-        unlockedClasses.forEach(cls => {
+        classes.forEach(cls => {
             const option = document.createElement('option');
             option.value = cls.id;
             option.textContent = cls.name;
             editStudentClassSelect.appendChild(option);
+        });
+    }
+    
+    // Cập nhật select box lọc theo lớp trong tab học sinh
+    const classFilter = document.getElementById('class-filter');
+    if (classFilter) {
+        classFilter.innerHTML = '<option value="">Tất cả lớp</option>';
+        classes.forEach(cls => {
+            const option = document.createElement('option');
+            option.value = cls.id;
+            option.textContent = cls.name;
+            classFilter.appendChild(option);
         });
     }
     
@@ -408,62 +405,8 @@ function updateClassSelectOptions() {
         classes.forEach(cls => {
             const option = document.createElement('option');
             option.value = cls.id;
-            option.textContent = cls.name + (cls.locked ? ' (Đã khóa)' : '');
+            option.textContent = cls.name;
             paymentClassFilter.appendChild(option);
         });
-    }
-    
-    // Cập nhật select box lọc trong báo cáo
-    const attendanceHistoryClassFilter = document.getElementById('attendance-history-class-filter');
-    if (attendanceHistoryClassFilter) {
-        attendanceHistoryClassFilter.innerHTML = '<option value="">Tất cả lớp</option>';
-        classes.forEach(cls => {
-            const option = document.createElement('option');
-            option.value = cls.id;
-            option.textContent = cls.name + (cls.locked ? ' (Đã khóa)' : '');
-            attendanceHistoryClassFilter.appendChild(option);
-        });
-    }
-}
-
-// Khóa hoặc mở khóa lớp học
-function toggleClassLock(classId, lockStatus) {
-    let classes = getClasses();
-    
-    // Tìm lớp cần thay đổi trạng thái
-    const classIndex = classes.findIndex(cls => cls.id === classId);
-    
-    if (classIndex === -1) {
-        alert('Không tìm thấy lớp học.');
-        return;
-    }
-    
-    // Thay đổi trạng thái khóa
-    classes[classIndex].locked = lockStatus;
-    
-    // Lưu lại vào localStorage
-    localStorage.setItem('classes', JSON.stringify(classes));
-    
-    // Cập nhật danh sách lớp
-    displayClasses();
-    
-    // Cập nhật danh sách lớp trong các select box
-    updateClassSelectOptions();
-    
-    // Hiển thị thông báo
-    const message = lockStatus 
-        ? `Đã khóa lớp ${classes[classIndex].name} thành công` 
-        : `Đã mở khóa lớp ${classes[classIndex].name} thành công`;
-    
-    showNotification(message, 'success');
-    
-    // Cập nhật trạng thái điểm danh nếu có
-    if (typeof displayAttendanceClasses === 'function') {
-        displayAttendanceClasses();
-    }
-    
-    // Cập nhật báo cáo nếu đang ở tab báo cáo
-    if (document.querySelector('.tab[data-tab="reports"].active')) {
-        setupReportsTab();
     }
 }
