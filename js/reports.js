@@ -142,6 +142,9 @@ function setupReportsTab() {
     
     // Cập nhật dữ liệu thống kê điểm danh
     updateAttendanceStats();
+    
+    // Hiển thị lớp đã khóa
+    displayLockedClasses();
 }
 
 // Cập nhật dữ liệu báo cáo tài chính
@@ -256,6 +259,110 @@ function updateAttendanceStats() {
     if (teacherAbsentClassesElement) {
         teacherAbsentClassesElement.textContent = teacherAbsentClasses.size;
     }
+}
+
+// Hiển thị danh sách lớp đã khóa
+function displayLockedClasses() {
+    const lockedClassesContainer = document.getElementById('locked-classes-container');
+    const noLockedClassesMessage = document.getElementById('no-locked-classes');
+    
+    if (!lockedClassesContainer) return;
+    
+    // Xóa nội dung hiện tại (trừ thông báo không có lớp khóa)
+    Array.from(lockedClassesContainer.children).forEach(child => {
+        if (child.id !== 'no-locked-classes') {
+            child.remove();
+        }
+    });
+    
+    // Lấy danh sách lớp đã khóa
+    const classes = getClasses().filter(cls => cls.locked === true);
+    
+    // Hiển thị thông báo nếu không có lớp nào bị khóa
+    if (classes.length === 0) {
+        noLockedClassesMessage.style.display = 'block';
+        return;
+    }
+    
+    // Ẩn thông báo không có lớp bị khóa
+    noLockedClassesMessage.style.display = 'none';
+    
+    // Hiển thị các lớp đã khóa
+    classes.forEach(classData => {
+        // Đếm số học sinh trong lớp
+        const students = getStudents().filter(student => student.classId === classData.id);
+        const studentCount = students.length;
+        
+        // Tính học phí theo buổi dựa vào chu kỳ
+        let sessionFee = 0;
+        let totalFee = classData.fee;
+        
+        if (classData.paymentCycle === '1 tháng') {
+            // Nếu chu kỳ là 1 tháng, học phí/buổi = học phí ÷ 8
+            sessionFee = Math.round(classData.fee / 8);
+        } else if (classData.paymentCycle === '8 buổi') {
+            // Nếu chu kỳ là 8 buổi, số tiền đã nhập là học phí/buổi, tổng học phí = fee × 8
+            sessionFee = classData.fee;
+            totalFee = classData.fee * 8;
+        } else if (classData.paymentCycle === '10 buổi') {
+            // Nếu chu kỳ là 10 buổi, số tiền đã nhập là học phí/buổi, tổng học phí = fee × 10
+            sessionFee = classData.fee;
+            totalFee = classData.fee * 10;
+        } else if (classData.paymentCycle === 'Theo ngày') {
+            // Nếu chu kỳ là Theo ngày, học phí/buổi = học phí đã nhập
+            sessionFee = classData.fee;
+        }
+        
+        const classCard = document.createElement('div');
+        classCard.className = 'class-card locked-class';
+        
+        classCard.innerHTML = `
+            <h3>${classData.name} <span class="status-unpaid">(Đã khóa)</span></h3>
+            <div class="class-details">
+                <div>
+                    <span>Lịch học:</span> ${formatSchedule(classData.schedule)}
+                </div>
+                <div>
+                    <span>Giờ học:</span> ${formatTime(classData.timeStart)} - ${formatTime(classData.timeEnd)}
+                </div>
+                <div>
+                    <span>Địa điểm:</span> ${classData.location}
+                </div>
+                <div>
+                    <span>Tổng học phí:</span> <span class="fee-highlight">${formatCurrency(totalFee)} VND</span>
+                </div>
+                <div>
+                    <span>Chu kỳ:</span> ${classData.paymentCycle}
+                </div>
+                <div>
+                    <span>Học phí/buổi:</span> ${formatCurrency(sessionFee)} VND
+                </div>
+                <div>
+                    <span>Số học sinh:</span> ${studentCount}
+                </div>
+            </div>
+            <div class="class-actions">
+                <button class="toggle-lock-class-btn" data-id="${classData.id}" data-locked="true">
+                    Mở khóa lớp
+                </button>
+            </div>
+        `;
+        
+        lockedClassesContainer.appendChild(classCard);
+    });
+    
+    // Gắn sự kiện cho các nút mở khóa
+    const unlockButtons = document.querySelectorAll('#locked-classes-container .toggle-lock-class-btn');
+    unlockButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const classId = this.dataset.id;
+            
+            if (confirm('Bạn có chắc chắn muốn mở khóa lớp học này? Lớp học sẽ hoạt động trở lại và có thể được thêm học sinh mới.')) {
+                toggleClassLock(classId, false);
+                displayLockedClasses(); // Cập nhật lại danh sách
+            }
+        });
+    });
 }
 
 // Hiển thị modal học sinh đã thanh toán
