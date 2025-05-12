@@ -3,6 +3,10 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Hiển thị danh sách học sinh chưa thanh toán mặc định
+    displayUnpaidStudents();
+    
+    // Thiết lập các tab thanh toán
     setupTuitionTabs();
     
     // Xử lý form thêm thanh toán
