@@ -656,29 +656,88 @@ function openAddPaymentModal(studentId = null) {
                 modalTitle.textContent = `Thu học phí cho ${student.name}`;
             }
             
-            // Tìm và cập nhật các trường thông tin
+            // Tìm và cập nhật các trường thông tin bằng nhiều cách khác nhau
             
-            // Cập nhật mã học sinh
-            const studentIdField = document.querySelector('input[placeholder="Mã học sinh"]');
-            if (studentIdField) {
-                studentIdField.value = student.id;
+            // Cập nhật mã học sinh - thử nhiều cách tìm phần tử
+            let studentIdField = document.querySelector('input[placeholder="Mã học sinh"]');
+            if (!studentIdField) {
+                // Thử tìm bằng id
+                studentIdField = document.getElementById('student-id');
             }
-            
-            // Cập nhật lớp học
-            const classField = document.querySelector('input[placeholder="Lớp"]');
-            if (classField) {
-                classField.value = classData.name;
-            }
-            
-            // Cập nhật chu kỳ thanh toán
-            const cycleSelect = document.querySelector('select[placeholder="Chu kỳ thanh toán"]');
-            if (cycleSelect) {
-                for (let i = 0; i < cycleSelect.options.length; i++) {
-                    if (cycleSelect.options[i].text === student.paymentCycle) {
-                        cycleSelect.selectedIndex = i;
+            if (!studentIdField) {
+                // Tìm tất cả input và kiểm tra label tương ứng
+                const inputs = document.querySelectorAll('input');
+                for (const input of inputs) {
+                    const parentElement = input.parentElement;
+                    if (parentElement && parentElement.querySelector('label') && 
+                        parentElement.querySelector('label').textContent.includes('Mã học sinh')) {
+                        studentIdField = input;
                         break;
                     }
                 }
+            }
+            
+            if (studentIdField) {
+                studentIdField.value = student.id;
+                console.log(`Đã cập nhật mã học sinh: ${student.id}`);
+            } else {
+                console.warn("Không tìm thấy trường mã học sinh");
+            }
+            
+            // Cập nhật lớp học - thử nhiều cách tìm phần tử
+            let classField = document.querySelector('input[placeholder="Lớp"]');
+            if (!classField) {
+                // Thử tìm bằng id
+                classField = document.getElementById('payment-class');
+            }
+            if (!classField) {
+                // Tìm tất cả input và kiểm tra label tương ứng
+                const inputs = document.querySelectorAll('input');
+                for (const input of inputs) {
+                    const parentElement = input.parentElement;
+                    if (parentElement && parentElement.querySelector('label') && 
+                        parentElement.querySelector('label').textContent.includes('Lớp:')) {
+                        classField = input;
+                        break;
+                    }
+                }
+            }
+            
+            if (classField) {
+                classField.value = classData.name;
+                console.log(`Đã cập nhật lớp học: ${classData.name}`);
+            } else {
+                console.warn("Không tìm thấy trường lớp học");
+            }
+            
+            // Cập nhật chu kỳ thanh toán - thử nhiều cách tìm phần tử
+            let cycleSelect = document.querySelector('select[placeholder="Chu kỳ thanh toán"]');
+            if (!cycleSelect) {
+                cycleSelect = document.querySelector('select'); // Lấy select đầu tiên
+                
+                // Kiểm tra các select có label liên quan đến chu kỳ
+                const selects = document.querySelectorAll('select');
+                for (const select of selects) {
+                    const parentElement = select.parentElement;
+                    if (parentElement && parentElement.querySelector('label') && 
+                        parentElement.querySelector('label').textContent.toLowerCase().includes('chu kỳ')) {
+                        cycleSelect = select;
+                        break;
+                    }
+                }
+            }
+            
+            if (cycleSelect) {
+                for (let i = 0; i < cycleSelect.options.length; i++) {
+                    if (cycleSelect.options[i].text === student.paymentCycle || 
+                        cycleSelect.options[i].value === student.paymentCycle) {
+                        cycleSelect.selectedIndex = i;
+                        console.log(`Đã cập nhật chu kỳ thanh toán: ${student.paymentCycle}`);
+                        break;
+                    }
+                }
+            } else {
+                console.warn("Không tìm thấy trường chu kỳ thanh toán");
             }
             
             // Tính và hiển thị học phí
@@ -693,28 +752,82 @@ function openAddPaymentModal(studentId = null) {
                 baseAmount = classData.fee;
             }
             
-            // Cập nhật tổng học phí
-            const totalFeeField = document.querySelector('input[placeholder="Tổng học phí"]');
-            if (totalFeeField) {
-                totalFeeField.value = formatCurrency(baseAmount);
+            // Cập nhật tổng học phí - thử nhiều cách tìm phần tử
+            let totalFeeField = document.querySelector('input[placeholder="Tổng học phí"]');
+            if (!totalFeeField) {
+                // Tìm tất cả input và kiểm tra label tương ứng
+                const inputs = document.querySelectorAll('input');
+                for (const input of inputs) {
+                    const parentElement = input.parentElement;
+                    if (parentElement && parentElement.querySelector('label') && 
+                        parentElement.querySelector('label').textContent.includes('Tổng học phí')) {
+                        totalFeeField = input;
+                        break;
+                    }
+                }
             }
             
-            // Cập nhật tổng cộng ở cuối form
-            const totalAmountElement = document.querySelector('#payment-total-amount');
-            if (totalAmountElement) {
-                totalAmountElement.textContent = formatCurrency(baseAmount) + ' VND';
+            if (totalFeeField) {
+                totalFeeField.value = formatCurrency(baseAmount);
+                console.log(`Đã cập nhật tổng học phí: ${formatCurrency(baseAmount)}`);
             } else {
-                // Tìm phần tử hiển thị "TỔNG CỘNG" trong container
-                const paymentTotalContainer = document.querySelector('.payment-total-container');
-                if (paymentTotalContainer) {
-                    const amountElement = paymentTotalContainer.querySelector('div[style*="background-color: #d9534f"]');
-                    if (amountElement) {
-                        amountElement.textContent = formatCurrency(baseAmount) + ' VND';
+                console.warn("Không tìm thấy trường tổng học phí");
+            }
+            
+            // Tìm tất cả các phần tử có chứa text "TỔNG CỘNG" hoặc "Tổng cộng"
+            const totalElements = Array.from(document.querySelectorAll('*')).filter(el => 
+                el.textContent.includes('TỔNG CỘNG') || 
+                el.textContent.includes('Tổng cộng') ||
+                el.textContent.includes('tổng cộng')
+            );
+            
+            if (totalElements.length > 0) {
+                // Tìm phần tử hiển thị số tiền gần phần tử "TỔNG CỘNG"
+                for (const el of totalElements) {
+                    // Tìm phần tử con của nó có màu nền đỏ
+                    const redElement = el.querySelector('div[style*="background-color: #d9534f"]');
+                    if (redElement) {
+                        redElement.textContent = formatCurrency(baseAmount) + ' VND';
+                        console.log(`Đã cập nhật hiển thị tổng cộng: ${formatCurrency(baseAmount)}`);
+                        break;
                     }
+                    
+                    // Tìm phần tử anh em có chứa số tiền
+                    const siblings = el.parentElement.children;
+                    for (const sibling of siblings) {
+                        if (sibling !== el && sibling.textContent.includes('VND')) {
+                            sibling.textContent = formatCurrency(baseAmount) + ' VND';
+                            console.log(`Đã cập nhật tổng cộng (sibling): ${formatCurrency(baseAmount)}`);
+                            break;
+                        }
+                    }
+                }
+            } else {
+                // Tìm các phần tử có màu nền đỏ
+                const redElements = Array.from(document.querySelectorAll('*')).filter(el => {
+                    const style = window.getComputedStyle(el);
+                    return style.backgroundColor.includes('rgb(217, 83, 79)') || 
+                           style.backgroundColor.includes('#d9534f');
+                });
+                
+                if (redElements.length > 0) {
+                    redElements[0].textContent = formatCurrency(baseAmount) + ' VND';
+                    console.log(`Đã cập nhật hiển thị tổng cộng (red element): ${formatCurrency(baseAmount)}`);
                 } else {
-                    // Nếu không tìm thấy container, tạo mới
+                    // Nếu không tìm thấy, tạo mới
+                    console.log("Không tìm thấy phần tử hiển thị tổng cộng, tạo mới");
                     createTotalPaymentDisplay(baseAmount);
                 }
+            }
+            
+            // Trực tiếp cập nhật tất cả các phần tử có 0 VND
+            const zeroElements = Array.from(document.querySelectorAll('*')).filter(el => 
+                el.textContent.trim() === '0 VND'
+            );
+            
+            for (const el of zeroElements) {
+                el.textContent = formatCurrency(baseAmount) + ' VND';
+                console.log(`Đã cập nhật phần tử có 0 VND: ${formatCurrency(baseAmount)}`);
             }
             
             // Cập nhật select học sinh nếu có
