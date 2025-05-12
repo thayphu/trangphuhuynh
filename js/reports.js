@@ -145,6 +145,9 @@ function setupReportsTab() {
     
     // Hiển thị lớp đã khóa
     displayLockedClasses();
+    
+    // Hiển thị lịch sử điểm danh
+    displayAttendanceHistory();
 }
 
 // Cập nhật dữ liệu báo cáo tài chính
@@ -869,7 +872,7 @@ function displayAttendanceHistory(useFilters = false) {
             }
             
             // Tìm thông tin học sinh
-            const student = students.find(s => s.id === studentAttendance.studentId);
+            const student = students.find(s => s.id === studentAttendance.id);
             
             if (student) {
                 let statusText = '';
