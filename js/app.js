@@ -26,6 +26,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Hiển thị ngày hiện tại
     displayCurrentDate();
     
+    // Hiển thị năm hiện tại trong footer
+    const currentYearElement = document.getElementById('current-year');
+    if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+    }
+    
     // Xử lý điều hướng tab
     initTabs();
     

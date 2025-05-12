@@ -567,6 +567,24 @@ function displayPresentStudentsModal() {
     const classes = getClasses();
     const attendance = getAttendance();
     
+    // Lấy ngày hiện tại cho bộ lọc
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Tìm phần tử modal
+    const modal = document.getElementById('present-students-modal');
+    if (!modal) {
+        console.error("Không tìm thấy phần tử #present-students-modal");
+        return;
+    }
+    
+    // Tìm phần tử body của modal
+    const modalBody = modal.querySelector('.modal-body');
+    if (!modalBody) {
+        console.error("Không tìm thấy phần tử .modal-body trong #present-students-modal");
+        return;
+    }
+    
+    // Tạo danh sách học sinh có mặt
     const presentStudents = [];
     
     attendance.forEach(record => {
@@ -579,14 +597,18 @@ function displayPresentStudentsModal() {
         
         record.students.forEach(studentAttendance => {
             if (studentAttendance.status === 'present') {
-                const student = students.find(s => s.id === studentAttendance.studentId);
+                // Lưu ý: Kiểm tra cả id và studentId vì một số bản ghi có thể sử dụng id thay vì studentId
+                const studentId = studentAttendance.studentId || studentAttendance.id;
+                const student = students.find(s => s.id === studentId);
                 
                 if (student) {
                     presentStudents.push({
                         id: student.id,
                         name: student.name,
+                        classId: classData ? classData.id : '',
                         className: classData ? classData.name : 'Không xác định',
                         date: record.date,
+                        formattedDate: formatDate(record.date),
                         note: studentAttendance.note || ''
                     });
                 }
@@ -594,19 +616,48 @@ function displayPresentStudentsModal() {
         });
     });
     
-    // Hiển thị modal
-    const tableBody = document.getElementById('present-students-table-body');
-    if (!tableBody) {
-        console.error("Không tìm thấy phần tử #present-students-table-body");
-        return;
-    }
+    // Tạo HTML cho tìm kiếm và bộ lọc
+    let filterHtml = `
+        <div class="filters-container">
+            <div class="search-container">
+                <input type="text" id="present-students-search" class="search-input" placeholder="Tìm kiếm học sinh..." oninput="filterPresentStudents()">
+                <div id="present-students-suggestions" class="search-suggestions"></div>
+            </div>
+            <div class="filter-group">
+                <label>Lớp:</label>
+                <select id="present-students-class-filter" onchange="filterPresentStudents()">
+                    <option value="">Tất cả các lớp</option>
+                    ${classes.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Ngày:</label>
+                <input type="date" id="present-students-date-filter" onchange="filterPresentStudents()" value="${today}">
+            </div>
+        </div>
+    `;
     
-    tableBody.innerHTML = '';
+    // Tạo bảng
+    let tableHtml = `
+        <table class="attendance-table">
+            <thead>
+                <tr>
+                    <th>Mã số</th>
+                    <th>Họ tên</th>
+                    <th>Lớp</th>
+                    <th>Ngày</th>
+                    <th>Ghi chú</th>
+                </tr>
+            </thead>
+            <tbody id="present-students-table-body">
+    `;
     
+    // Lưu dữ liệu vào localStorage để sử dụng cho tìm kiếm và lọc
+    localStorage.setItem('presentStudentsData', JSON.stringify(presentStudents));
+    
+    // Tạo rows cho bảng
     if (presentStudents.length === 0) {
-        const row = document.createElement('tr');
-        row.innerHTML = `<td colspan="5" class="text-center">Không có dữ liệu học sinh có mặt.</td>`;
-        tableBody.appendChild(row);
+        tableHtml += `<tr><td colspan="5" class="text-center">Không có dữ liệu học sinh có mặt.</td></tr>`;
     } else {
         // Sắp xếp theo ngày gần nhất
         presentStudents.sort((a, b) => {
@@ -626,27 +677,28 @@ function displayPresentStudentsModal() {
         });
         
         presentStudents.forEach(record => {
-            const row = document.createElement('tr');
-            const formattedDate = formatDate(record.date);
-            
-            row.innerHTML = `
-                <td>${record.id}</td>
-                <td>${record.name}</td>
-                <td>${record.className}</td>
-                <td>${formattedDate}</td>
-                <td>${record.note}</td>
+            tableHtml += `
+                <tr data-student-name="${record.name.toLowerCase()}" data-class-id="${record.classId}" data-date="${record.date}">
+                    <td>${record.id}</td>
+                    <td>${record.name}</td>
+                    <td>${record.className}</td>
+                    <td>${record.formattedDate}</td>
+                    <td>${record.note}</td>
+                </tr>
             `;
-            tableBody.appendChild(row);
         });
     }
     
+    tableHtml += `</tbody></table>`;
+    
+    // Hiển thị dữ liệu
+    modalBody.innerHTML = filterHtml + tableHtml;
+    
     // Hiển thị modal
-    const modal = document.getElementById('present-students-modal');
-    if (modal) {
-        modal.classList.remove('hidden');
-    } else {
-        console.error("Không tìm thấy phần tử #present-students-modal");
-    }
+    modal.classList.remove('hidden');
+    
+    // Thiết lập sự kiện tìm kiếm gợi ý
+    setupSearchSuggestions('present-students-search', 'present-students-suggestions', presentStudents.map(item => item.name));
 }
 
 // Hiển thị modal học sinh vắng mặt
