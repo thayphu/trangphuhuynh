@@ -331,15 +331,58 @@ button:hover {
     display: inline-block;
 }
 
-.class-actions {
+.class-header {
     display: flex;
-    justify-content: flex-end;
-    gap: 10px;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
 }
 
-.class-actions button {
-    padding: 5px 10px;
-    font-size: 14px;
+.class-header h3 {
+    color: var(--primary-color);
+    font-size: 18px;
+    margin: 0;
+}
+
+.class-action-buttons {
+    display: flex;
+    gap: 5px;
+}
+
+.icon-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.icon-btn:hover {
+    transform: scale(1.05);
+    opacity: 0.9;
+}
+
+.icon-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.edit-class-btn {
+    background-color: var(--primary-color);
+}
+
+.toggle-lock-class-btn {
+    background-color: var(--secondary-color);
+}
+
+.delete-class-btn {
+    background-color: var(--danger-color);
 }
 
 .today-class {
