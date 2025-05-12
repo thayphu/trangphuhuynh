@@ -81,23 +81,19 @@ function displayStudents(filteredStudents = null) {
         const statusText = getPaymentStatusText(paymentStatus);
         const statusClass = `status-${paymentStatus}`;
         
-        // Sử dụng hàm getShortName để lấy tên rút gọn (họ + tên)
-        let shortName = getShortName(student.name);
-
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${student.id}</td>
-            <td>${shortName}</td>
+            <td>${student.name}</td>
             <td>${student.phone || ''}</td>
+            <td>${student.birthDate ? formatDate(student.birthDate) : ''}</td>
             <td>${getClassName(student.classId)}</td>
             <td>${formatDate(student.registerDate)}</td>
             <td>${student.paymentCycle}</td>
             <td><span class="student-status ${statusClass}">${statusText}</span></td>
             <td>
-                <div class="action-buttons">
-                    <button class="icon-btn edit-class-btn edit-student-btn" data-id="${student.id}" title="Chỉnh sửa"><i class="fas fa-edit"></i></button>
-                    <button class="icon-btn delete-class-btn delete-student-btn" data-id="${student.id}" title="Xóa"><i class="fas fa-trash-alt"></i></button>
-                </div>
+                <button class="btn primary-btn edit-student-btn" data-id="${student.id}"><i class="fas fa-edit"></i></button>
+                <button class="btn danger-btn delete-student-btn" data-id="${student.id}"><i class="fas fa-trash-alt"></i></button>
             </td>
         `;
         

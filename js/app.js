@@ -42,9 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Hiển thị dữ liệu ban đầu
     displayClasses();
     displayStudents();
-    if (typeof displayPayments === 'function') {
-        displayPayments();
-    }
+    displayPayments();
     displayAttendanceClasses();
     
     // Lắng nghe sự kiện thay đổi dữ liệu để cập nhật giao diện

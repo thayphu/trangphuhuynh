@@ -88,20 +88,7 @@ function displayClasses() {
         }
         
         classCard.innerHTML = `
-            <div class="class-header">
-                <h3>${classData.name} ${isLocked ? '<span class="status-unpaid">(Đã khóa)</span>' : ''}</h3>
-                <div class="class-action-buttons">
-                    <button class="icon-btn edit-class-btn" data-id="${classData.id}" ${isLocked ? 'disabled' : ''} title="Chỉnh sửa">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="icon-btn toggle-lock-class-btn" data-id="${classData.id}" data-locked="${isLocked}" title="${isLocked ? 'Mở khóa lớp' : 'Khóa lớp'}">
-                        <i class="fas ${isLocked ? 'fa-lock-open' : 'fa-lock'}"></i>
-                    </button>
-                    <button class="icon-btn delete-class-btn" data-id="${classData.id}" ${isLocked ? 'disabled' : ''} title="Xóa">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
-                </div>
-            </div>
+            <h3>${classData.name} ${isLocked ? '<span class="status-unpaid">(Đã khóa)</span>' : ''}</h3>
             <div class="class-details">
                 <div>
                     <span>Lịch học:</span> ${formatSchedule(classData.schedule)}
@@ -124,6 +111,13 @@ function displayClasses() {
                 <div>
                     <span>Trạng thái:</span> <span class="${isLocked ? 'status-unpaid' : 'status-paid'}">${isLocked ? 'Lớp này đã đóng' : 'Đang hoạt động'}</span>
                 </div>
+            </div>
+            <div class="class-actions">
+                <button class="edit-class-btn" data-id="${classData.id}" ${isLocked ? 'disabled' : ''}>Chỉnh sửa</button>
+                <button class="delete-class-btn" data-id="${classData.id}" ${isLocked ? 'disabled' : ''}>Xóa</button>
+                <button class="toggle-lock-class-btn" data-id="${classData.id}" data-locked="${isLocked}">
+                    ${isLocked ? 'Mở khóa lớp' : 'Khóa lớp'}
+                </button>
             </div>
         `;
         

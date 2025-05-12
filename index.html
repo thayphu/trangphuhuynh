@@ -19,10 +19,13 @@
     
     <!-- Thư viện JS với async để tối ưu tải trang -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" 
+            integrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKLRRhRvkZpnFh9ja8L8ACxczPAy6zeMz1VVtGQ==" 
             crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" 
+            integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" 
             crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js" 
+            integrity="sha256-+8RZJLPSqTkiMA7J5vEiVVeut18lS082X/S3zaiUQIQ=" 
             crossorigin="anonymous" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js" defer></script>
 </head>
@@ -129,6 +132,7 @@
                                         <th>Mã HS</th>
                                         <th>Họ tên</th>
                                         <th>Số điện thoại</th>
+                                        <th>Ngày sinh</th>
                                         <th>Lớp</th>
                                         <th>Ngày đăng ký</th>
                                         <th>Chu kỳ thanh toán</th>
@@ -877,14 +881,11 @@
                                 <div class="receipt-info-item">Họ tên học sinh: <span id="receipt-student-name"></span></div>
                                 <div class="receipt-info-item">Mã học sinh: <span id="receipt-student-id"></span></div>
                                 <div class="receipt-info-item">Lớp: <span id="receipt-class"></span></div>
-                                <div class="receipt-info-item">Ngày đăng ký: <span id="receipt-registration-date"></span></div>
-                                <div class="receipt-info-item">Lịch học: <span id="receipt-class-schedule"></span></div>
                             </div>
                             <div class="receipt-info-column">
                                 <div class="receipt-info-item">Chu kỳ thanh toán: <span id="receipt-payment-cycle"></span></div>
                                 <div class="receipt-info-item">Chu kỳ thanh toán tiếp theo: <span id="receipt-next-payment"></span></div>
                                 <div class="receipt-info-item">Hình thức thanh toán: <span id="receipt-payment-method"></span></div>
-                                <div class="receipt-info-item">Ngày thanh toán: <span id="receipt-date"></span></div>
                             </div>
                         </div>
                         
@@ -965,7 +966,7 @@
                         </div>
 
                         <div class="receipt-signature">
-                            <div class="receipt-date">Ngày <span id="receipt-signature-date"></span></div>
+                            <div class="receipt-date">Ngày <span id="receipt-date"></span></div>
                             <div class="receipt-admin">
                                 <p>Trân trọng</p>
                                 <p>Trần Đông Phú</p>
@@ -974,8 +975,8 @@
                     </div>
                 </div>
                 <div class="receipt-actions">
-                    <button id="save-receipt-image" class="icon-btn edit-class-btn"><i class="fas fa-image"></i> Lưu thành hình ảnh</button>
-                    <button id="save-receipt-pdf" class="icon-btn collect-payment-btn"><i class="fas fa-file-pdf"></i> Lưu thành PDF</button>
+                    <button id="save-receipt-image">Lưu thành hình ảnh</button>
+                    <button id="save-receipt-pdf">Lưu thành PDF</button>
                 </div>
             </div>
         </div>
@@ -1004,7 +1005,7 @@
     <script src="js/auth.js"></script>
     <script src="js/classes.js"></script>
     <script src="js/students.js"></script>
-    <script src="js/payment_system.js"></script>
+    <script src="js/tuition.js"></script>
     <script src="js/attendance.js"></script>
     <script src="js/attendance-enhancements.js"></script>
     <script src="js/reports.js"></script>

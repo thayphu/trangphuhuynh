@@ -263,25 +263,16 @@ function displayUnpaidStudents() {
         const dueDate = calculateNextPaymentDate(student.registerDate, student.paymentCycle);
         
         const row = document.createElement('tr');
-        // Định dạng họ tên: họ và tên, không có tên đệm
-        let shortName = student.name;
-        const nameParts = student.name.split(' ');
-        if (nameParts.length > 1) {
-            shortName = nameParts[0] + ' ' + nameParts[nameParts.length - 1];
-        }
-        
         row.innerHTML = `
             <td>${student.id}</td>
-            <td>${shortName}</td>
+            <td>${student.name}</td>
             <td>${classData.name}</td>
             <td>${formatDate(student.registerDate)}</td>
             <td><span class="fee-highlight">${formatCurrency(totalFee)} VND</span></td>
             <td>${student.paymentCycle}</td>
             <td>${formatDate(dueDate)}</td>
             <td>
-                <div class="action-buttons">
-                    <button class="icon-btn collect-payment-btn" data-id="${student.id}" title="Thu học phí"><i class="fas fa-money-bill-wave"></i></button>
-                </div>
+                <button class="btn primary-btn collect-payment-btn" data-id="${student.id}">Thu học phí</button>
             </td>
         `;
         
@@ -395,28 +386,19 @@ function displayPaymentHistory(filteredPayments = null) {
         }
         
         const row = document.createElement('tr');
-        // Định dạng họ tên: họ và tên, không có tên đệm
-        let shortName = student.name;
-        const nameParts = student.name.split(' ');
-        if (nameParts.length > 1) {
-            shortName = nameParts[0] + ' ' + nameParts[nameParts.length - 1];
-        }
-        
         row.innerHTML = `
             <td>${payment.receiptNumber || ''}</td>
             <td>${payment.studentId}</td>
-            <td>${shortName}</td>
+            <td>${student.name}</td>
             <td>${getClassName(student.classId)}</td>
             <td>${formatDate(payment.date)}</td>
             <td><span class="fee-highlight">${formatCurrency(payment.amount)} VND</span></td>
             <td>${payment.cycle}</td>
             <td>${payment.method}</td>
-            <td>
-                <div class="action-buttons">
-                    <button class="icon-btn edit-class-btn view-receipt-btn" data-id="${payment.id}" title="Xem biên nhận"><i class="fas fa-eye"></i></button>
-                    <button class="icon-btn toggle-lock-class-btn edit-receipt-btn" data-id="${payment.id}" title="Sửa biên nhận"><i class="fas fa-edit"></i></button>
-                    <button class="icon-btn delete-class-btn delete-payment-btn" data-id="${payment.id}" title="Xóa biên nhận"><i class="fas fa-trash-alt"></i></button>
-                </div>
+            <td class="action-buttons">
+                <button class="view-receipt-btn btn-icon" data-id="${payment.id}" title="Xem biên nhận"><i class="fas fa-eye"></i></button>
+                <button class="edit-receipt-btn btn-icon" data-id="${payment.id}" title="Sửa biên nhận"><i class="fas fa-edit"></i></button>
+                <button class="delete-payment-btn btn-icon" data-id="${payment.id}" title="Xóa biên nhận"><i class="fas fa-trash-alt"></i></button>
             </td>
         `;
         
@@ -1169,22 +1151,6 @@ function openReceiptModal(paymentId) {
     
     document.getElementById('receipt-payment-method').textContent = payment.method || "Tiền mặt";
     document.getElementById('receipt-date').textContent = formatDate(payment.date);
-    document.getElementById('receipt-signature-date').textContent = formatDate(new Date().toISOString().split('T')[0]);
-    
-    // Hiển thị thông tin ngày đăng ký và lịch học
-    if (student.registrationDate) {
-        document.getElementById('receipt-registration-date').textContent = formatDate(student.registrationDate);
-    } else {
-        document.getElementById('receipt-registration-date').textContent = "Không có dữ liệu";
-    }
-    
-    // Hiển thị lịch học
-    if (classData.schedule && classData.schedule.length > 0) {
-        const formattedSchedule = formatSchedule(classData.schedule);
-        document.getElementById('receipt-class-schedule').textContent = formattedSchedule;
-    } else {
-        document.getElementById('receipt-class-schedule').textContent = "Không có dữ liệu";
-    }
     
     // Hiển thị chi phí bổ sung nếu có
     const additionalFeeContainer = document.getElementById('receipt-additional-fee-container');

@@ -149,16 +149,14 @@ function generateReceiptNumber() {
 
 // Hàm tính ngày thanh toán tiếp theo dựa vào chu kỳ và lịch học
 function calculateNextPaymentDate(currentDate, cycle, studentId, extraSessions = 0) {
-    // Nếu không có ID học sinh, trả về ngày hiện tại
-    if (!studentId) {
-        return currentDate;
-    }
+    console.log(`Tính ngày thanh toán tiếp theo cho học sinh ${studentId} từ ngày ${currentDate}, chu kỳ ${cycle}, buổi bổ sung: ${extraSessions}`);
     
     // Lấy thông tin học sinh và lớp
     const students = getStudents();
     const student = students.find(s => s.id === studentId);
     
     if (!student) {
+        console.error(`Không tìm thấy học sinh với ID ${studentId}`);
         return currentDate;
     }
     
@@ -479,17 +477,6 @@ function getClassById(classId) {
 function getStudentById(studentId) {
     const students = getStudents();
     return students.find(student => student.id === studentId);
-}
-
-// Hàm lấy tên rút gọn (họ + tên) từ tên đầy đủ
-function getShortName(fullName) {
-    if (!fullName) return '';
-    
-    const nameParts = fullName.split(' ');
-    if (nameParts.length <= 1) return fullName;
-    
-    // Lấy từ đầu tiên (họ) và từ cuối cùng (tên)
-    return nameParts[0] + ' ' + nameParts[nameParts.length - 1];
 }
 
 // Hàm chuyển đổi thời gian
