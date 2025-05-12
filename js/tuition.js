@@ -1096,6 +1096,7 @@ function openReceiptModal(paymentId) {
     document.getElementById('receipt-student-name').textContent = student.name;
     document.getElementById('receipt-student-id').textContent = student.id;
     document.getElementById('receipt-class').textContent = classData.name;
+    document.getElementById('receipt-schedule').textContent = formatSchedule(classData.schedule);
     document.getElementById('receipt-payment-cycle').textContent = payment.cycle;
     
     // Thêm ngày đăng ký và lịch học
