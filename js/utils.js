@@ -335,14 +335,30 @@ function checkPaymentStatus(student) {
         return 'unpaid'; // Chưa từng thanh toán
     }
     
+    // Kiểm tra nếu học sinh thuộc lớp đã khóa
+    const classData = getClassById(student.classId);
+    if (classData && classData.locked) {
+        return 'paid'; // Học sinh thuộc lớp đã khóa, coi như đã thanh toán
+    }
+    
     // Sắp xếp theo ngày thanh toán gần nhất
     studentPayments.sort((a, b) => new Date(b.date) - new Date(a.date));
     const latestPayment = studentPayments[0];
     
-    // Tính ngày hết hạn dựa vào chu kỳ thanh toán
-    const expiryDate = new Date(calculateNextPaymentDate(latestPayment.date, latestPayment.cycle));
+    // Nếu có ngày thanh toán tiếp theo trong dữ liệu thanh toán, dùng nó
+    let nextPaymentDate;
+    if (latestPayment.nextPaymentDate) {
+        nextPaymentDate = latestPayment.nextPaymentDate;
+    } else {
+        // Nếu không có, tính lại
+        nextPaymentDate = calculateNextPaymentDate(latestPayment.date, latestPayment.cycle);
+    }
+    
+    // Ngày hết hạn = ngày thanh toán tiếp theo
+    const expiryDate = new Date(nextPaymentDate);
     const today = new Date();
     
+    // Nếu ngày hôm nay đã qua ngày hết hạn, học sinh đã quá hạn
     if (today > expiryDate) {
         return 'overdue'; // Quá hạn
     } else {

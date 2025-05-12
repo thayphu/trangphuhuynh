@@ -829,8 +829,8 @@ function calculateTotalPayment() {
     // Học phí linh hoạt
     const flexibleAmount = parseInt(document.getElementById('payment-flexible-amount').value) || 0;
     
-    // Tính tổng cộng = Học phí cơ bản + Chi phí bổ sung - Khấu trừ + Học phí linh hoạt
-    const totalAmount = baseAmount + additionalFee - discount + flexibleAmount;
+    // Tính tổng cộng = Học phí cơ bản + Chi phí bổ sung - Khấu trừ
+    const totalAmount = baseAmount + additionalFee - discount;
     
     // Cập nhật tổng số tiền
     document.getElementById('payment-amount').value = totalAmount;
