@@ -835,46 +835,51 @@ function calculateTotalPayment() {
 
 // Xử lý thêm thanh toán
 function handleAddPayment(event) {
-    event.preventDefault();
-    console.log("Xử lý thanh toán...");
+    try {
+        if (event) {
+            event.preventDefault();
+        }
+        console.log("Xử lý thanh toán...");
+        
+        // Lấy giá trị từ form
+        const form = document.getElementById('payment-form');
+        const mode = form && form.dataset ? (form.dataset.mode || 'add') : 'add';
+        console.log("Mode:", mode);
     
-    // Lấy giá trị từ form
-    const form = event.target;
-    const mode = form.dataset.mode || 'add';
-    console.log("Mode:", mode);
+        const paymentIdElement = document.getElementById('payment-id');
+        const paymentId = paymentIdElement ? paymentIdElement.value : 'payment' + Math.floor(Math.random() * 100000);
+        console.log("Payment ID:", paymentId);
+        
+        const studentIdElement = document.getElementById('payment-student-id');
+        const studentId = studentIdElement ? studentIdElement.value : null;
+        console.log("Student ID:", studentId);
     
-    const paymentIdElement = document.getElementById('payment-id');
-    const paymentId = paymentIdElement ? paymentIdElement.value : 'payment' + Math.floor(Math.random() * 100000);
-    console.log("Payment ID:", paymentId);
+        const dateElement = document.getElementById('payment-date');
+        const date = dateElement ? dateElement.value : null;
+        console.log("Date:", date);
+        
+        const cycleElement = document.getElementById('payment-cycle');
+        const cycle = cycleElement ? cycleElement.value : null;
+        console.log("Cycle:", cycle);
+        
+        const methodElement = document.getElementById('payment-method');
+        const method = methodElement ? methodElement.value : null;
+        console.log("Method:", method);
     
-    const studentIdElement = document.getElementById('payment-student-id');
-    const studentId = studentIdElement ? studentIdElement.value : null;
-    console.log("Student ID:", studentId);
-    
-    const dateElement = document.getElementById('payment-date');
-    const date = dateElement ? dateElement.value : null;
-    console.log("Date:", date);
-    
-    const cycleElement = document.getElementById('payment-cycle');
-    const cycle = cycleElement ? cycleElement.value : null;
-    console.log("Cycle:", cycle);
-    
-    const methodElement = document.getElementById('payment-method');
-    const method = methodElement ? methodElement.value : null;
-    console.log("Method:", method);
-    
-    // Kiểm tra dữ liệu
-    if (!studentId || !date || !cycle || !method) {
-        alert('Vui lòng điền đầy đủ thông tin thanh toán');
-        return;
-    }
-    
-    // Tính toán tổng tiền
-    const amount = calculateTotalPayment();
-    if (amount <= 0) {
-        alert('Số tiền thanh toán phải lớn hơn 0');
-        return;
-    }
+        // Kiểm tra dữ liệu
+        if (!studentId || !date || !cycle || !method) {
+            alert('Vui lòng điền đầy đủ thông tin thanh toán');
+            return;
+        }
+        
+        // Tính toán tổng tiền
+        const amount = calculateTotalPayment();
+        if (amount <= 0) {
+            alert('Số tiền thanh toán phải lớn hơn 0');
+            return;
+        }
+        
+        console.log("Dữ liệu thanh toán hợp lệ, tiếp tục xử lý...");
     
     // Lấy chi tiết bổ sung (nếu có)
     const baseAmount = calculateBaseAmount();
