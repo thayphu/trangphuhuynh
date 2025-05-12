@@ -149,14 +149,16 @@ function generateReceiptNumber() {
 
 // Hàm tính ngày thanh toán tiếp theo dựa vào chu kỳ và lịch học
 function calculateNextPaymentDate(currentDate, cycle, studentId, extraSessions = 0) {
-    console.log(`Tính ngày thanh toán tiếp theo cho học sinh ${studentId} từ ngày ${currentDate}, chu kỳ ${cycle}, buổi bổ sung: ${extraSessions}`);
+    // Nếu không có ID học sinh, trả về ngày hiện tại
+    if (!studentId) {
+        return currentDate;
+    }
     
     // Lấy thông tin học sinh và lớp
     const students = getStudents();
     const student = students.find(s => s.id === studentId);
     
     if (!student) {
-        console.error(`Không tìm thấy học sinh với ID ${studentId}`);
         return currentDate;
     }
     

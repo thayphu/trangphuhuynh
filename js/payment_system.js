@@ -1186,6 +1186,12 @@ function openReceiptModal(paymentId) {
     try {
         console.log(`Mở biên nhận: ${paymentId}`);
         
+        const receiptModal = document.getElementById('receipt-modal');
+        if (!receiptModal) {
+            console.error("Không tìm thấy phần tử receipt-modal");
+            return;
+        }
+        
         // Lấy thông tin thanh toán
         const payments = getPayments();
         const payment = payments.find(p => p.id === paymentId);
@@ -1212,17 +1218,28 @@ function openReceiptModal(paymentId) {
             return;
         }
         
-        // Cập nhật thông tin biên nhận
-        document.getElementById('receipt-number').textContent = payment.receiptNumber || '';
-        document.getElementById('receipt-date').textContent = formatDate(payment.date);
-        document.getElementById('receipt-student-name').textContent = student.name;
-        document.getElementById('receipt-student-id').textContent = student.id;
-        document.getElementById('receipt-class').textContent = classData.name;
-        document.getElementById('receipt-schedule').textContent = formatSchedule(classData.schedule);
-        document.getElementById('receipt-cycle').textContent = payment.cycle || student.paymentCycle;
-        document.getElementById('receipt-method').textContent = payment.method;
-        document.getElementById('receipt-amount').textContent = formatCurrency(payment.amount);
-        document.getElementById('receipt-amount-text').textContent = numberToWords(payment.amount) + ' đồng';
+        // Cập nhật thông tin biên nhận - kiểm tra từng phần tử trước khi gán giá trị
+        const elements = {
+            'receipt-number': payment.receiptNumber || '',
+            'receipt-date': formatDate(payment.date),
+            'receipt-student-name': student.name,
+            'receipt-student-id': student.id,
+            'receipt-class': classData.name,
+            'receipt-schedule': formatSchedule(classData.schedule),
+            'receipt-cycle': payment.cycle || student.paymentCycle,
+            'receipt-method': payment.method,
+            'receipt-amount': formatCurrency(payment.amount),
+            'receipt-amount-text': numberToWords(payment.amount) + ' đồng'
+        };
+        
+        for (const [id, value] of Object.entries(elements)) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.textContent = value;
+            } else {
+                console.warn(`Không tìm thấy phần tử có id ${id}`);
+            }
+        }
         
         // Cập nhật thông tin chi tiết
         if (payment.details) {
