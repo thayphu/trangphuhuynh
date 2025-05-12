@@ -142,6 +142,57 @@ function setupTuitionTabs() {
     
     // Hiển thị tab học sinh chưa thanh toán mặc định
     displayUnpaidStudents();
+    
+    // Thêm hàm cập nhật tất cả các select học sinh để hiển thị tên rút gọn
+    window.updateAllStudentSelects = function() {
+        // Lấy danh sách học sinh
+        const students = getStudents();
+        if (!students || students.length === 0) return;
+        
+        // Tìm tất cả các select học sinh trong form
+        document.querySelectorAll('select').forEach(select => {
+            // Lấy option đầu tiên để kiểm tra nếu là select học sinh
+            const firstOption = select.options.length > 0 ? select.options[0] : null;
+            if (!firstOption) return;
+            
+            // Kiểm tra nếu là select học sinh (có chứa ID học sinh)
+            const isStudentSelect = students.some(s => 
+                firstOption.value === s.id || 
+                firstOption.value.includes(s.id) ||
+                firstOption.textContent.includes(s.id)
+            );
+            
+            if (isStudentSelect) {
+                // Lưu lại option đã chọn
+                const selectedValue = select.value;
+                
+                // Xóa tất cả options hiện tại
+                while (select.options.length > 0) {
+                    select.remove(0);
+                }
+                
+                // Thêm lại các options với tên rút gọn
+                students.forEach(s => {
+                    const option = document.createElement('option');
+                    option.value = s.id;
+                    option.textContent = getShortName(s.name) + ' (' + s.id + ' - ' + getClassName(s.classId) + ')';
+                    select.appendChild(option);
+                });
+                
+                // Khôi phục option đã chọn
+                if (selectedValue) {
+                    select.value = selectedValue;
+                }
+            }
+        });
+    };
+    
+    // Đảm bảo các select học sinh hiển thị tên rút gọn
+    try {
+        updateAllStudentSelects();
+    } catch (error) {
+        console.error("Lỗi khi cập nhật danh sách học sinh:", error);
+    }
 }
 
 // Định nghĩa hàm hiển thị thanh toán
@@ -506,22 +557,25 @@ function updateStudentPaymentInfo(studentId) {
     // Cập nhật các trường trong form
     document.getElementById('payment-student-id').value = studentId;
     
-    // Cập nhật select học sinh nếu có
-    const studentSelect = document.querySelector('#payment-form select[name="student"]');
-    if (studentSelect) {
-        for (let i = 0; i < studentSelect.options.length; i++) {
-            if (studentSelect.options[i].value === studentId) {
-                studentSelect.selectedIndex = i;
-                break;
-            }
-        }
-    }
-    
-    // Cập nhật hiển thị tên học sinh
+    // Cập nhật hiển thị tên học sinh (dạng rút gọn: họ + tên)
     const studentNameElement = document.getElementById('payment-student-name');
     if (studentNameElement) {
-        studentNameElement.textContent = student.name;
+        studentNameElement.textContent = getShortName(student.name);
     }
+    
+    // Lấy tất cả các select trong form để cập nhật
+    document.querySelectorAll('#add-payment-modal select').forEach(select => {
+        // Nếu là select học sinh
+        if (select.name === 'student' || select.id === 'add-payment-student') {
+            // Cập nhật tên học sinh trong các options
+            for (let i = 0; i < select.options.length; i++) {
+                if (select.options[i].value === studentId) {
+                    select.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+    });
     
     // Cập nhật hiển thị lớp học
     const classNameElement = document.getElementById('payment-class-name');
