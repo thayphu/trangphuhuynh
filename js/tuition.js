@@ -1159,22 +1159,35 @@ function openReceiptModal(paymentId) {
     document.getElementById('receipt-student-name').textContent = student.name;
     document.getElementById('receipt-student-id').textContent = student.id;
     document.getElementById('receipt-class').textContent = classData.name;
-    document.getElementById('receipt-schedule').textContent = formatSchedule(classData.schedule);
     document.getElementById('receipt-payment-cycle').textContent = payment.cycle;
     
-    // Thêm ngày đăng ký và lịch học
+    // Hiển thị lịch học ngắn gọn đi kèm với tên lớp
+    if (classData.schedule && classData.schedule.length > 0) {
+        document.getElementById('receipt-schedule-short').textContent = formatSchedule(classData.schedule);
+    } else {
+        document.getElementById('receipt-schedule-short').textContent = "Không có lịch";
+    }
+    
+    // Thêm ngày đăng ký
     if (student.registerDate) {
         document.getElementById('receipt-register-date').textContent = formatDate(student.registerDate);
     } else {
         document.getElementById('receipt-register-date').textContent = "Không có thông tin";
     }
     
-    // Hiển thị lịch học
-    if (classData.schedule && classData.schedule.length > 0) {
-        document.getElementById('receipt-schedule').textContent = formatSchedule(classData.schedule);
-    } else {
-        document.getElementById('receipt-schedule').textContent = "Không có thông tin";
+    // Hiển thị thông tin học phí cơ bản
+    const perSessionFee = classData.fee;
+    let totalBaseFee = perSessionFee;
+    
+    // Tính tổng học phí cơ bản dựa trên chu kỳ
+    if (payment.cycle === '8 buổi') {
+        totalBaseFee = perSessionFee * 8;
+    } else if (payment.cycle === '10 buổi') {
+        totalBaseFee = perSessionFee * 10;
     }
+    
+    document.getElementById('receipt-per-session-fee').textContent = formatCurrency(perSessionFee);
+    document.getElementById('receipt-total-fee').textContent = formatCurrency(totalBaseFee);
     
     // Xử lý hiển thị ngày thanh toán tiếp theo hoặc thông báo lớp đã khóa
     const nextPaymentElement = document.getElementById('receipt-next-payment');
