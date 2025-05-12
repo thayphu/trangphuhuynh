@@ -234,39 +234,21 @@ function displayStudentPaymentHistory(studentId) {
     
     const tbody = table.querySelector('tbody');
     
-    payments.forEach(payment => {
+    payments.forEach((payment, index) => {
         const row = document.createElement('tr');
         
-        // Tính hoặc lấy ngày thanh toán tiếp theo hoặc thông báo lớp đã khóa
-        let nextPaymentDate = 'N/A';
-        let isLockedClass = false;
-        
-        // Kiểm tra xem lớp học có bị khóa không
         const student = getStudentById(payment.studentId);
-        if (student) {
-            const currentClass = getClassById(student.classId);
-            if (currentClass && currentClass.locked) {
-                isLockedClass = true;
-                nextPaymentDate = '<span class="locked-class-badge">Lớp đã đóng</span>';
-            } else if (payment.nextPaymentDate) {
-                nextPaymentDate = formatDate(payment.nextPaymentDate);
-            } else {
-                // Tính ngày thanh toán tiếp theo dựa trên lịch học nếu lớp không bị khóa
-                const flexibleSessions = payment.details && payment.details.flexibleSessions ? payment.details.flexibleSessions : 0;
-                const nextDate = calculateNextPaymentDate(payment.date, payment.cycle, payment.studentId, flexibleSessions);
-                if (nextDate) {
-                    nextPaymentDate = formatDate(nextDate);
-                }
-            }
+        if (!student) {
+            console.error(`Không tìm thấy học sinh với ID: ${payment.studentId} cho thanh toán ${payment.id}`);
+            return;
         }
         
         row.innerHTML = `
+            <td>${index + 1}</td>
             <td>${payment.receiptNumber || 'N/A'}</td>
             <td>${formatDate(payment.date)}</td>
-            <td>${formatCurrency(payment.amount)} VND</td>
-            <td>${payment.cycle || 'N/A'}</td>
-            <td>${payment.method || 'N/A'}</td>
-            <td>${nextPaymentDate}</td>
+            <td>${formatCurrency(payment.amount)}</td>
+            <td>${payment.method || 'Tiền mặt'}</td>
         `;
         
         tbody.appendChild(row);

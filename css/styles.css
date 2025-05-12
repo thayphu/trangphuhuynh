@@ -18,6 +18,9 @@
     --overdue-color: #f44336;
     --locked-class-bg: #dc3545;
     --locked-class-text: #ffffff;
+    --present-bg: #d4f7d4;
+    --absent-bg: #ffecec;
+    --teacher-absent-bg: #fff4e1;
 }
 
 * {
