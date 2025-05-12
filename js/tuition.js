@@ -1098,34 +1098,55 @@ function openReceiptModal(paymentId) {
     document.getElementById('receipt-class').textContent = classData.name;
     document.getElementById('receipt-payment-cycle').textContent = payment.cycle;
     
-    // Xử lý hiển thị ngày thanh toán tiếp theo với cơ chế bảo vệ lỗi
-    try {
-        // Sử dụng ngày thanh toán tiếp theo đã được tính trước
-        if (payment.nextPaymentDate) {
-            console.log(`Ngày thanh toán tiếp theo (từ dữ liệu): ${payment.nextPaymentDate}`);
-            document.getElementById('receipt-next-payment').textContent = formatDate(payment.nextPaymentDate);
-        } else {
-            // Nếu không có sẵn, tính lại ngày thanh toán tiếp theo
-            console.log("Tính lại ngày thanh toán tiếp theo");
-            const extraSessions = payment.details && payment.details.flexibleSessions ? payment.details.flexibleSessions : 0;
-            const nextPaymentDate = calculateNextPaymentDate(payment.date, payment.cycle, payment.studentId, extraSessions);
-            console.log(`Ngày thanh toán tiếp theo (đã tính): ${nextPaymentDate}`);
-            document.getElementById('receipt-next-payment').textContent = formatDate(nextPaymentDate);
+    // Xử lý hiển thị ngày thanh toán tiếp theo hoặc thông báo lớp đã khóa
+    const nextPaymentElement = document.getElementById('receipt-next-payment');
+
+    // Kiểm tra xem lớp học có bị khóa hay không
+    if (classData.locked) {
+        // Nếu lớp đã khóa, hiển thị thông báo đặc biệt
+        console.log("Lớp học đã bị khóa, không hiển thị chu kỳ thanh toán tiếp theo");
+        nextPaymentElement.textContent = "Lớp đã đóng";
+        nextPaymentElement.style.backgroundColor = "#dc3545"; // Màu nền đỏ
+        nextPaymentElement.style.color = "white"; // Chữ màu trắng
+        nextPaymentElement.style.padding = "2px 5px";
+        nextPaymentElement.style.borderRadius = "3px";
+        nextPaymentElement.style.fontWeight = "bold";
+    } else {
+        // Nếu lớp không bị khóa, tính toán và hiển thị ngày thanh toán tiếp theo như thường lệ
+        nextPaymentElement.style.backgroundColor = ""; // Xóa định dạng đặc biệt nếu có
+        nextPaymentElement.style.color = "";
+        nextPaymentElement.style.padding = "";
+        nextPaymentElement.style.borderRadius = "";
+        nextPaymentElement.style.fontWeight = "";
+        
+        try {
+            // Sử dụng ngày thanh toán tiếp theo đã được tính trước
+            if (payment.nextPaymentDate) {
+                console.log(`Ngày thanh toán tiếp theo (từ dữ liệu): ${payment.nextPaymentDate}`);
+                nextPaymentElement.textContent = formatDate(payment.nextPaymentDate);
+            } else {
+                // Nếu không có sẵn, tính lại ngày thanh toán tiếp theo
+                console.log("Tính lại ngày thanh toán tiếp theo");
+                const extraSessions = payment.details && payment.details.flexibleSessions ? payment.details.flexibleSessions : 0;
+                const nextPaymentDate = calculateNextPaymentDate(payment.date, payment.cycle, payment.studentId, extraSessions);
+                console.log(`Ngày thanh toán tiếp theo (đã tính): ${nextPaymentDate}`);
+                nextPaymentElement.textContent = formatDate(nextPaymentDate);
+            }
+        } catch (error) {
+            console.error("Lỗi khi tính ngày thanh toán tiếp theo:", error);
+            // Nếu có lỗi, hiển thị mặc định
+            const defaultDate = new Date(payment.date);
+            if (payment.cycle === '1 tháng') {
+                defaultDate.setMonth(defaultDate.getMonth() + 1);
+            } else if (payment.cycle === '8 buổi') {
+                defaultDate.setDate(defaultDate.getDate() + 28);
+            } else if (payment.cycle === '10 buổi') {
+                defaultDate.setDate(defaultDate.getDate() + 35);
+            } else {
+                defaultDate.setDate(defaultDate.getDate() + 14);
+            }
+            nextPaymentElement.textContent = formatDate(defaultDate);
         }
-    } catch (error) {
-        console.error("Lỗi khi tính ngày thanh toán tiếp theo:", error);
-        // Nếu có lỗi, hiển thị mặc định
-        const defaultDate = new Date(payment.date);
-        if (payment.cycle === '1 tháng') {
-            defaultDate.setMonth(defaultDate.getMonth() + 1);
-        } else if (payment.cycle === '8 buổi') {
-            defaultDate.setDate(defaultDate.getDate() + 28);
-        } else if (payment.cycle === '10 buổi') {
-            defaultDate.setDate(defaultDate.getDate() + 35);
-        } else {
-            defaultDate.setDate(defaultDate.getDate() + 14);
-        }
-        document.getElementById('receipt-next-payment').textContent = formatDate(defaultDate);
     }
     
     document.getElementById('receipt-payment-method').textContent = payment.method || "Tiền mặt";

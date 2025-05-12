@@ -231,14 +231,21 @@ function displayStudentPaymentHistory(studentId) {
     payments.forEach(payment => {
         const row = document.createElement('tr');
         
-        // Tính hoặc lấy ngày thanh toán tiếp theo
+        // Tính hoặc lấy ngày thanh toán tiếp theo hoặc thông báo lớp đã khóa
         let nextPaymentDate = 'N/A';
-        if (payment.nextPaymentDate) {
-            nextPaymentDate = formatDate(payment.nextPaymentDate);
-        } else {
-            // Tính ngày thanh toán tiếp theo dựa trên lịch học
-            const student = getStudentById(payment.studentId);
-            if (student) {
+        let isLockedClass = false;
+        
+        // Kiểm tra xem lớp học có bị khóa không
+        const student = getStudentById(payment.studentId);
+        if (student) {
+            const currentClass = getClassById(student.classId);
+            if (currentClass && currentClass.locked) {
+                isLockedClass = true;
+                nextPaymentDate = '<span class="locked-class-badge">Lớp đã đóng</span>';
+            } else if (payment.nextPaymentDate) {
+                nextPaymentDate = formatDate(payment.nextPaymentDate);
+            } else {
+                // Tính ngày thanh toán tiếp theo dựa trên lịch học nếu lớp không bị khóa
                 const flexibleSessions = payment.details && payment.details.flexibleSessions ? payment.details.flexibleSessions : 0;
                 const nextDate = calculateNextPaymentDate(payment.date, payment.cycle, payment.studentId, flexibleSessions);
                 if (nextDate) {
